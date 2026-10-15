@@ -128,6 +128,9 @@ bettbox-<version>-ohos-vc<versionCode>-<unsigned|signed>.hap.sha256
 - 产物落在 `build/ohos/hap/`（已被 `.gitignore` 忽略）；校验：`sha256sum -c <同名 .sha256>`。
 - Release 正文模板：`.github/release_template_ohos.md`；发布标签：`ohos-v<version>`。
 
+> 提交信息、文档与发行说明的写作规范见 [docs/commit_conventions.md](docs/commit_conventions.md)
+> （只写代码与文档的改动及理由；不写测试过程、本机路径、设备与账号信息）。
+
 ---
 
 ## 3. 分支与远程
