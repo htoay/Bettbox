@@ -108,6 +108,26 @@ python3 scripts/build_native.py     # 重建 libmeta.so + libcode_forge.so
 python3 scripts/build_ohos.py
 ```
 
+### 2.4 发行（Release）产物与命名
+
+一键生成对外交付件（未签名 HAP + 同名 `.sha256` + 按模板渲染的 release note 草稿）：
+
+```bash
+python3 scripts/release_ohos.py
+```
+
+命名规则（完整规则与流程见 [docs/release_process_ohos.md](docs/release_process_ohos.md)）：
+
+```
+bettbox-<version>-ohos-vc<versionCode>-<unsigned|signed>.hap
+bettbox-<version>-ohos-vc<versionCode>-<unsigned|signed>.hap.sha256
+```
+
+- **对外只发 `unsigned`**：签名后的 HAP 会把签名 Profile（`developer-id`、设备 UDID 列表）写进签名块，
+  脚本会扫描并拒绝这类产物（`--allow-signed` 仅供本机自用）。
+- 产物落在 `build/ohos/hap/`（已被 `.gitignore` 忽略）；校验：`sha256sum -c <同名 .sha256>`。
+- Release 正文模板：`.github/release_template_ohos.md`；发布标签：`ohos-v<version>`。
+
 ---
 
 ## 3. 分支与远程
@@ -117,7 +137,7 @@ python3 scripts/build_ohos.py
 | `upstream` | `appshubcc/Bettbox`（只读，用于跟进上游） |
 | `origin` | 本 fork（推送目标） |
 | `main` | **纯上游镜像**，只做快进 |
-| `ohos-port-clean` | **对外公开的工作分支**：以当前脱敏后的树为唯一根提交，历史不含设备型号/本机路径；推送到 fork 的 `ohos-port` |
+| `ohos-port-clean` | **对外公开的工作分支**：脱敏快照分支。首次为单根提交（剥离脱敏前的历史），此后**每版在上一次快照之上追加一个匿名提交**，因此发布推送是普通 fast-forward；推送到 fork 的 `ohos-port` |
 | `ohos-port` / `ohos-port-backup` | 本地完整开发历史（含脱敏前的提交，**仅本地存档，不外推**） |
 | 标签 `ohos-vX.Y.Z` | 对应上游版本的鸿蒙发行点（如 `ohos-v1.19.4`，已重指到干净提交） |
 

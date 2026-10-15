@@ -5,6 +5,8 @@
 !/SIGNING-POLICY.md
 !.github/release_template.md
 !.github/release_template_pre.md
+# 鸿蒙移植版的发行说明模板（发布流程见 docs/release_process_ohos.md）
+!.github/release_template_ohos.md
 *.class
 *.log
 *.pyc
