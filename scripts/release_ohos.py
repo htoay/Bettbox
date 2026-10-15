@@ -183,7 +183,7 @@ def main() -> int:
         values = {
             'PREV_VERSION': options.prev_version or prev_version(version),
             # note 里引用的应是**该版本标签指向的发布提交**：优先取 tag，其次快照分支，最后 HEAD
-            'RELEASE_COMMIT': options.release_commit or git('rev-parse', '--short', f'ohos-v{version}', default='')
+            'RELEASE_COMMIT': options.release_commit or git('rev-parse', '--short', f'ohos-v{version}^{{commit}}', default='')
             or git('rev-parse', '--short', 'ohos-port-clean', default=git('rev-parse', '--short', 'HEAD')),
             'UPSTREAM_VERSION': version,
             'UPSTREAM_COMMIT': options.upstream_commit or git('rev-parse', '--short', 'main'),
