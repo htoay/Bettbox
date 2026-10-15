@@ -1,0 +1,10 @@
+# OHOS(aarch64) 交叉编译链接器由环境变量提供，避免在仓库里写死本机路径。
+#
+# 构建前设置（scripts/build_native.py 会自动检测 SDK 并导出）：
+#   CARGO_TARGET_AARCH64_UNKNOWN_LINUX_OHOS_LINKER=<sdk>/native/llvm/bin/aarch64-unknown-linux-ohos-clang
+#   RUSTFLAGS="-C link-arg=--target=aarch64-linux-ohos -C link-arg=--sysroot=<sdk>/native/sysroot -C link-arg=-Wl,-z,max-page-size=16384"
+#   CC_aarch64_unknown_linux_ohos=<sdk>/native/llvm/bin/aarch64-unknown-linux-ohos-clang
+#   CFLAGS_aarch64_unknown_linux_ohos="--target=aarch64-linux-ohos --sysroot=<sdk>/native/sysroot"
+[target.aarch64-unknown-linux-ohos]
+
+[env]

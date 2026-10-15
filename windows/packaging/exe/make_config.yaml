@@ -1,0 +1,14 @@
+script_template: inno_setup.iss
+app_id: 728B3532-C74B-4870-9068-BE70FE1LITES
+app_name: Bettbox
+publisher: appshub.cc
+publisher_url: https://github.com/appshubcc/Bettbox
+display_name: Bettbox
+executable_name: Bettbox.exe
+output_base_file_name: Bettbox.exe
+setup_icon_file: ..\windows\runner\resources\app_icon.ico
+locales:
+  - lang: zh
+    file: ..\windows\packaging\exe\ChineseSimplified.isl
+  - lang: en
+privileges_required: admin

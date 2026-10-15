@@ -1,0 +1,19 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 142.262341) scale(0.722144)">
+  <polyline
+    points="520,60 60,512 520,964"
+    fill="none"
+    stroke="#FF6934"
+    stroke-width="120"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <polyline
+    points="898,60 1358,512 898,964"
+    fill="none"
+    stroke="#A6A6A6"
+    stroke-width="120"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</g></svg>

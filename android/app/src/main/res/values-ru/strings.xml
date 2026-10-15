@@ -1,0 +1,7 @@
+<resources>
+    <string name="bett_box">Bettbox</string>
+    <string name="core_connected">Подключено</string>
+    <string name="service_running">Сервис запущен</string>
+    <string name="core_suspended">Приостановлено</string>
+    <string name="smart_auto_stop_service_running">Автостоп запущен</string>
+</resources>

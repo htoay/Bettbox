@@ -1,0 +1,20 @@
+include: package:flutter_lints/flutter.yaml
+analyzer:
+  exclude:
+    - lib/l10n/intl/**
+    - lib/clash/generated/**
+    - lib/**/generated/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "plugins/**"
+    - build/**
+    - dist/**
+    - android/**
+    - windows/**
+    - macos/**
+    - linux/**
+    - ios/**
+
+linter:
+  rules:
+    prefer_single_quotes: true

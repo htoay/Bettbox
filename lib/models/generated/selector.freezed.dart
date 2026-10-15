@@ -1,0 +1,6322 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of '../selector.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$VM2<A,B> {
+
+ A get a; B get b;
+/// Create a copy of VM2
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VM2CopyWith<A, B, VM2<A, B>> get copyWith => _$VM2CopyWithImpl<A, B, VM2<A, B>>(this as VM2<A, B>, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VM2<A, B>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b));
+
+@override
+String toString() {
+  return 'VM2<$A, $B>(a: $a, b: $b)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VM2CopyWith<A,B,$Res>  {
+  factory $VM2CopyWith(VM2<A, B> value, $Res Function(VM2<A, B>) _then) = _$VM2CopyWithImpl;
+@useResult
+$Res call({
+ A a, B b
+});
+
+
+
+
+}
+/// @nodoc
+class _$VM2CopyWithImpl<A,B,$Res>
+    implements $VM2CopyWith<A, B, $Res> {
+  _$VM2CopyWithImpl(this._self, this._then);
+
+  final VM2<A, B> _self;
+  final $Res Function(VM2<A, B>) _then;
+
+/// Create a copy of VM2
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? a = freezed,Object? b = freezed,}) {
+  return _then(VM2(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VM2].
+extension VM2Patterns<A,B> on VM2<A, B> {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VM2<A, B> value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VM2() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VM2<A, B> value)  $default,){
+final _that = this;
+switch (_that) {
+case _VM2():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VM2<A, B> value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VM2() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( A a,  B b)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VM2() when $default != null:
+return $default(_that.a,_that.b);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( A a,  B b)  $default,) {final _that = this;
+switch (_that) {
+case _VM2():
+return $default(_that.a,_that.b);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( A a,  B b)?  $default,) {final _that = this;
+switch (_that) {
+case _VM2() when $default != null:
+return $default(_that.a,_that.b);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VM2<A,B> implements VM2<A, B> {
+  const _VM2({required this.a, required this.b});
+  
+
+@override final  A a;
+@override final  B b;
+
+/// Create a copy of VM2
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VM2CopyWith<A, B, _VM2<A, B>> get copyWith => __$VM2CopyWithImpl<A, B, _VM2<A, B>>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VM2<A, B>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b));
+
+@override
+String toString() {
+  return 'VM2<$A, $B>(a: $a, b: $b)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VM2CopyWith<A,B,$Res> implements $VM2CopyWith<A, B, $Res> {
+  factory _$VM2CopyWith(_VM2<A, B> value, $Res Function(_VM2<A, B>) _then) = __$VM2CopyWithImpl;
+@override @useResult
+$Res call({
+ A a, B b
+});
+
+
+
+
+}
+/// @nodoc
+class __$VM2CopyWithImpl<A,B,$Res>
+    implements _$VM2CopyWith<A, B, $Res> {
+  __$VM2CopyWithImpl(this._self, this._then);
+
+  final _VM2<A, B> _self;
+  final $Res Function(_VM2<A, B>) _then;
+
+/// Create a copy of VM2
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? a = freezed,Object? b = freezed,}) {
+  return _then(_VM2<A, B>(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$VM3<A,B,C> {
+
+ A get a; B get b; C get c;
+/// Create a copy of VM3
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VM3CopyWith<A, B, C, VM3<A, B, C>> get copyWith => _$VM3CopyWithImpl<A, B, C, VM3<A, B, C>>(this as VM3<A, B, C>, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VM3<A, B, C>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b)&&const DeepCollectionEquality().equals(other.c, c));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b),const DeepCollectionEquality().hash(c));
+
+@override
+String toString() {
+  return 'VM3<$A, $B, $C>(a: $a, b: $b, c: $c)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VM3CopyWith<A,B,C,$Res>  {
+  factory $VM3CopyWith(VM3<A, B, C> value, $Res Function(VM3<A, B, C>) _then) = _$VM3CopyWithImpl;
+@useResult
+$Res call({
+ A a, B b, C c
+});
+
+
+
+
+}
+/// @nodoc
+class _$VM3CopyWithImpl<A,B,C,$Res>
+    implements $VM3CopyWith<A, B, C, $Res> {
+  _$VM3CopyWithImpl(this._self, this._then);
+
+  final VM3<A, B, C> _self;
+  final $Res Function(VM3<A, B, C>) _then;
+
+/// Create a copy of VM3
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? a = freezed,Object? b = freezed,Object? c = freezed,}) {
+  return _then(VM3(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,c: freezed == c ? _self.c : c // ignore: cast_nullable_to_non_nullable
+as C,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VM3].
+extension VM3Patterns<A,B,C> on VM3<A, B, C> {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VM3<A, B, C> value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VM3() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VM3<A, B, C> value)  $default,){
+final _that = this;
+switch (_that) {
+case _VM3():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VM3<A, B, C> value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VM3() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( A a,  B b,  C c)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VM3() when $default != null:
+return $default(_that.a,_that.b,_that.c);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( A a,  B b,  C c)  $default,) {final _that = this;
+switch (_that) {
+case _VM3():
+return $default(_that.a,_that.b,_that.c);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( A a,  B b,  C c)?  $default,) {final _that = this;
+switch (_that) {
+case _VM3() when $default != null:
+return $default(_that.a,_that.b,_that.c);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VM3<A,B,C> implements VM3<A, B, C> {
+  const _VM3({required this.a, required this.b, required this.c});
+  
+
+@override final  A a;
+@override final  B b;
+@override final  C c;
+
+/// Create a copy of VM3
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VM3CopyWith<A, B, C, _VM3<A, B, C>> get copyWith => __$VM3CopyWithImpl<A, B, C, _VM3<A, B, C>>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VM3<A, B, C>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b)&&const DeepCollectionEquality().equals(other.c, c));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b),const DeepCollectionEquality().hash(c));
+
+@override
+String toString() {
+  return 'VM3<$A, $B, $C>(a: $a, b: $b, c: $c)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VM3CopyWith<A,B,C,$Res> implements $VM3CopyWith<A, B, C, $Res> {
+  factory _$VM3CopyWith(_VM3<A, B, C> value, $Res Function(_VM3<A, B, C>) _then) = __$VM3CopyWithImpl;
+@override @useResult
+$Res call({
+ A a, B b, C c
+});
+
+
+
+
+}
+/// @nodoc
+class __$VM3CopyWithImpl<A,B,C,$Res>
+    implements _$VM3CopyWith<A, B, C, $Res> {
+  __$VM3CopyWithImpl(this._self, this._then);
+
+  final _VM3<A, B, C> _self;
+  final $Res Function(_VM3<A, B, C>) _then;
+
+/// Create a copy of VM3
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? a = freezed,Object? b = freezed,Object? c = freezed,}) {
+  return _then(_VM3<A, B, C>(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,c: freezed == c ? _self.c : c // ignore: cast_nullable_to_non_nullable
+as C,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$VM4<A,B,C,D> {
+
+ A get a; B get b; C get c; D get d;
+/// Create a copy of VM4
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VM4CopyWith<A, B, C, D, VM4<A, B, C, D>> get copyWith => _$VM4CopyWithImpl<A, B, C, D, VM4<A, B, C, D>>(this as VM4<A, B, C, D>, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VM4<A, B, C, D>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b)&&const DeepCollectionEquality().equals(other.c, c)&&const DeepCollectionEquality().equals(other.d, d));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b),const DeepCollectionEquality().hash(c),const DeepCollectionEquality().hash(d));
+
+@override
+String toString() {
+  return 'VM4<$A, $B, $C, $D>(a: $a, b: $b, c: $c, d: $d)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VM4CopyWith<A,B,C,D,$Res>  {
+  factory $VM4CopyWith(VM4<A, B, C, D> value, $Res Function(VM4<A, B, C, D>) _then) = _$VM4CopyWithImpl;
+@useResult
+$Res call({
+ A a, B b, C c, D d
+});
+
+
+
+
+}
+/// @nodoc
+class _$VM4CopyWithImpl<A,B,C,D,$Res>
+    implements $VM4CopyWith<A, B, C, D, $Res> {
+  _$VM4CopyWithImpl(this._self, this._then);
+
+  final VM4<A, B, C, D> _self;
+  final $Res Function(VM4<A, B, C, D>) _then;
+
+/// Create a copy of VM4
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? a = freezed,Object? b = freezed,Object? c = freezed,Object? d = freezed,}) {
+  return _then(VM4(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,c: freezed == c ? _self.c : c // ignore: cast_nullable_to_non_nullable
+as C,d: freezed == d ? _self.d : d // ignore: cast_nullable_to_non_nullable
+as D,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VM4].
+extension VM4Patterns<A,B,C,D> on VM4<A, B, C, D> {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VM4<A, B, C, D> value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VM4() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VM4<A, B, C, D> value)  $default,){
+final _that = this;
+switch (_that) {
+case _VM4():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VM4<A, B, C, D> value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VM4() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( A a,  B b,  C c,  D d)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VM4() when $default != null:
+return $default(_that.a,_that.b,_that.c,_that.d);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( A a,  B b,  C c,  D d)  $default,) {final _that = this;
+switch (_that) {
+case _VM4():
+return $default(_that.a,_that.b,_that.c,_that.d);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( A a,  B b,  C c,  D d)?  $default,) {final _that = this;
+switch (_that) {
+case _VM4() when $default != null:
+return $default(_that.a,_that.b,_that.c,_that.d);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VM4<A,B,C,D> implements VM4<A, B, C, D> {
+  const _VM4({required this.a, required this.b, required this.c, required this.d});
+  
+
+@override final  A a;
+@override final  B b;
+@override final  C c;
+@override final  D d;
+
+/// Create a copy of VM4
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VM4CopyWith<A, B, C, D, _VM4<A, B, C, D>> get copyWith => __$VM4CopyWithImpl<A, B, C, D, _VM4<A, B, C, D>>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VM4<A, B, C, D>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b)&&const DeepCollectionEquality().equals(other.c, c)&&const DeepCollectionEquality().equals(other.d, d));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b),const DeepCollectionEquality().hash(c),const DeepCollectionEquality().hash(d));
+
+@override
+String toString() {
+  return 'VM4<$A, $B, $C, $D>(a: $a, b: $b, c: $c, d: $d)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VM4CopyWith<A,B,C,D,$Res> implements $VM4CopyWith<A, B, C, D, $Res> {
+  factory _$VM4CopyWith(_VM4<A, B, C, D> value, $Res Function(_VM4<A, B, C, D>) _then) = __$VM4CopyWithImpl;
+@override @useResult
+$Res call({
+ A a, B b, C c, D d
+});
+
+
+
+
+}
+/// @nodoc
+class __$VM4CopyWithImpl<A,B,C,D,$Res>
+    implements _$VM4CopyWith<A, B, C, D, $Res> {
+  __$VM4CopyWithImpl(this._self, this._then);
+
+  final _VM4<A, B, C, D> _self;
+  final $Res Function(_VM4<A, B, C, D>) _then;
+
+/// Create a copy of VM4
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? a = freezed,Object? b = freezed,Object? c = freezed,Object? d = freezed,}) {
+  return _then(_VM4<A, B, C, D>(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,c: freezed == c ? _self.c : c // ignore: cast_nullable_to_non_nullable
+as C,d: freezed == d ? _self.d : d // ignore: cast_nullable_to_non_nullable
+as D,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$VM5<A,B,C,D,E> {
+
+ A get a; B get b; C get c; D get d; E get e;
+/// Create a copy of VM5
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VM5CopyWith<A, B, C, D, E, VM5<A, B, C, D, E>> get copyWith => _$VM5CopyWithImpl<A, B, C, D, E, VM5<A, B, C, D, E>>(this as VM5<A, B, C, D, E>, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VM5<A, B, C, D, E>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b)&&const DeepCollectionEquality().equals(other.c, c)&&const DeepCollectionEquality().equals(other.d, d)&&const DeepCollectionEquality().equals(other.e, e));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b),const DeepCollectionEquality().hash(c),const DeepCollectionEquality().hash(d),const DeepCollectionEquality().hash(e));
+
+@override
+String toString() {
+  return 'VM5<$A, $B, $C, $D, $E>(a: $a, b: $b, c: $c, d: $d, e: $e)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VM5CopyWith<A,B,C,D,E,$Res>  {
+  factory $VM5CopyWith(VM5<A, B, C, D, E> value, $Res Function(VM5<A, B, C, D, E>) _then) = _$VM5CopyWithImpl;
+@useResult
+$Res call({
+ A a, B b, C c, D d, E e
+});
+
+
+
+
+}
+/// @nodoc
+class _$VM5CopyWithImpl<A,B,C,D,E,$Res>
+    implements $VM5CopyWith<A, B, C, D, E, $Res> {
+  _$VM5CopyWithImpl(this._self, this._then);
+
+  final VM5<A, B, C, D, E> _self;
+  final $Res Function(VM5<A, B, C, D, E>) _then;
+
+/// Create a copy of VM5
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? a = freezed,Object? b = freezed,Object? c = freezed,Object? d = freezed,Object? e = freezed,}) {
+  return _then(VM5(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,c: freezed == c ? _self.c : c // ignore: cast_nullable_to_non_nullable
+as C,d: freezed == d ? _self.d : d // ignore: cast_nullable_to_non_nullable
+as D,e: freezed == e ? _self.e : e // ignore: cast_nullable_to_non_nullable
+as E,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VM5].
+extension VM5Patterns<A,B,C,D,E> on VM5<A, B, C, D, E> {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VM5<A, B, C, D, E> value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VM5() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VM5<A, B, C, D, E> value)  $default,){
+final _that = this;
+switch (_that) {
+case _VM5():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VM5<A, B, C, D, E> value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VM5() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( A a,  B b,  C c,  D d,  E e)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VM5() when $default != null:
+return $default(_that.a,_that.b,_that.c,_that.d,_that.e);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( A a,  B b,  C c,  D d,  E e)  $default,) {final _that = this;
+switch (_that) {
+case _VM5():
+return $default(_that.a,_that.b,_that.c,_that.d,_that.e);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( A a,  B b,  C c,  D d,  E e)?  $default,) {final _that = this;
+switch (_that) {
+case _VM5() when $default != null:
+return $default(_that.a,_that.b,_that.c,_that.d,_that.e);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VM5<A,B,C,D,E> implements VM5<A, B, C, D, E> {
+  const _VM5({required this.a, required this.b, required this.c, required this.d, required this.e});
+  
+
+@override final  A a;
+@override final  B b;
+@override final  C c;
+@override final  D d;
+@override final  E e;
+
+/// Create a copy of VM5
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VM5CopyWith<A, B, C, D, E, _VM5<A, B, C, D, E>> get copyWith => __$VM5CopyWithImpl<A, B, C, D, E, _VM5<A, B, C, D, E>>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VM5<A, B, C, D, E>&&const DeepCollectionEquality().equals(other.a, a)&&const DeepCollectionEquality().equals(other.b, b)&&const DeepCollectionEquality().equals(other.c, c)&&const DeepCollectionEquality().equals(other.d, d)&&const DeepCollectionEquality().equals(other.e, e));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(a),const DeepCollectionEquality().hash(b),const DeepCollectionEquality().hash(c),const DeepCollectionEquality().hash(d),const DeepCollectionEquality().hash(e));
+
+@override
+String toString() {
+  return 'VM5<$A, $B, $C, $D, $E>(a: $a, b: $b, c: $c, d: $d, e: $e)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VM5CopyWith<A,B,C,D,E,$Res> implements $VM5CopyWith<A, B, C, D, E, $Res> {
+  factory _$VM5CopyWith(_VM5<A, B, C, D, E> value, $Res Function(_VM5<A, B, C, D, E>) _then) = __$VM5CopyWithImpl;
+@override @useResult
+$Res call({
+ A a, B b, C c, D d, E e
+});
+
+
+
+
+}
+/// @nodoc
+class __$VM5CopyWithImpl<A,B,C,D,E,$Res>
+    implements _$VM5CopyWith<A, B, C, D, E, $Res> {
+  __$VM5CopyWithImpl(this._self, this._then);
+
+  final _VM5<A, B, C, D, E> _self;
+  final $Res Function(_VM5<A, B, C, D, E>) _then;
+
+/// Create a copy of VM5
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? a = freezed,Object? b = freezed,Object? c = freezed,Object? d = freezed,Object? e = freezed,}) {
+  return _then(_VM5<A, B, C, D, E>(
+a: freezed == a ? _self.a : a // ignore: cast_nullable_to_non_nullable
+as A,b: freezed == b ? _self.b : b // ignore: cast_nullable_to_non_nullable
+as B,c: freezed == c ? _self.c : c // ignore: cast_nullable_to_non_nullable
+as C,d: freezed == d ? _self.d : d // ignore: cast_nullable_to_non_nullable
+as D,e: freezed == e ? _self.e : e // ignore: cast_nullable_to_non_nullable
+as E,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$StartButtonSelectorState {
+
+ bool get isInit; bool get hasProfile;
+/// Create a copy of StartButtonSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StartButtonSelectorStateCopyWith<StartButtonSelectorState> get copyWith => _$StartButtonSelectorStateCopyWithImpl<StartButtonSelectorState>(this as StartButtonSelectorState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartButtonSelectorState&&(identical(other.isInit, isInit) || other.isInit == isInit)&&(identical(other.hasProfile, hasProfile) || other.hasProfile == hasProfile));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isInit,hasProfile);
+
+@override
+String toString() {
+  return 'StartButtonSelectorState(isInit: $isInit, hasProfile: $hasProfile)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $StartButtonSelectorStateCopyWith<$Res>  {
+  factory $StartButtonSelectorStateCopyWith(StartButtonSelectorState value, $Res Function(StartButtonSelectorState) _then) = _$StartButtonSelectorStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isInit, bool hasProfile
+});
+
+
+
+
+}
+/// @nodoc
+class _$StartButtonSelectorStateCopyWithImpl<$Res>
+    implements $StartButtonSelectorStateCopyWith<$Res> {
+  _$StartButtonSelectorStateCopyWithImpl(this._self, this._then);
+
+  final StartButtonSelectorState _self;
+  final $Res Function(StartButtonSelectorState) _then;
+
+/// Create a copy of StartButtonSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isInit = null,Object? hasProfile = null,}) {
+  return _then(StartButtonSelectorState(
+isInit: null == isInit ? _self.isInit : isInit // ignore: cast_nullable_to_non_nullable
+as bool,hasProfile: null == hasProfile ? _self.hasProfile : hasProfile // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [StartButtonSelectorState].
+extension StartButtonSelectorStatePatterns on StartButtonSelectorState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _StartButtonSelectorState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _StartButtonSelectorState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _StartButtonSelectorState value)  $default,){
+final _that = this;
+switch (_that) {
+case _StartButtonSelectorState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _StartButtonSelectorState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _StartButtonSelectorState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isInit,  bool hasProfile)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _StartButtonSelectorState() when $default != null:
+return $default(_that.isInit,_that.hasProfile);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isInit,  bool hasProfile)  $default,) {final _that = this;
+switch (_that) {
+case _StartButtonSelectorState():
+return $default(_that.isInit,_that.hasProfile);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isInit,  bool hasProfile)?  $default,) {final _that = this;
+switch (_that) {
+case _StartButtonSelectorState() when $default != null:
+return $default(_that.isInit,_that.hasProfile);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _StartButtonSelectorState implements StartButtonSelectorState {
+  const _StartButtonSelectorState({required this.isInit, required this.hasProfile});
+  
+
+@override final  bool isInit;
+@override final  bool hasProfile;
+
+/// Create a copy of StartButtonSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$StartButtonSelectorStateCopyWith<_StartButtonSelectorState> get copyWith => __$StartButtonSelectorStateCopyWithImpl<_StartButtonSelectorState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StartButtonSelectorState&&(identical(other.isInit, isInit) || other.isInit == isInit)&&(identical(other.hasProfile, hasProfile) || other.hasProfile == hasProfile));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isInit,hasProfile);
+
+@override
+String toString() {
+  return 'StartButtonSelectorState(isInit: $isInit, hasProfile: $hasProfile)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$StartButtonSelectorStateCopyWith<$Res> implements $StartButtonSelectorStateCopyWith<$Res> {
+  factory _$StartButtonSelectorStateCopyWith(_StartButtonSelectorState value, $Res Function(_StartButtonSelectorState) _then) = __$StartButtonSelectorStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isInit, bool hasProfile
+});
+
+
+
+
+}
+/// @nodoc
+class __$StartButtonSelectorStateCopyWithImpl<$Res>
+    implements _$StartButtonSelectorStateCopyWith<$Res> {
+  __$StartButtonSelectorStateCopyWithImpl(this._self, this._then);
+
+  final _StartButtonSelectorState _self;
+  final $Res Function(_StartButtonSelectorState) _then;
+
+/// Create a copy of StartButtonSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isInit = null,Object? hasProfile = null,}) {
+  return _then(_StartButtonSelectorState(
+isInit: null == isInit ? _self.isInit : isInit // ignore: cast_nullable_to_non_nullable
+as bool,hasProfile: null == hasProfile ? _self.hasProfile : hasProfile // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ProfilesSelectorState {
+
+ List<Profile> get profiles; String? get currentProfileId; int get columns;
+/// Create a copy of ProfilesSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProfilesSelectorStateCopyWith<ProfilesSelectorState> get copyWith => _$ProfilesSelectorStateCopyWithImpl<ProfilesSelectorState>(this as ProfilesSelectorState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfilesSelectorState&&const DeepCollectionEquality().equals(other.profiles, profiles)&&(identical(other.currentProfileId, currentProfileId) || other.currentProfileId == currentProfileId)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(profiles),currentProfileId,columns);
+
+@override
+String toString() {
+  return 'ProfilesSelectorState(profiles: $profiles, currentProfileId: $currentProfileId, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProfilesSelectorStateCopyWith<$Res>  {
+  factory $ProfilesSelectorStateCopyWith(ProfilesSelectorState value, $Res Function(ProfilesSelectorState) _then) = _$ProfilesSelectorStateCopyWithImpl;
+@useResult
+$Res call({
+ List<Profile> profiles, String? currentProfileId, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProfilesSelectorStateCopyWithImpl<$Res>
+    implements $ProfilesSelectorStateCopyWith<$Res> {
+  _$ProfilesSelectorStateCopyWithImpl(this._self, this._then);
+
+  final ProfilesSelectorState _self;
+  final $Res Function(ProfilesSelectorState) _then;
+
+/// Create a copy of ProfilesSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? profiles = null,Object? currentProfileId = freezed,Object? columns = null,}) {
+  return _then(ProfilesSelectorState(
+profiles: null == profiles ? _self.profiles : profiles // ignore: cast_nullable_to_non_nullable
+as List<Profile>,currentProfileId: freezed == currentProfileId ? _self.currentProfileId : currentProfileId // ignore: cast_nullable_to_non_nullable
+as String?,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProfilesSelectorState].
+extension ProfilesSelectorStatePatterns on ProfilesSelectorState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProfilesSelectorState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProfilesSelectorState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProfilesSelectorState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProfilesSelectorState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProfilesSelectorState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProfilesSelectorState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Profile> profiles,  String? currentProfileId,  int columns)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProfilesSelectorState() when $default != null:
+return $default(_that.profiles,_that.currentProfileId,_that.columns);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Profile> profiles,  String? currentProfileId,  int columns)  $default,) {final _that = this;
+switch (_that) {
+case _ProfilesSelectorState():
+return $default(_that.profiles,_that.currentProfileId,_that.columns);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Profile> profiles,  String? currentProfileId,  int columns)?  $default,) {final _that = this;
+switch (_that) {
+case _ProfilesSelectorState() when $default != null:
+return $default(_that.profiles,_that.currentProfileId,_that.columns);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProfilesSelectorState implements ProfilesSelectorState {
+  const _ProfilesSelectorState({required  List<Profile> profiles, required this.currentProfileId, required this.columns}): _profiles = profiles;
+  
+
+ final  List<Profile> _profiles;
+@override List<Profile> get profiles {
+  if (_profiles is EqualUnmodifiableListView) return _profiles;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_profiles);
+}
+
+@override final  String? currentProfileId;
+@override final  int columns;
+
+/// Create a copy of ProfilesSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProfilesSelectorStateCopyWith<_ProfilesSelectorState> get copyWith => __$ProfilesSelectorStateCopyWithImpl<_ProfilesSelectorState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfilesSelectorState&&const DeepCollectionEquality().equals(other._profiles, _profiles)&&(identical(other.currentProfileId, currentProfileId) || other.currentProfileId == currentProfileId)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_profiles),currentProfileId,columns);
+
+@override
+String toString() {
+  return 'ProfilesSelectorState(profiles: $profiles, currentProfileId: $currentProfileId, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProfilesSelectorStateCopyWith<$Res> implements $ProfilesSelectorStateCopyWith<$Res> {
+  factory _$ProfilesSelectorStateCopyWith(_ProfilesSelectorState value, $Res Function(_ProfilesSelectorState) _then) = __$ProfilesSelectorStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<Profile> profiles, String? currentProfileId, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProfilesSelectorStateCopyWithImpl<$Res>
+    implements _$ProfilesSelectorStateCopyWith<$Res> {
+  __$ProfilesSelectorStateCopyWithImpl(this._self, this._then);
+
+  final _ProfilesSelectorState _self;
+  final $Res Function(_ProfilesSelectorState) _then;
+
+/// Create a copy of ProfilesSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? profiles = null,Object? currentProfileId = freezed,Object? columns = null,}) {
+  return _then(_ProfilesSelectorState(
+profiles: null == profiles ? _self._profiles : profiles // ignore: cast_nullable_to_non_nullable
+as List<Profile>,currentProfileId: freezed == currentProfileId ? _self.currentProfileId : currentProfileId // ignore: cast_nullable_to_non_nullable
+as String?,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$NetworkDetectionState {
+
+ bool get isLoading; IpInfo? get ipInfo; String? get errorMessage;
+/// Create a copy of NetworkDetectionState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NetworkDetectionStateCopyWith<NetworkDetectionState> get copyWith => _$NetworkDetectionStateCopyWithImpl<NetworkDetectionState>(this as NetworkDetectionState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkDetectionState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.ipInfo, ipInfo) || other.ipInfo == ipInfo)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,ipInfo,errorMessage);
+
+@override
+String toString() {
+  return 'NetworkDetectionState(isLoading: $isLoading, ipInfo: $ipInfo, errorMessage: $errorMessage)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $NetworkDetectionStateCopyWith<$Res>  {
+  factory $NetworkDetectionStateCopyWith(NetworkDetectionState value, $Res Function(NetworkDetectionState) _then) = _$NetworkDetectionStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isLoading, IpInfo? ipInfo, String? errorMessage
+});
+
+
+
+
+}
+/// @nodoc
+class _$NetworkDetectionStateCopyWithImpl<$Res>
+    implements $NetworkDetectionStateCopyWith<$Res> {
+  _$NetworkDetectionStateCopyWithImpl(this._self, this._then);
+
+  final NetworkDetectionState _self;
+  final $Res Function(NetworkDetectionState) _then;
+
+/// Create a copy of NetworkDetectionState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? ipInfo = freezed,Object? errorMessage = freezed,}) {
+  return _then(NetworkDetectionState(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,ipInfo: freezed == ipInfo ? _self.ipInfo : ipInfo // ignore: cast_nullable_to_non_nullable
+as IpInfo?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [NetworkDetectionState].
+extension NetworkDetectionStatePatterns on NetworkDetectionState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NetworkDetectionState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NetworkDetectionState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NetworkDetectionState value)  $default,){
+final _that = this;
+switch (_that) {
+case _NetworkDetectionState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NetworkDetectionState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NetworkDetectionState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  IpInfo? ipInfo,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NetworkDetectionState() when $default != null:
+return $default(_that.isLoading,_that.ipInfo,_that.errorMessage);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  IpInfo? ipInfo,  String? errorMessage)  $default,) {final _that = this;
+switch (_that) {
+case _NetworkDetectionState():
+return $default(_that.isLoading,_that.ipInfo,_that.errorMessage);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  IpInfo? ipInfo,  String? errorMessage)?  $default,) {final _that = this;
+switch (_that) {
+case _NetworkDetectionState() when $default != null:
+return $default(_that.isLoading,_that.ipInfo,_that.errorMessage);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _NetworkDetectionState implements NetworkDetectionState {
+  const _NetworkDetectionState({required this.isLoading, required this.ipInfo, this.errorMessage});
+  
+
+@override final  bool isLoading;
+@override final  IpInfo? ipInfo;
+@override final  String? errorMessage;
+
+/// Create a copy of NetworkDetectionState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NetworkDetectionStateCopyWith<_NetworkDetectionState> get copyWith => __$NetworkDetectionStateCopyWithImpl<_NetworkDetectionState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkDetectionState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.ipInfo, ipInfo) || other.ipInfo == ipInfo)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,ipInfo,errorMessage);
+
+@override
+String toString() {
+  return 'NetworkDetectionState(isLoading: $isLoading, ipInfo: $ipInfo, errorMessage: $errorMessage)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NetworkDetectionStateCopyWith<$Res> implements $NetworkDetectionStateCopyWith<$Res> {
+  factory _$NetworkDetectionStateCopyWith(_NetworkDetectionState value, $Res Function(_NetworkDetectionState) _then) = __$NetworkDetectionStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isLoading, IpInfo? ipInfo, String? errorMessage
+});
+
+
+
+
+}
+/// @nodoc
+class __$NetworkDetectionStateCopyWithImpl<$Res>
+    implements _$NetworkDetectionStateCopyWith<$Res> {
+  __$NetworkDetectionStateCopyWithImpl(this._self, this._then);
+
+  final _NetworkDetectionState _self;
+  final $Res Function(_NetworkDetectionState) _then;
+
+/// Create a copy of NetworkDetectionState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? ipInfo = freezed,Object? errorMessage = freezed,}) {
+  return _then(_NetworkDetectionState(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,ipInfo: freezed == ipInfo ? _self.ipInfo : ipInfo // ignore: cast_nullable_to_non_nullable
+as IpInfo?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$TrayState {
+
+ Mode get mode; int get port; bool get autoLaunch; bool get systemProxy; bool get tunEnable; bool get isStart; String? get locale; Brightness? get brightness; List<Group> get groups; SelectedMap get selectedMap; bool get wakelockEnabled; Map<String, int?> get delays; bool get trayEnhancement; bool get enableTraySpeed;
+/// Create a copy of TrayState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TrayStateCopyWith<TrayState> get copyWith => _$TrayStateCopyWithImpl<TrayState>(this as TrayState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TrayState&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.port, port) || other.port == port)&&(identical(other.autoLaunch, autoLaunch) || other.autoLaunch == autoLaunch)&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&(identical(other.tunEnable, tunEnable) || other.tunEnable == tunEnable)&&(identical(other.isStart, isStart) || other.isStart == isStart)&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.brightness, brightness) || other.brightness == brightness)&&const DeepCollectionEquality().equals(other.groups, groups)&&const DeepCollectionEquality().equals(other.selectedMap, selectedMap)&&(identical(other.wakelockEnabled, wakelockEnabled) || other.wakelockEnabled == wakelockEnabled)&&const DeepCollectionEquality().equals(other.delays, delays)&&(identical(other.trayEnhancement, trayEnhancement) || other.trayEnhancement == trayEnhancement)&&(identical(other.enableTraySpeed, enableTraySpeed) || other.enableTraySpeed == enableTraySpeed));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,mode,port,autoLaunch,systemProxy,tunEnable,isStart,locale,brightness,const DeepCollectionEquality().hash(groups),const DeepCollectionEquality().hash(selectedMap),wakelockEnabled,const DeepCollectionEquality().hash(delays),trayEnhancement,enableTraySpeed);
+
+@override
+String toString() {
+  return 'TrayState(mode: $mode, port: $port, autoLaunch: $autoLaunch, systemProxy: $systemProxy, tunEnable: $tunEnable, isStart: $isStart, locale: $locale, brightness: $brightness, groups: $groups, selectedMap: $selectedMap, wakelockEnabled: $wakelockEnabled, delays: $delays, trayEnhancement: $trayEnhancement, enableTraySpeed: $enableTraySpeed)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TrayStateCopyWith<$Res>  {
+  factory $TrayStateCopyWith(TrayState value, $Res Function(TrayState) _then) = _$TrayStateCopyWithImpl;
+@useResult
+$Res call({
+ Mode mode, int port, bool autoLaunch, bool systemProxy, bool tunEnable, bool isStart, String? locale, Brightness? brightness, List<Group> groups, SelectedMap selectedMap, bool wakelockEnabled, Map<String, int?> delays, bool trayEnhancement, bool enableTraySpeed
+});
+
+
+
+
+}
+/// @nodoc
+class _$TrayStateCopyWithImpl<$Res>
+    implements $TrayStateCopyWith<$Res> {
+  _$TrayStateCopyWithImpl(this._self, this._then);
+
+  final TrayState _self;
+  final $Res Function(TrayState) _then;
+
+/// Create a copy of TrayState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? mode = null,Object? port = null,Object? autoLaunch = null,Object? systemProxy = null,Object? tunEnable = null,Object? isStart = null,Object? locale = freezed,Object? brightness = freezed,Object? groups = null,Object? selectedMap = null,Object? wakelockEnabled = null,Object? delays = null,Object? trayEnhancement = null,Object? enableTraySpeed = null,}) {
+  return _then(TrayState(
+mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
+as Mode,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,autoLaunch: null == autoLaunch ? _self.autoLaunch : autoLaunch // ignore: cast_nullable_to_non_nullable
+as bool,systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
+as bool,tunEnable: null == tunEnable ? _self.tunEnable : tunEnable // ignore: cast_nullable_to_non_nullable
+as bool,isStart: null == isStart ? _self.isStart : isStart // ignore: cast_nullable_to_non_nullable
+as bool,locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
+as String?,brightness: freezed == brightness ? _self.brightness : brightness // ignore: cast_nullable_to_non_nullable
+as Brightness?,groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
+as List<Group>,selectedMap: null == selectedMap ? _self.selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
+as SelectedMap,wakelockEnabled: null == wakelockEnabled ? _self.wakelockEnabled : wakelockEnabled // ignore: cast_nullable_to_non_nullable
+as bool,delays: null == delays ? _self.delays : delays // ignore: cast_nullable_to_non_nullable
+as Map<String, int?>,trayEnhancement: null == trayEnhancement ? _self.trayEnhancement : trayEnhancement // ignore: cast_nullable_to_non_nullable
+as bool,enableTraySpeed: null == enableTraySpeed ? _self.enableTraySpeed : enableTraySpeed // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [TrayState].
+extension TrayStatePatterns on TrayState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TrayState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TrayState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TrayState value)  $default,){
+final _that = this;
+switch (_that) {
+case _TrayState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TrayState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TrayState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Mode mode,  int port,  bool autoLaunch,  bool systemProxy,  bool tunEnable,  bool isStart,  String? locale,  Brightness? brightness,  List<Group> groups,  SelectedMap selectedMap,  bool wakelockEnabled,  Map<String, int?> delays,  bool trayEnhancement,  bool enableTraySpeed)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TrayState() when $default != null:
+return $default(_that.mode,_that.port,_that.autoLaunch,_that.systemProxy,_that.tunEnable,_that.isStart,_that.locale,_that.brightness,_that.groups,_that.selectedMap,_that.wakelockEnabled,_that.delays,_that.trayEnhancement,_that.enableTraySpeed);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Mode mode,  int port,  bool autoLaunch,  bool systemProxy,  bool tunEnable,  bool isStart,  String? locale,  Brightness? brightness,  List<Group> groups,  SelectedMap selectedMap,  bool wakelockEnabled,  Map<String, int?> delays,  bool trayEnhancement,  bool enableTraySpeed)  $default,) {final _that = this;
+switch (_that) {
+case _TrayState():
+return $default(_that.mode,_that.port,_that.autoLaunch,_that.systemProxy,_that.tunEnable,_that.isStart,_that.locale,_that.brightness,_that.groups,_that.selectedMap,_that.wakelockEnabled,_that.delays,_that.trayEnhancement,_that.enableTraySpeed);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Mode mode,  int port,  bool autoLaunch,  bool systemProxy,  bool tunEnable,  bool isStart,  String? locale,  Brightness? brightness,  List<Group> groups,  SelectedMap selectedMap,  bool wakelockEnabled,  Map<String, int?> delays,  bool trayEnhancement,  bool enableTraySpeed)?  $default,) {final _that = this;
+switch (_that) {
+case _TrayState() when $default != null:
+return $default(_that.mode,_that.port,_that.autoLaunch,_that.systemProxy,_that.tunEnable,_that.isStart,_that.locale,_that.brightness,_that.groups,_that.selectedMap,_that.wakelockEnabled,_that.delays,_that.trayEnhancement,_that.enableTraySpeed);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _TrayState implements TrayState {
+  const _TrayState({required this.mode, required this.port, required this.autoLaunch, required this.systemProxy, required this.tunEnable, required this.isStart, required this.locale, required this.brightness, required  List<Group> groups, required  SelectedMap selectedMap, this.wakelockEnabled = false,  Map<String, int?> delays = const {}, this.trayEnhancement = true, this.enableTraySpeed = false}): _groups = groups,_selectedMap = selectedMap,_delays = delays;
+  
+
+@override final  Mode mode;
+@override final  int port;
+@override final  bool autoLaunch;
+@override final  bool systemProxy;
+@override final  bool tunEnable;
+@override final  bool isStart;
+@override final  String? locale;
+@override final  Brightness? brightness;
+ final  List<Group> _groups;
+@override List<Group> get groups {
+  if (_groups is EqualUnmodifiableListView) return _groups;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_groups);
+}
+
+ final  SelectedMap _selectedMap;
+@override SelectedMap get selectedMap {
+  if (_selectedMap is EqualUnmodifiableMapView) return _selectedMap;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_selectedMap);
+}
+
+@override@JsonKey() final  bool wakelockEnabled;
+ final  Map<String, int?> _delays;
+@override@JsonKey() Map<String, int?> get delays {
+  if (_delays is EqualUnmodifiableMapView) return _delays;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_delays);
+}
+
+@override@JsonKey() final  bool trayEnhancement;
+@override@JsonKey() final  bool enableTraySpeed;
+
+/// Create a copy of TrayState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TrayStateCopyWith<_TrayState> get copyWith => __$TrayStateCopyWithImpl<_TrayState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TrayState&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.port, port) || other.port == port)&&(identical(other.autoLaunch, autoLaunch) || other.autoLaunch == autoLaunch)&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&(identical(other.tunEnable, tunEnable) || other.tunEnable == tunEnable)&&(identical(other.isStart, isStart) || other.isStart == isStart)&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.brightness, brightness) || other.brightness == brightness)&&const DeepCollectionEquality().equals(other._groups, _groups)&&const DeepCollectionEquality().equals(other._selectedMap, _selectedMap)&&(identical(other.wakelockEnabled, wakelockEnabled) || other.wakelockEnabled == wakelockEnabled)&&const DeepCollectionEquality().equals(other._delays, _delays)&&(identical(other.trayEnhancement, trayEnhancement) || other.trayEnhancement == trayEnhancement)&&(identical(other.enableTraySpeed, enableTraySpeed) || other.enableTraySpeed == enableTraySpeed));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,mode,port,autoLaunch,systemProxy,tunEnable,isStart,locale,brightness,const DeepCollectionEquality().hash(_groups),const DeepCollectionEquality().hash(_selectedMap),wakelockEnabled,const DeepCollectionEquality().hash(_delays),trayEnhancement,enableTraySpeed);
+
+@override
+String toString() {
+  return 'TrayState(mode: $mode, port: $port, autoLaunch: $autoLaunch, systemProxy: $systemProxy, tunEnable: $tunEnable, isStart: $isStart, locale: $locale, brightness: $brightness, groups: $groups, selectedMap: $selectedMap, wakelockEnabled: $wakelockEnabled, delays: $delays, trayEnhancement: $trayEnhancement, enableTraySpeed: $enableTraySpeed)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TrayStateCopyWith<$Res> implements $TrayStateCopyWith<$Res> {
+  factory _$TrayStateCopyWith(_TrayState value, $Res Function(_TrayState) _then) = __$TrayStateCopyWithImpl;
+@override @useResult
+$Res call({
+ Mode mode, int port, bool autoLaunch, bool systemProxy, bool tunEnable, bool isStart, String? locale, Brightness? brightness, List<Group> groups, SelectedMap selectedMap, bool wakelockEnabled, Map<String, int?> delays, bool trayEnhancement, bool enableTraySpeed
+});
+
+
+
+
+}
+/// @nodoc
+class __$TrayStateCopyWithImpl<$Res>
+    implements _$TrayStateCopyWith<$Res> {
+  __$TrayStateCopyWithImpl(this._self, this._then);
+
+  final _TrayState _self;
+  final $Res Function(_TrayState) _then;
+
+/// Create a copy of TrayState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? mode = null,Object? port = null,Object? autoLaunch = null,Object? systemProxy = null,Object? tunEnable = null,Object? isStart = null,Object? locale = freezed,Object? brightness = freezed,Object? groups = null,Object? selectedMap = null,Object? wakelockEnabled = null,Object? delays = null,Object? trayEnhancement = null,Object? enableTraySpeed = null,}) {
+  return _then(_TrayState(
+mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
+as Mode,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,autoLaunch: null == autoLaunch ? _self.autoLaunch : autoLaunch // ignore: cast_nullable_to_non_nullable
+as bool,systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
+as bool,tunEnable: null == tunEnable ? _self.tunEnable : tunEnable // ignore: cast_nullable_to_non_nullable
+as bool,isStart: null == isStart ? _self.isStart : isStart // ignore: cast_nullable_to_non_nullable
+as bool,locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
+as String?,brightness: freezed == brightness ? _self.brightness : brightness // ignore: cast_nullable_to_non_nullable
+as Brightness?,groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
+as List<Group>,selectedMap: null == selectedMap ? _self._selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
+as SelectedMap,wakelockEnabled: null == wakelockEnabled ? _self.wakelockEnabled : wakelockEnabled // ignore: cast_nullable_to_non_nullable
+as bool,delays: null == delays ? _self._delays : delays // ignore: cast_nullable_to_non_nullable
+as Map<String, int?>,trayEnhancement: null == trayEnhancement ? _self.trayEnhancement : trayEnhancement // ignore: cast_nullable_to_non_nullable
+as bool,enableTraySpeed: null == enableTraySpeed ? _self.enableTraySpeed : enableTraySpeed // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$NavigationState {
+
+ PageLabel get pageLabel; List<NavigationItem> get navigationItems; ViewMode get viewMode; String? get locale; int get currentIndex;
+/// Create a copy of NavigationState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NavigationStateCopyWith<NavigationState> get copyWith => _$NavigationStateCopyWithImpl<NavigationState>(this as NavigationState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NavigationState&&(identical(other.pageLabel, pageLabel) || other.pageLabel == pageLabel)&&const DeepCollectionEquality().equals(other.navigationItems, navigationItems)&&(identical(other.viewMode, viewMode) || other.viewMode == viewMode)&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,pageLabel,const DeepCollectionEquality().hash(navigationItems),viewMode,locale,currentIndex);
+
+@override
+String toString() {
+  return 'NavigationState(pageLabel: $pageLabel, navigationItems: $navigationItems, viewMode: $viewMode, locale: $locale, currentIndex: $currentIndex)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $NavigationStateCopyWith<$Res>  {
+  factory $NavigationStateCopyWith(NavigationState value, $Res Function(NavigationState) _then) = _$NavigationStateCopyWithImpl;
+@useResult
+$Res call({
+ PageLabel pageLabel, List<NavigationItem> navigationItems, ViewMode viewMode, String? locale, int currentIndex
+});
+
+
+
+
+}
+/// @nodoc
+class _$NavigationStateCopyWithImpl<$Res>
+    implements $NavigationStateCopyWith<$Res> {
+  _$NavigationStateCopyWithImpl(this._self, this._then);
+
+  final NavigationState _self;
+  final $Res Function(NavigationState) _then;
+
+/// Create a copy of NavigationState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? pageLabel = null,Object? navigationItems = null,Object? viewMode = null,Object? locale = freezed,Object? currentIndex = null,}) {
+  return _then(NavigationState(
+pageLabel: null == pageLabel ? _self.pageLabel : pageLabel // ignore: cast_nullable_to_non_nullable
+as PageLabel,navigationItems: null == navigationItems ? _self.navigationItems : navigationItems // ignore: cast_nullable_to_non_nullable
+as List<NavigationItem>,viewMode: null == viewMode ? _self.viewMode : viewMode // ignore: cast_nullable_to_non_nullable
+as ViewMode,locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
+as String?,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [NavigationState].
+extension NavigationStatePatterns on NavigationState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NavigationState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NavigationState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NavigationState value)  $default,){
+final _that = this;
+switch (_that) {
+case _NavigationState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NavigationState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NavigationState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PageLabel pageLabel,  List<NavigationItem> navigationItems,  ViewMode viewMode,  String? locale,  int currentIndex)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NavigationState() when $default != null:
+return $default(_that.pageLabel,_that.navigationItems,_that.viewMode,_that.locale,_that.currentIndex);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PageLabel pageLabel,  List<NavigationItem> navigationItems,  ViewMode viewMode,  String? locale,  int currentIndex)  $default,) {final _that = this;
+switch (_that) {
+case _NavigationState():
+return $default(_that.pageLabel,_that.navigationItems,_that.viewMode,_that.locale,_that.currentIndex);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PageLabel pageLabel,  List<NavigationItem> navigationItems,  ViewMode viewMode,  String? locale,  int currentIndex)?  $default,) {final _that = this;
+switch (_that) {
+case _NavigationState() when $default != null:
+return $default(_that.pageLabel,_that.navigationItems,_that.viewMode,_that.locale,_that.currentIndex);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _NavigationState implements NavigationState {
+  const _NavigationState({required this.pageLabel, required  List<NavigationItem> navigationItems, required this.viewMode, required this.locale, required this.currentIndex}): _navigationItems = navigationItems;
+  
+
+@override final  PageLabel pageLabel;
+ final  List<NavigationItem> _navigationItems;
+@override List<NavigationItem> get navigationItems {
+  if (_navigationItems is EqualUnmodifiableListView) return _navigationItems;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_navigationItems);
+}
+
+@override final  ViewMode viewMode;
+@override final  String? locale;
+@override final  int currentIndex;
+
+/// Create a copy of NavigationState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NavigationStateCopyWith<_NavigationState> get copyWith => __$NavigationStateCopyWithImpl<_NavigationState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NavigationState&&(identical(other.pageLabel, pageLabel) || other.pageLabel == pageLabel)&&const DeepCollectionEquality().equals(other._navigationItems, _navigationItems)&&(identical(other.viewMode, viewMode) || other.viewMode == viewMode)&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,pageLabel,const DeepCollectionEquality().hash(_navigationItems),viewMode,locale,currentIndex);
+
+@override
+String toString() {
+  return 'NavigationState(pageLabel: $pageLabel, navigationItems: $navigationItems, viewMode: $viewMode, locale: $locale, currentIndex: $currentIndex)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NavigationStateCopyWith<$Res> implements $NavigationStateCopyWith<$Res> {
+  factory _$NavigationStateCopyWith(_NavigationState value, $Res Function(_NavigationState) _then) = __$NavigationStateCopyWithImpl;
+@override @useResult
+$Res call({
+ PageLabel pageLabel, List<NavigationItem> navigationItems, ViewMode viewMode, String? locale, int currentIndex
+});
+
+
+
+
+}
+/// @nodoc
+class __$NavigationStateCopyWithImpl<$Res>
+    implements _$NavigationStateCopyWith<$Res> {
+  __$NavigationStateCopyWithImpl(this._self, this._then);
+
+  final _NavigationState _self;
+  final $Res Function(_NavigationState) _then;
+
+/// Create a copy of NavigationState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? pageLabel = null,Object? navigationItems = null,Object? viewMode = null,Object? locale = freezed,Object? currentIndex = null,}) {
+  return _then(_NavigationState(
+pageLabel: null == pageLabel ? _self.pageLabel : pageLabel // ignore: cast_nullable_to_non_nullable
+as PageLabel,navigationItems: null == navigationItems ? _self._navigationItems : navigationItems // ignore: cast_nullable_to_non_nullable
+as List<NavigationItem>,viewMode: null == viewMode ? _self.viewMode : viewMode // ignore: cast_nullable_to_non_nullable
+as ViewMode,locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
+as String?,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$GroupsState {
+
+ List<Group> get value;
+/// Create a copy of GroupsState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupsStateCopyWith<GroupsState> get copyWith => _$GroupsStateCopyWithImpl<GroupsState>(this as GroupsState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupsState&&const DeepCollectionEquality().equals(other.value, value));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(value));
+
+@override
+String toString() {
+  return 'GroupsState(value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupsStateCopyWith<$Res>  {
+  factory $GroupsStateCopyWith(GroupsState value, $Res Function(GroupsState) _then) = _$GroupsStateCopyWithImpl;
+@useResult
+$Res call({
+ List<Group> value
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupsStateCopyWithImpl<$Res>
+    implements $GroupsStateCopyWith<$Res> {
+  _$GroupsStateCopyWithImpl(this._self, this._then);
+
+  final GroupsState _self;
+  final $Res Function(GroupsState) _then;
+
+/// Create a copy of GroupsState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? value = null,}) {
+  return _then(GroupsState(
+value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as List<Group>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupsState].
+extension GroupsStatePatterns on GroupsState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupsState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupsState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupsState value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupsState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupsState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupsState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Group> value)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupsState() when $default != null:
+return $default(_that.value);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Group> value)  $default,) {final _that = this;
+switch (_that) {
+case _GroupsState():
+return $default(_that.value);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Group> value)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupsState() when $default != null:
+return $default(_that.value);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _GroupsState implements GroupsState {
+  const _GroupsState({required  List<Group> value}): _value = value;
+  
+
+ final  List<Group> _value;
+@override List<Group> get value {
+  if (_value is EqualUnmodifiableListView) return _value;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_value);
+}
+
+
+/// Create a copy of GroupsState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupsStateCopyWith<_GroupsState> get copyWith => __$GroupsStateCopyWithImpl<_GroupsState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupsState&&const DeepCollectionEquality().equals(other._value, _value));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_value));
+
+@override
+String toString() {
+  return 'GroupsState(value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupsStateCopyWith<$Res> implements $GroupsStateCopyWith<$Res> {
+  factory _$GroupsStateCopyWith(_GroupsState value, $Res Function(_GroupsState) _then) = __$GroupsStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<Group> value
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupsStateCopyWithImpl<$Res>
+    implements _$GroupsStateCopyWith<$Res> {
+  __$GroupsStateCopyWithImpl(this._self, this._then);
+
+  final _GroupsState _self;
+  final $Res Function(_GroupsState) _then;
+
+/// Create a copy of GroupsState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? value = null,}) {
+  return _then(_GroupsState(
+value: null == value ? _self._value : value // ignore: cast_nullable_to_non_nullable
+as List<Group>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$NavigationItemsState {
+
+ List<NavigationItem> get value;
+/// Create a copy of NavigationItemsState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NavigationItemsStateCopyWith<NavigationItemsState> get copyWith => _$NavigationItemsStateCopyWithImpl<NavigationItemsState>(this as NavigationItemsState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NavigationItemsState&&const DeepCollectionEquality().equals(other.value, value));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(value));
+
+@override
+String toString() {
+  return 'NavigationItemsState(value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $NavigationItemsStateCopyWith<$Res>  {
+  factory $NavigationItemsStateCopyWith(NavigationItemsState value, $Res Function(NavigationItemsState) _then) = _$NavigationItemsStateCopyWithImpl;
+@useResult
+$Res call({
+ List<NavigationItem> value
+});
+
+
+
+
+}
+/// @nodoc
+class _$NavigationItemsStateCopyWithImpl<$Res>
+    implements $NavigationItemsStateCopyWith<$Res> {
+  _$NavigationItemsStateCopyWithImpl(this._self, this._then);
+
+  final NavigationItemsState _self;
+  final $Res Function(NavigationItemsState) _then;
+
+/// Create a copy of NavigationItemsState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? value = null,}) {
+  return _then(NavigationItemsState(
+value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as List<NavigationItem>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [NavigationItemsState].
+extension NavigationItemsStatePatterns on NavigationItemsState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NavigationItemsState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NavigationItemsState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NavigationItemsState value)  $default,){
+final _that = this;
+switch (_that) {
+case _NavigationItemsState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NavigationItemsState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NavigationItemsState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NavigationItem> value)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NavigationItemsState() when $default != null:
+return $default(_that.value);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NavigationItem> value)  $default,) {final _that = this;
+switch (_that) {
+case _NavigationItemsState():
+return $default(_that.value);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NavigationItem> value)?  $default,) {final _that = this;
+switch (_that) {
+case _NavigationItemsState() when $default != null:
+return $default(_that.value);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _NavigationItemsState implements NavigationItemsState {
+  const _NavigationItemsState({required  List<NavigationItem> value}): _value = value;
+  
+
+ final  List<NavigationItem> _value;
+@override List<NavigationItem> get value {
+  if (_value is EqualUnmodifiableListView) return _value;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_value);
+}
+
+
+/// Create a copy of NavigationItemsState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NavigationItemsStateCopyWith<_NavigationItemsState> get copyWith => __$NavigationItemsStateCopyWithImpl<_NavigationItemsState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NavigationItemsState&&const DeepCollectionEquality().equals(other._value, _value));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_value));
+
+@override
+String toString() {
+  return 'NavigationItemsState(value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NavigationItemsStateCopyWith<$Res> implements $NavigationItemsStateCopyWith<$Res> {
+  factory _$NavigationItemsStateCopyWith(_NavigationItemsState value, $Res Function(_NavigationItemsState) _then) = __$NavigationItemsStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<NavigationItem> value
+});
+
+
+
+
+}
+/// @nodoc
+class __$NavigationItemsStateCopyWithImpl<$Res>
+    implements _$NavigationItemsStateCopyWith<$Res> {
+  __$NavigationItemsStateCopyWithImpl(this._self, this._then);
+
+  final _NavigationItemsState _self;
+  final $Res Function(_NavigationItemsState) _then;
+
+/// Create a copy of NavigationItemsState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? value = null,}) {
+  return _then(_NavigationItemsState(
+value: null == value ? _self._value : value // ignore: cast_nullable_to_non_nullable
+as List<NavigationItem>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ProxiesListState {
+
+ List<Group> get groups; Set<String> get currentUnfoldSet; ProxyCardType get proxyCardType; int get columns;
+/// Create a copy of ProxiesListState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProxiesListStateCopyWith<ProxiesListState> get copyWith => _$ProxiesListStateCopyWithImpl<ProxiesListState>(this as ProxiesListState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxiesListState&&const DeepCollectionEquality().equals(other.groups, groups)&&const DeepCollectionEquality().equals(other.currentUnfoldSet, currentUnfoldSet)&&(identical(other.proxyCardType, proxyCardType) || other.proxyCardType == proxyCardType)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(groups),const DeepCollectionEquality().hash(currentUnfoldSet),proxyCardType,columns);
+
+@override
+String toString() {
+  return 'ProxiesListState(groups: $groups, currentUnfoldSet: $currentUnfoldSet, proxyCardType: $proxyCardType, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProxiesListStateCopyWith<$Res>  {
+  factory $ProxiesListStateCopyWith(ProxiesListState value, $Res Function(ProxiesListState) _then) = _$ProxiesListStateCopyWithImpl;
+@useResult
+$Res call({
+ List<Group> groups, Set<String> currentUnfoldSet, ProxyCardType proxyCardType, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProxiesListStateCopyWithImpl<$Res>
+    implements $ProxiesListStateCopyWith<$Res> {
+  _$ProxiesListStateCopyWithImpl(this._self, this._then);
+
+  final ProxiesListState _self;
+  final $Res Function(ProxiesListState) _then;
+
+/// Create a copy of ProxiesListState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? groups = null,Object? currentUnfoldSet = null,Object? proxyCardType = null,Object? columns = null,}) {
+  return _then(ProxiesListState(
+groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
+as List<Group>,currentUnfoldSet: null == currentUnfoldSet ? _self.currentUnfoldSet : currentUnfoldSet // ignore: cast_nullable_to_non_nullable
+as Set<String>,proxyCardType: null == proxyCardType ? _self.proxyCardType : proxyCardType // ignore: cast_nullable_to_non_nullable
+as ProxyCardType,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProxiesListState].
+extension ProxiesListStatePatterns on ProxiesListState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProxiesListState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProxiesListState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProxiesListState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProxiesListState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProxiesListState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProxiesListState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Group> groups,  Set<String> currentUnfoldSet,  ProxyCardType proxyCardType,  int columns)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProxiesListState() when $default != null:
+return $default(_that.groups,_that.currentUnfoldSet,_that.proxyCardType,_that.columns);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Group> groups,  Set<String> currentUnfoldSet,  ProxyCardType proxyCardType,  int columns)  $default,) {final _that = this;
+switch (_that) {
+case _ProxiesListState():
+return $default(_that.groups,_that.currentUnfoldSet,_that.proxyCardType,_that.columns);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Group> groups,  Set<String> currentUnfoldSet,  ProxyCardType proxyCardType,  int columns)?  $default,) {final _that = this;
+switch (_that) {
+case _ProxiesListState() when $default != null:
+return $default(_that.groups,_that.currentUnfoldSet,_that.proxyCardType,_that.columns);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProxiesListState implements ProxiesListState {
+  const _ProxiesListState({required  List<Group> groups, required  Set<String> currentUnfoldSet, required this.proxyCardType, required this.columns}): _groups = groups,_currentUnfoldSet = currentUnfoldSet;
+  
+
+ final  List<Group> _groups;
+@override List<Group> get groups {
+  if (_groups is EqualUnmodifiableListView) return _groups;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_groups);
+}
+
+ final  Set<String> _currentUnfoldSet;
+@override Set<String> get currentUnfoldSet {
+  if (_currentUnfoldSet is EqualUnmodifiableSetView) return _currentUnfoldSet;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_currentUnfoldSet);
+}
+
+@override final  ProxyCardType proxyCardType;
+@override final  int columns;
+
+/// Create a copy of ProxiesListState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProxiesListStateCopyWith<_ProxiesListState> get copyWith => __$ProxiesListStateCopyWithImpl<_ProxiesListState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxiesListState&&const DeepCollectionEquality().equals(other._groups, _groups)&&const DeepCollectionEquality().equals(other._currentUnfoldSet, _currentUnfoldSet)&&(identical(other.proxyCardType, proxyCardType) || other.proxyCardType == proxyCardType)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_groups),const DeepCollectionEquality().hash(_currentUnfoldSet),proxyCardType,columns);
+
+@override
+String toString() {
+  return 'ProxiesListState(groups: $groups, currentUnfoldSet: $currentUnfoldSet, proxyCardType: $proxyCardType, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProxiesListStateCopyWith<$Res> implements $ProxiesListStateCopyWith<$Res> {
+  factory _$ProxiesListStateCopyWith(_ProxiesListState value, $Res Function(_ProxiesListState) _then) = __$ProxiesListStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<Group> groups, Set<String> currentUnfoldSet, ProxyCardType proxyCardType, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProxiesListStateCopyWithImpl<$Res>
+    implements _$ProxiesListStateCopyWith<$Res> {
+  __$ProxiesListStateCopyWithImpl(this._self, this._then);
+
+  final _ProxiesListState _self;
+  final $Res Function(_ProxiesListState) _then;
+
+/// Create a copy of ProxiesListState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? groups = null,Object? currentUnfoldSet = null,Object? proxyCardType = null,Object? columns = null,}) {
+  return _then(_ProxiesListState(
+groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
+as List<Group>,currentUnfoldSet: null == currentUnfoldSet ? _self._currentUnfoldSet : currentUnfoldSet // ignore: cast_nullable_to_non_nullable
+as Set<String>,proxyCardType: null == proxyCardType ? _self.proxyCardType : proxyCardType // ignore: cast_nullable_to_non_nullable
+as ProxyCardType,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ProxiesTabState {
+
+ List<Group> get groups; String? get currentGroupName; ProxiesSortType get proxiesSortType; ProxyCardType get proxyCardType; num get sortNum; int get columns;
+/// Create a copy of ProxiesTabState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProxiesTabStateCopyWith<ProxiesTabState> get copyWith => _$ProxiesTabStateCopyWithImpl<ProxiesTabState>(this as ProxiesTabState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxiesTabState&&const DeepCollectionEquality().equals(other.groups, groups)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&(identical(other.proxiesSortType, proxiesSortType) || other.proxiesSortType == proxiesSortType)&&(identical(other.proxyCardType, proxyCardType) || other.proxyCardType == proxyCardType)&&(identical(other.sortNum, sortNum) || other.sortNum == sortNum)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(groups),currentGroupName,proxiesSortType,proxyCardType,sortNum,columns);
+
+@override
+String toString() {
+  return 'ProxiesTabState(groups: $groups, currentGroupName: $currentGroupName, proxiesSortType: $proxiesSortType, proxyCardType: $proxyCardType, sortNum: $sortNum, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProxiesTabStateCopyWith<$Res>  {
+  factory $ProxiesTabStateCopyWith(ProxiesTabState value, $Res Function(ProxiesTabState) _then) = _$ProxiesTabStateCopyWithImpl;
+@useResult
+$Res call({
+ List<Group> groups, String? currentGroupName, ProxiesSortType proxiesSortType, ProxyCardType proxyCardType, num sortNum, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProxiesTabStateCopyWithImpl<$Res>
+    implements $ProxiesTabStateCopyWith<$Res> {
+  _$ProxiesTabStateCopyWithImpl(this._self, this._then);
+
+  final ProxiesTabState _self;
+  final $Res Function(ProxiesTabState) _then;
+
+/// Create a copy of ProxiesTabState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? groups = null,Object? currentGroupName = freezed,Object? proxiesSortType = null,Object? proxyCardType = null,Object? sortNum = null,Object? columns = null,}) {
+  return _then(ProxiesTabState(
+groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
+as List<Group>,currentGroupName: freezed == currentGroupName ? _self.currentGroupName : currentGroupName // ignore: cast_nullable_to_non_nullable
+as String?,proxiesSortType: null == proxiesSortType ? _self.proxiesSortType : proxiesSortType // ignore: cast_nullable_to_non_nullable
+as ProxiesSortType,proxyCardType: null == proxyCardType ? _self.proxyCardType : proxyCardType // ignore: cast_nullable_to_non_nullable
+as ProxyCardType,sortNum: null == sortNum ? _self.sortNum : sortNum // ignore: cast_nullable_to_non_nullable
+as num,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProxiesTabState].
+extension ProxiesTabStatePatterns on ProxiesTabState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProxiesTabState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProxiesTabState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProxiesTabState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProxiesTabState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProxiesTabState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProxiesTabState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Group> groups,  String? currentGroupName,  ProxiesSortType proxiesSortType,  ProxyCardType proxyCardType,  num sortNum,  int columns)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProxiesTabState() when $default != null:
+return $default(_that.groups,_that.currentGroupName,_that.proxiesSortType,_that.proxyCardType,_that.sortNum,_that.columns);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Group> groups,  String? currentGroupName,  ProxiesSortType proxiesSortType,  ProxyCardType proxyCardType,  num sortNum,  int columns)  $default,) {final _that = this;
+switch (_that) {
+case _ProxiesTabState():
+return $default(_that.groups,_that.currentGroupName,_that.proxiesSortType,_that.proxyCardType,_that.sortNum,_that.columns);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Group> groups,  String? currentGroupName,  ProxiesSortType proxiesSortType,  ProxyCardType proxyCardType,  num sortNum,  int columns)?  $default,) {final _that = this;
+switch (_that) {
+case _ProxiesTabState() when $default != null:
+return $default(_that.groups,_that.currentGroupName,_that.proxiesSortType,_that.proxyCardType,_that.sortNum,_that.columns);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProxiesTabState implements ProxiesTabState {
+  const _ProxiesTabState({required  List<Group> groups, required this.currentGroupName, required this.proxiesSortType, required this.proxyCardType, required this.sortNum, required this.columns}): _groups = groups;
+  
+
+ final  List<Group> _groups;
+@override List<Group> get groups {
+  if (_groups is EqualUnmodifiableListView) return _groups;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_groups);
+}
+
+@override final  String? currentGroupName;
+@override final  ProxiesSortType proxiesSortType;
+@override final  ProxyCardType proxyCardType;
+@override final  num sortNum;
+@override final  int columns;
+
+/// Create a copy of ProxiesTabState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProxiesTabStateCopyWith<_ProxiesTabState> get copyWith => __$ProxiesTabStateCopyWithImpl<_ProxiesTabState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxiesTabState&&const DeepCollectionEquality().equals(other._groups, _groups)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&(identical(other.proxiesSortType, proxiesSortType) || other.proxiesSortType == proxiesSortType)&&(identical(other.proxyCardType, proxyCardType) || other.proxyCardType == proxyCardType)&&(identical(other.sortNum, sortNum) || other.sortNum == sortNum)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_groups),currentGroupName,proxiesSortType,proxyCardType,sortNum,columns);
+
+@override
+String toString() {
+  return 'ProxiesTabState(groups: $groups, currentGroupName: $currentGroupName, proxiesSortType: $proxiesSortType, proxyCardType: $proxyCardType, sortNum: $sortNum, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProxiesTabStateCopyWith<$Res> implements $ProxiesTabStateCopyWith<$Res> {
+  factory _$ProxiesTabStateCopyWith(_ProxiesTabState value, $Res Function(_ProxiesTabState) _then) = __$ProxiesTabStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<Group> groups, String? currentGroupName, ProxiesSortType proxiesSortType, ProxyCardType proxyCardType, num sortNum, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProxiesTabStateCopyWithImpl<$Res>
+    implements _$ProxiesTabStateCopyWith<$Res> {
+  __$ProxiesTabStateCopyWithImpl(this._self, this._then);
+
+  final _ProxiesTabState _self;
+  final $Res Function(_ProxiesTabState) _then;
+
+/// Create a copy of ProxiesTabState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? groups = null,Object? currentGroupName = freezed,Object? proxiesSortType = null,Object? proxyCardType = null,Object? sortNum = null,Object? columns = null,}) {
+  return _then(_ProxiesTabState(
+groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
+as List<Group>,currentGroupName: freezed == currentGroupName ? _self.currentGroupName : currentGroupName // ignore: cast_nullable_to_non_nullable
+as String?,proxiesSortType: null == proxiesSortType ? _self.proxiesSortType : proxiesSortType // ignore: cast_nullable_to_non_nullable
+as ProxiesSortType,proxyCardType: null == proxyCardType ? _self.proxyCardType : proxyCardType // ignore: cast_nullable_to_non_nullable
+as ProxyCardType,sortNum: null == sortNum ? _self.sortNum : sortNum // ignore: cast_nullable_to_non_nullable
+as num,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ProxyGroupSelectorState {
+
+ String? get testUrl; ProxiesSortType get proxiesSortType; ProxyCardType get proxyCardType; num get sortNum; GroupType get groupType; List<Proxy> get proxies; int get columns;
+/// Create a copy of ProxyGroupSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProxyGroupSelectorStateCopyWith<ProxyGroupSelectorState> get copyWith => _$ProxyGroupSelectorStateCopyWithImpl<ProxyGroupSelectorState>(this as ProxyGroupSelectorState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxyGroupSelectorState&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.proxiesSortType, proxiesSortType) || other.proxiesSortType == proxiesSortType)&&(identical(other.proxyCardType, proxyCardType) || other.proxyCardType == proxyCardType)&&(identical(other.sortNum, sortNum) || other.sortNum == sortNum)&&(identical(other.groupType, groupType) || other.groupType == groupType)&&const DeepCollectionEquality().equals(other.proxies, proxies)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,testUrl,proxiesSortType,proxyCardType,sortNum,groupType,const DeepCollectionEquality().hash(proxies),columns);
+
+@override
+String toString() {
+  return 'ProxyGroupSelectorState(testUrl: $testUrl, proxiesSortType: $proxiesSortType, proxyCardType: $proxyCardType, sortNum: $sortNum, groupType: $groupType, proxies: $proxies, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProxyGroupSelectorStateCopyWith<$Res>  {
+  factory $ProxyGroupSelectorStateCopyWith(ProxyGroupSelectorState value, $Res Function(ProxyGroupSelectorState) _then) = _$ProxyGroupSelectorStateCopyWithImpl;
+@useResult
+$Res call({
+ String? testUrl, ProxiesSortType proxiesSortType, ProxyCardType proxyCardType, num sortNum, GroupType groupType, List<Proxy> proxies, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProxyGroupSelectorStateCopyWithImpl<$Res>
+    implements $ProxyGroupSelectorStateCopyWith<$Res> {
+  _$ProxyGroupSelectorStateCopyWithImpl(this._self, this._then);
+
+  final ProxyGroupSelectorState _self;
+  final $Res Function(ProxyGroupSelectorState) _then;
+
+/// Create a copy of ProxyGroupSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? testUrl = freezed,Object? proxiesSortType = null,Object? proxyCardType = null,Object? sortNum = null,Object? groupType = null,Object? proxies = null,Object? columns = null,}) {
+  return _then(ProxyGroupSelectorState(
+testUrl: freezed == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
+as String?,proxiesSortType: null == proxiesSortType ? _self.proxiesSortType : proxiesSortType // ignore: cast_nullable_to_non_nullable
+as ProxiesSortType,proxyCardType: null == proxyCardType ? _self.proxyCardType : proxyCardType // ignore: cast_nullable_to_non_nullable
+as ProxyCardType,sortNum: null == sortNum ? _self.sortNum : sortNum // ignore: cast_nullable_to_non_nullable
+as num,groupType: null == groupType ? _self.groupType : groupType // ignore: cast_nullable_to_non_nullable
+as GroupType,proxies: null == proxies ? _self.proxies : proxies // ignore: cast_nullable_to_non_nullable
+as List<Proxy>,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProxyGroupSelectorState].
+extension ProxyGroupSelectorStatePatterns on ProxyGroupSelectorState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProxyGroupSelectorState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProxyGroupSelectorState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProxyGroupSelectorState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProxyGroupSelectorState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProxyGroupSelectorState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProxyGroupSelectorState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? testUrl,  ProxiesSortType proxiesSortType,  ProxyCardType proxyCardType,  num sortNum,  GroupType groupType,  List<Proxy> proxies,  int columns)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProxyGroupSelectorState() when $default != null:
+return $default(_that.testUrl,_that.proxiesSortType,_that.proxyCardType,_that.sortNum,_that.groupType,_that.proxies,_that.columns);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? testUrl,  ProxiesSortType proxiesSortType,  ProxyCardType proxyCardType,  num sortNum,  GroupType groupType,  List<Proxy> proxies,  int columns)  $default,) {final _that = this;
+switch (_that) {
+case _ProxyGroupSelectorState():
+return $default(_that.testUrl,_that.proxiesSortType,_that.proxyCardType,_that.sortNum,_that.groupType,_that.proxies,_that.columns);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? testUrl,  ProxiesSortType proxiesSortType,  ProxyCardType proxyCardType,  num sortNum,  GroupType groupType,  List<Proxy> proxies,  int columns)?  $default,) {final _that = this;
+switch (_that) {
+case _ProxyGroupSelectorState() when $default != null:
+return $default(_that.testUrl,_that.proxiesSortType,_that.proxyCardType,_that.sortNum,_that.groupType,_that.proxies,_that.columns);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProxyGroupSelectorState implements ProxyGroupSelectorState {
+  const _ProxyGroupSelectorState({required this.testUrl, required this.proxiesSortType, required this.proxyCardType, required this.sortNum, required this.groupType, required  List<Proxy> proxies, required this.columns}): _proxies = proxies;
+  
+
+@override final  String? testUrl;
+@override final  ProxiesSortType proxiesSortType;
+@override final  ProxyCardType proxyCardType;
+@override final  num sortNum;
+@override final  GroupType groupType;
+ final  List<Proxy> _proxies;
+@override List<Proxy> get proxies {
+  if (_proxies is EqualUnmodifiableListView) return _proxies;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_proxies);
+}
+
+@override final  int columns;
+
+/// Create a copy of ProxyGroupSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProxyGroupSelectorStateCopyWith<_ProxyGroupSelectorState> get copyWith => __$ProxyGroupSelectorStateCopyWithImpl<_ProxyGroupSelectorState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxyGroupSelectorState&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.proxiesSortType, proxiesSortType) || other.proxiesSortType == proxiesSortType)&&(identical(other.proxyCardType, proxyCardType) || other.proxyCardType == proxyCardType)&&(identical(other.sortNum, sortNum) || other.sortNum == sortNum)&&(identical(other.groupType, groupType) || other.groupType == groupType)&&const DeepCollectionEquality().equals(other._proxies, _proxies)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,testUrl,proxiesSortType,proxyCardType,sortNum,groupType,const DeepCollectionEquality().hash(_proxies),columns);
+
+@override
+String toString() {
+  return 'ProxyGroupSelectorState(testUrl: $testUrl, proxiesSortType: $proxiesSortType, proxyCardType: $proxyCardType, sortNum: $sortNum, groupType: $groupType, proxies: $proxies, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProxyGroupSelectorStateCopyWith<$Res> implements $ProxyGroupSelectorStateCopyWith<$Res> {
+  factory _$ProxyGroupSelectorStateCopyWith(_ProxyGroupSelectorState value, $Res Function(_ProxyGroupSelectorState) _then) = __$ProxyGroupSelectorStateCopyWithImpl;
+@override @useResult
+$Res call({
+ String? testUrl, ProxiesSortType proxiesSortType, ProxyCardType proxyCardType, num sortNum, GroupType groupType, List<Proxy> proxies, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProxyGroupSelectorStateCopyWithImpl<$Res>
+    implements _$ProxyGroupSelectorStateCopyWith<$Res> {
+  __$ProxyGroupSelectorStateCopyWithImpl(this._self, this._then);
+
+  final _ProxyGroupSelectorState _self;
+  final $Res Function(_ProxyGroupSelectorState) _then;
+
+/// Create a copy of ProxyGroupSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? testUrl = freezed,Object? proxiesSortType = null,Object? proxyCardType = null,Object? sortNum = null,Object? groupType = null,Object? proxies = null,Object? columns = null,}) {
+  return _then(_ProxyGroupSelectorState(
+testUrl: freezed == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
+as String?,proxiesSortType: null == proxiesSortType ? _self.proxiesSortType : proxiesSortType // ignore: cast_nullable_to_non_nullable
+as ProxiesSortType,proxyCardType: null == proxyCardType ? _self.proxyCardType : proxyCardType // ignore: cast_nullable_to_non_nullable
+as ProxyCardType,sortNum: null == sortNum ? _self.sortNum : sortNum // ignore: cast_nullable_to_non_nullable
+as num,groupType: null == groupType ? _self.groupType : groupType // ignore: cast_nullable_to_non_nullable
+as GroupType,proxies: null == proxies ? _self._proxies : proxies // ignore: cast_nullable_to_non_nullable
+as List<Proxy>,columns: null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$MoreToolsSelectorState {
+
+ List<NavigationItem> get navigationItems;
+/// Create a copy of MoreToolsSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$MoreToolsSelectorStateCopyWith<MoreToolsSelectorState> get copyWith => _$MoreToolsSelectorStateCopyWithImpl<MoreToolsSelectorState>(this as MoreToolsSelectorState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MoreToolsSelectorState&&const DeepCollectionEquality().equals(other.navigationItems, navigationItems));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(navigationItems));
+
+@override
+String toString() {
+  return 'MoreToolsSelectorState(navigationItems: $navigationItems)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $MoreToolsSelectorStateCopyWith<$Res>  {
+  factory $MoreToolsSelectorStateCopyWith(MoreToolsSelectorState value, $Res Function(MoreToolsSelectorState) _then) = _$MoreToolsSelectorStateCopyWithImpl;
+@useResult
+$Res call({
+ List<NavigationItem> navigationItems
+});
+
+
+
+
+}
+/// @nodoc
+class _$MoreToolsSelectorStateCopyWithImpl<$Res>
+    implements $MoreToolsSelectorStateCopyWith<$Res> {
+  _$MoreToolsSelectorStateCopyWithImpl(this._self, this._then);
+
+  final MoreToolsSelectorState _self;
+  final $Res Function(MoreToolsSelectorState) _then;
+
+/// Create a copy of MoreToolsSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? navigationItems = null,}) {
+  return _then(MoreToolsSelectorState(
+navigationItems: null == navigationItems ? _self.navigationItems : navigationItems // ignore: cast_nullable_to_non_nullable
+as List<NavigationItem>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [MoreToolsSelectorState].
+extension MoreToolsSelectorStatePatterns on MoreToolsSelectorState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _MoreToolsSelectorState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _MoreToolsSelectorState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _MoreToolsSelectorState value)  $default,){
+final _that = this;
+switch (_that) {
+case _MoreToolsSelectorState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _MoreToolsSelectorState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _MoreToolsSelectorState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NavigationItem> navigationItems)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _MoreToolsSelectorState() when $default != null:
+return $default(_that.navigationItems);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NavigationItem> navigationItems)  $default,) {final _that = this;
+switch (_that) {
+case _MoreToolsSelectorState():
+return $default(_that.navigationItems);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NavigationItem> navigationItems)?  $default,) {final _that = this;
+switch (_that) {
+case _MoreToolsSelectorState() when $default != null:
+return $default(_that.navigationItems);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _MoreToolsSelectorState implements MoreToolsSelectorState {
+  const _MoreToolsSelectorState({required  List<NavigationItem> navigationItems}): _navigationItems = navigationItems;
+  
+
+ final  List<NavigationItem> _navigationItems;
+@override List<NavigationItem> get navigationItems {
+  if (_navigationItems is EqualUnmodifiableListView) return _navigationItems;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_navigationItems);
+}
+
+
+/// Create a copy of MoreToolsSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$MoreToolsSelectorStateCopyWith<_MoreToolsSelectorState> get copyWith => __$MoreToolsSelectorStateCopyWithImpl<_MoreToolsSelectorState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MoreToolsSelectorState&&const DeepCollectionEquality().equals(other._navigationItems, _navigationItems));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_navigationItems));
+
+@override
+String toString() {
+  return 'MoreToolsSelectorState(navigationItems: $navigationItems)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$MoreToolsSelectorStateCopyWith<$Res> implements $MoreToolsSelectorStateCopyWith<$Res> {
+  factory _$MoreToolsSelectorStateCopyWith(_MoreToolsSelectorState value, $Res Function(_MoreToolsSelectorState) _then) = __$MoreToolsSelectorStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<NavigationItem> navigationItems
+});
+
+
+
+
+}
+/// @nodoc
+class __$MoreToolsSelectorStateCopyWithImpl<$Res>
+    implements _$MoreToolsSelectorStateCopyWith<$Res> {
+  __$MoreToolsSelectorStateCopyWithImpl(this._self, this._then);
+
+  final _MoreToolsSelectorState _self;
+  final $Res Function(_MoreToolsSelectorState) _then;
+
+/// Create a copy of MoreToolsSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? navigationItems = null,}) {
+  return _then(_MoreToolsSelectorState(
+navigationItems: null == navigationItems ? _self._navigationItems : navigationItems // ignore: cast_nullable_to_non_nullable
+as List<NavigationItem>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$PackageListSelectorState {
+
+ List<Package> get packages; AccessControl get accessControl;
+/// Create a copy of PackageListSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PackageListSelectorStateCopyWith<PackageListSelectorState> get copyWith => _$PackageListSelectorStateCopyWithImpl<PackageListSelectorState>(this as PackageListSelectorState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PackageListSelectorState&&const DeepCollectionEquality().equals(other.packages, packages)&&(identical(other.accessControl, accessControl) || other.accessControl == accessControl));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(packages),accessControl);
+
+@override
+String toString() {
+  return 'PackageListSelectorState(packages: $packages, accessControl: $accessControl)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PackageListSelectorStateCopyWith<$Res>  {
+  factory $PackageListSelectorStateCopyWith(PackageListSelectorState value, $Res Function(PackageListSelectorState) _then) = _$PackageListSelectorStateCopyWithImpl;
+@useResult
+$Res call({
+ List<Package> packages, AccessControl accessControl
+});
+
+
+$AccessControlCopyWith<$Res> get accessControl;
+
+}
+/// @nodoc
+class _$PackageListSelectorStateCopyWithImpl<$Res>
+    implements $PackageListSelectorStateCopyWith<$Res> {
+  _$PackageListSelectorStateCopyWithImpl(this._self, this._then);
+
+  final PackageListSelectorState _self;
+  final $Res Function(PackageListSelectorState) _then;
+
+/// Create a copy of PackageListSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? packages = null,Object? accessControl = null,}) {
+  return _then(PackageListSelectorState(
+packages: null == packages ? _self.packages : packages // ignore: cast_nullable_to_non_nullable
+as List<Package>,accessControl: null == accessControl ? _self.accessControl : accessControl // ignore: cast_nullable_to_non_nullable
+as AccessControl,
+  ));
+}
+/// Create a copy of PackageListSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AccessControlCopyWith<$Res> get accessControl {
+  
+  return $AccessControlCopyWith<$Res>(_self.accessControl, (value) {
+    return _then(_self.copyWith(accessControl: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [PackageListSelectorState].
+extension PackageListSelectorStatePatterns on PackageListSelectorState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PackageListSelectorState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PackageListSelectorState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PackageListSelectorState value)  $default,){
+final _that = this;
+switch (_that) {
+case _PackageListSelectorState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PackageListSelectorState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PackageListSelectorState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Package> packages,  AccessControl accessControl)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PackageListSelectorState() when $default != null:
+return $default(_that.packages,_that.accessControl);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Package> packages,  AccessControl accessControl)  $default,) {final _that = this;
+switch (_that) {
+case _PackageListSelectorState():
+return $default(_that.packages,_that.accessControl);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Package> packages,  AccessControl accessControl)?  $default,) {final _that = this;
+switch (_that) {
+case _PackageListSelectorState() when $default != null:
+return $default(_that.packages,_that.accessControl);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _PackageListSelectorState implements PackageListSelectorState {
+  const _PackageListSelectorState({required  List<Package> packages, required this.accessControl}): _packages = packages;
+  
+
+ final  List<Package> _packages;
+@override List<Package> get packages {
+  if (_packages is EqualUnmodifiableListView) return _packages;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_packages);
+}
+
+@override final  AccessControl accessControl;
+
+/// Create a copy of PackageListSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PackageListSelectorStateCopyWith<_PackageListSelectorState> get copyWith => __$PackageListSelectorStateCopyWithImpl<_PackageListSelectorState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PackageListSelectorState&&const DeepCollectionEquality().equals(other._packages, _packages)&&(identical(other.accessControl, accessControl) || other.accessControl == accessControl));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_packages),accessControl);
+
+@override
+String toString() {
+  return 'PackageListSelectorState(packages: $packages, accessControl: $accessControl)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PackageListSelectorStateCopyWith<$Res> implements $PackageListSelectorStateCopyWith<$Res> {
+  factory _$PackageListSelectorStateCopyWith(_PackageListSelectorState value, $Res Function(_PackageListSelectorState) _then) = __$PackageListSelectorStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<Package> packages, AccessControl accessControl
+});
+
+
+@override $AccessControlCopyWith<$Res> get accessControl;
+
+}
+/// @nodoc
+class __$PackageListSelectorStateCopyWithImpl<$Res>
+    implements _$PackageListSelectorStateCopyWith<$Res> {
+  __$PackageListSelectorStateCopyWithImpl(this._self, this._then);
+
+  final _PackageListSelectorState _self;
+  final $Res Function(_PackageListSelectorState) _then;
+
+/// Create a copy of PackageListSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? packages = null,Object? accessControl = null,}) {
+  return _then(_PackageListSelectorState(
+packages: null == packages ? _self._packages : packages // ignore: cast_nullable_to_non_nullable
+as List<Package>,accessControl: null == accessControl ? _self.accessControl : accessControl // ignore: cast_nullable_to_non_nullable
+as AccessControl,
+  ));
+}
+
+/// Create a copy of PackageListSelectorState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AccessControlCopyWith<$Res> get accessControl {
+  
+  return $AccessControlCopyWith<$Res>(_self.accessControl, (value) {
+    return _then(_self.copyWith(accessControl: value));
+  });
+}
+}
+
+/// @nodoc
+mixin _$ProxiesActionsState {
+
+ PageLabel get pageLabel; ProxiesType get type; bool get hasProviders;
+/// Create a copy of ProxiesActionsState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProxiesActionsStateCopyWith<ProxiesActionsState> get copyWith => _$ProxiesActionsStateCopyWithImpl<ProxiesActionsState>(this as ProxiesActionsState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxiesActionsState&&(identical(other.pageLabel, pageLabel) || other.pageLabel == pageLabel)&&(identical(other.type, type) || other.type == type)&&(identical(other.hasProviders, hasProviders) || other.hasProviders == hasProviders));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,pageLabel,type,hasProviders);
+
+@override
+String toString() {
+  return 'ProxiesActionsState(pageLabel: $pageLabel, type: $type, hasProviders: $hasProviders)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProxiesActionsStateCopyWith<$Res>  {
+  factory $ProxiesActionsStateCopyWith(ProxiesActionsState value, $Res Function(ProxiesActionsState) _then) = _$ProxiesActionsStateCopyWithImpl;
+@useResult
+$Res call({
+ PageLabel pageLabel, ProxiesType type, bool hasProviders
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProxiesActionsStateCopyWithImpl<$Res>
+    implements $ProxiesActionsStateCopyWith<$Res> {
+  _$ProxiesActionsStateCopyWithImpl(this._self, this._then);
+
+  final ProxiesActionsState _self;
+  final $Res Function(ProxiesActionsState) _then;
+
+/// Create a copy of ProxiesActionsState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? pageLabel = null,Object? type = null,Object? hasProviders = null,}) {
+  return _then(ProxiesActionsState(
+pageLabel: null == pageLabel ? _self.pageLabel : pageLabel // ignore: cast_nullable_to_non_nullable
+as PageLabel,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ProxiesType,hasProviders: null == hasProviders ? _self.hasProviders : hasProviders // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProxiesActionsState].
+extension ProxiesActionsStatePatterns on ProxiesActionsState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProxiesActionsState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProxiesActionsState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProxiesActionsState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProxiesActionsState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProxiesActionsState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProxiesActionsState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PageLabel pageLabel,  ProxiesType type,  bool hasProviders)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProxiesActionsState() when $default != null:
+return $default(_that.pageLabel,_that.type,_that.hasProviders);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PageLabel pageLabel,  ProxiesType type,  bool hasProviders)  $default,) {final _that = this;
+switch (_that) {
+case _ProxiesActionsState():
+return $default(_that.pageLabel,_that.type,_that.hasProviders);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PageLabel pageLabel,  ProxiesType type,  bool hasProviders)?  $default,) {final _that = this;
+switch (_that) {
+case _ProxiesActionsState() when $default != null:
+return $default(_that.pageLabel,_that.type,_that.hasProviders);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProxiesActionsState implements ProxiesActionsState {
+  const _ProxiesActionsState({required this.pageLabel, required this.type, required this.hasProviders});
+  
+
+@override final  PageLabel pageLabel;
+@override final  ProxiesType type;
+@override final  bool hasProviders;
+
+/// Create a copy of ProxiesActionsState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProxiesActionsStateCopyWith<_ProxiesActionsState> get copyWith => __$ProxiesActionsStateCopyWithImpl<_ProxiesActionsState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxiesActionsState&&(identical(other.pageLabel, pageLabel) || other.pageLabel == pageLabel)&&(identical(other.type, type) || other.type == type)&&(identical(other.hasProviders, hasProviders) || other.hasProviders == hasProviders));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,pageLabel,type,hasProviders);
+
+@override
+String toString() {
+  return 'ProxiesActionsState(pageLabel: $pageLabel, type: $type, hasProviders: $hasProviders)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProxiesActionsStateCopyWith<$Res> implements $ProxiesActionsStateCopyWith<$Res> {
+  factory _$ProxiesActionsStateCopyWith(_ProxiesActionsState value, $Res Function(_ProxiesActionsState) _then) = __$ProxiesActionsStateCopyWithImpl;
+@override @useResult
+$Res call({
+ PageLabel pageLabel, ProxiesType type, bool hasProviders
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProxiesActionsStateCopyWithImpl<$Res>
+    implements _$ProxiesActionsStateCopyWith<$Res> {
+  __$ProxiesActionsStateCopyWithImpl(this._self, this._then);
+
+  final _ProxiesActionsState _self;
+  final $Res Function(_ProxiesActionsState) _then;
+
+/// Create a copy of ProxiesActionsState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? pageLabel = null,Object? type = null,Object? hasProviders = null,}) {
+  return _then(_ProxiesActionsState(
+pageLabel: null == pageLabel ? _self.pageLabel : pageLabel // ignore: cast_nullable_to_non_nullable
+as PageLabel,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ProxiesType,hasProviders: null == hasProviders ? _self.hasProviders : hasProviders // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ProxyState {
+
+ bool get isStart; bool get systemProxy; List<String> get bypassDomain; int get port;
+/// Create a copy of ProxyState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProxyStateCopyWith<ProxyState> get copyWith => _$ProxyStateCopyWithImpl<ProxyState>(this as ProxyState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxyState&&(identical(other.isStart, isStart) || other.isStart == isStart)&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, bypassDomain)&&(identical(other.port, port) || other.port == port));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isStart,systemProxy,const DeepCollectionEquality().hash(bypassDomain),port);
+
+@override
+String toString() {
+  return 'ProxyState(isStart: $isStart, systemProxy: $systemProxy, bypassDomain: $bypassDomain, port: $port)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProxyStateCopyWith<$Res>  {
+  factory $ProxyStateCopyWith(ProxyState value, $Res Function(ProxyState) _then) = _$ProxyStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isStart, bool systemProxy, List<String> bypassDomain, int port
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProxyStateCopyWithImpl<$Res>
+    implements $ProxyStateCopyWith<$Res> {
+  _$ProxyStateCopyWithImpl(this._self, this._then);
+
+  final ProxyState _self;
+  final $Res Function(ProxyState) _then;
+
+/// Create a copy of ProxyState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isStart = null,Object? systemProxy = null,Object? bypassDomain = null,Object? port = null,}) {
+  return _then(ProxyState(
+isStart: null == isStart ? _self.isStart : isStart // ignore: cast_nullable_to_non_nullable
+as bool,systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
+as bool,bypassDomain: null == bypassDomain ? _self.bypassDomain : bypassDomain // ignore: cast_nullable_to_non_nullable
+as List<String>,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProxyState].
+extension ProxyStatePatterns on ProxyState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProxyState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProxyState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProxyState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProxyState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProxyState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProxyState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isStart,  bool systemProxy,  List<String> bypassDomain,  int port)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProxyState() when $default != null:
+return $default(_that.isStart,_that.systemProxy,_that.bypassDomain,_that.port);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isStart,  bool systemProxy,  List<String> bypassDomain,  int port)  $default,) {final _that = this;
+switch (_that) {
+case _ProxyState():
+return $default(_that.isStart,_that.systemProxy,_that.bypassDomain,_that.port);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isStart,  bool systemProxy,  List<String> bypassDomain,  int port)?  $default,) {final _that = this;
+switch (_that) {
+case _ProxyState() when $default != null:
+return $default(_that.isStart,_that.systemProxy,_that.bypassDomain,_that.port);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProxyState implements ProxyState {
+  const _ProxyState({required this.isStart, required this.systemProxy, required  List<String> bypassDomain, required this.port}): _bypassDomain = bypassDomain;
+  
+
+@override final  bool isStart;
+@override final  bool systemProxy;
+ final  List<String> _bypassDomain;
+@override List<String> get bypassDomain {
+  if (_bypassDomain is EqualUnmodifiableListView) return _bypassDomain;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bypassDomain);
+}
+
+@override final  int port;
+
+/// Create a copy of ProxyState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProxyStateCopyWith<_ProxyState> get copyWith => __$ProxyStateCopyWithImpl<_ProxyState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxyState&&(identical(other.isStart, isStart) || other.isStart == isStart)&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&const DeepCollectionEquality().equals(other._bypassDomain, _bypassDomain)&&(identical(other.port, port) || other.port == port));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isStart,systemProxy,const DeepCollectionEquality().hash(_bypassDomain),port);
+
+@override
+String toString() {
+  return 'ProxyState(isStart: $isStart, systemProxy: $systemProxy, bypassDomain: $bypassDomain, port: $port)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProxyStateCopyWith<$Res> implements $ProxyStateCopyWith<$Res> {
+  factory _$ProxyStateCopyWith(_ProxyState value, $Res Function(_ProxyState) _then) = __$ProxyStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isStart, bool systemProxy, List<String> bypassDomain, int port
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProxyStateCopyWithImpl<$Res>
+    implements _$ProxyStateCopyWith<$Res> {
+  __$ProxyStateCopyWithImpl(this._self, this._then);
+
+  final _ProxyState _self;
+  final $Res Function(_ProxyState) _then;
+
+/// Create a copy of ProxyState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isStart = null,Object? systemProxy = null,Object? bypassDomain = null,Object? port = null,}) {
+  return _then(_ProxyState(
+isStart: null == isStart ? _self.isStart : isStart // ignore: cast_nullable_to_non_nullable
+as bool,systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
+as bool,bypassDomain: null == bypassDomain ? _self._bypassDomain : bypassDomain // ignore: cast_nullable_to_non_nullable
+as List<String>,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ClashConfigState {
+
+ bool get overrideDns; ClashConfig get clashConfig; OverrideData get overrideData; bool get bypassPrivateRoute;
+/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ClashConfigStateCopyWith<ClashConfigState> get copyWith => _$ClashConfigStateCopyWithImpl<ClashConfigState>(this as ClashConfigState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ClashConfigState&&(identical(other.overrideDns, overrideDns) || other.overrideDns == overrideDns)&&(identical(other.clashConfig, clashConfig) || other.clashConfig == clashConfig)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData)&&(identical(other.bypassPrivateRoute, bypassPrivateRoute) || other.bypassPrivateRoute == bypassPrivateRoute));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,overrideDns,clashConfig,overrideData,bypassPrivateRoute);
+
+@override
+String toString() {
+  return 'ClashConfigState(overrideDns: $overrideDns, clashConfig: $clashConfig, overrideData: $overrideData, bypassPrivateRoute: $bypassPrivateRoute)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ClashConfigStateCopyWith<$Res>  {
+  factory $ClashConfigStateCopyWith(ClashConfigState value, $Res Function(ClashConfigState) _then) = _$ClashConfigStateCopyWithImpl;
+@useResult
+$Res call({
+ bool overrideDns, ClashConfig clashConfig, OverrideData overrideData, bool bypassPrivateRoute
+});
+
+
+$ClashConfigCopyWith<$Res> get clashConfig;$OverrideDataCopyWith<$Res> get overrideData;
+
+}
+/// @nodoc
+class _$ClashConfigStateCopyWithImpl<$Res>
+    implements $ClashConfigStateCopyWith<$Res> {
+  _$ClashConfigStateCopyWithImpl(this._self, this._then);
+
+  final ClashConfigState _self;
+  final $Res Function(ClashConfigState) _then;
+
+/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? overrideDns = null,Object? clashConfig = null,Object? overrideData = null,Object? bypassPrivateRoute = null,}) {
+  return _then(ClashConfigState(
+overrideDns: null == overrideDns ? _self.overrideDns : overrideDns // ignore: cast_nullable_to_non_nullable
+as bool,clashConfig: null == clashConfig ? _self.clashConfig : clashConfig // ignore: cast_nullable_to_non_nullable
+as ClashConfig,overrideData: null == overrideData ? _self.overrideData : overrideData // ignore: cast_nullable_to_non_nullable
+as OverrideData,bypassPrivateRoute: null == bypassPrivateRoute ? _self.bypassPrivateRoute : bypassPrivateRoute // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ClashConfigCopyWith<$Res> get clashConfig {
+  
+  return $ClashConfigCopyWith<$Res>(_self.clashConfig, (value) {
+    return _then(_self.copyWith(clashConfig: value));
+  });
+}/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$OverrideDataCopyWith<$Res> get overrideData {
+  
+  return $OverrideDataCopyWith<$Res>(_self.overrideData, (value) {
+    return _then(_self.copyWith(overrideData: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ClashConfigState].
+extension ClashConfigStatePatterns on ClashConfigState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ClashConfigState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ClashConfigState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ClashConfigState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ClashConfigState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ClashConfigState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ClashConfigState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool overrideDns,  ClashConfig clashConfig,  OverrideData overrideData,  bool bypassPrivateRoute)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ClashConfigState() when $default != null:
+return $default(_that.overrideDns,_that.clashConfig,_that.overrideData,_that.bypassPrivateRoute);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool overrideDns,  ClashConfig clashConfig,  OverrideData overrideData,  bool bypassPrivateRoute)  $default,) {final _that = this;
+switch (_that) {
+case _ClashConfigState():
+return $default(_that.overrideDns,_that.clashConfig,_that.overrideData,_that.bypassPrivateRoute);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool overrideDns,  ClashConfig clashConfig,  OverrideData overrideData,  bool bypassPrivateRoute)?  $default,) {final _that = this;
+switch (_that) {
+case _ClashConfigState() when $default != null:
+return $default(_that.overrideDns,_that.clashConfig,_that.overrideData,_that.bypassPrivateRoute);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ClashConfigState implements ClashConfigState {
+  const _ClashConfigState({required this.overrideDns, required this.clashConfig, required this.overrideData, required this.bypassPrivateRoute});
+  
+
+@override final  bool overrideDns;
+@override final  ClashConfig clashConfig;
+@override final  OverrideData overrideData;
+@override final  bool bypassPrivateRoute;
+
+/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ClashConfigStateCopyWith<_ClashConfigState> get copyWith => __$ClashConfigStateCopyWithImpl<_ClashConfigState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClashConfigState&&(identical(other.overrideDns, overrideDns) || other.overrideDns == overrideDns)&&(identical(other.clashConfig, clashConfig) || other.clashConfig == clashConfig)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData)&&(identical(other.bypassPrivateRoute, bypassPrivateRoute) || other.bypassPrivateRoute == bypassPrivateRoute));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,overrideDns,clashConfig,overrideData,bypassPrivateRoute);
+
+@override
+String toString() {
+  return 'ClashConfigState(overrideDns: $overrideDns, clashConfig: $clashConfig, overrideData: $overrideData, bypassPrivateRoute: $bypassPrivateRoute)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ClashConfigStateCopyWith<$Res> implements $ClashConfigStateCopyWith<$Res> {
+  factory _$ClashConfigStateCopyWith(_ClashConfigState value, $Res Function(_ClashConfigState) _then) = __$ClashConfigStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool overrideDns, ClashConfig clashConfig, OverrideData overrideData, bool bypassPrivateRoute
+});
+
+
+@override $ClashConfigCopyWith<$Res> get clashConfig;@override $OverrideDataCopyWith<$Res> get overrideData;
+
+}
+/// @nodoc
+class __$ClashConfigStateCopyWithImpl<$Res>
+    implements _$ClashConfigStateCopyWith<$Res> {
+  __$ClashConfigStateCopyWithImpl(this._self, this._then);
+
+  final _ClashConfigState _self;
+  final $Res Function(_ClashConfigState) _then;
+
+/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? overrideDns = null,Object? clashConfig = null,Object? overrideData = null,Object? bypassPrivateRoute = null,}) {
+  return _then(_ClashConfigState(
+overrideDns: null == overrideDns ? _self.overrideDns : overrideDns // ignore: cast_nullable_to_non_nullable
+as bool,clashConfig: null == clashConfig ? _self.clashConfig : clashConfig // ignore: cast_nullable_to_non_nullable
+as ClashConfig,overrideData: null == overrideData ? _self.overrideData : overrideData // ignore: cast_nullable_to_non_nullable
+as OverrideData,bypassPrivateRoute: null == bypassPrivateRoute ? _self.bypassPrivateRoute : bypassPrivateRoute // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ClashConfigCopyWith<$Res> get clashConfig {
+  
+  return $ClashConfigCopyWith<$Res>(_self.clashConfig, (value) {
+    return _then(_self.copyWith(clashConfig: value));
+  });
+}/// Create a copy of ClashConfigState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$OverrideDataCopyWith<$Res> get overrideData {
+  
+  return $OverrideDataCopyWith<$Res>(_self.overrideData, (value) {
+    return _then(_self.copyWith(overrideData: value));
+  });
+}
+}
+
+/// @nodoc
+mixin _$DashboardState {
+
+ List<DashboardWidget> get dashboardWidgets; double get viewWidth;
+/// Create a copy of DashboardState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DashboardStateCopyWith<DashboardState> get copyWith => _$DashboardStateCopyWithImpl<DashboardState>(this as DashboardState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DashboardState&&const DeepCollectionEquality().equals(other.dashboardWidgets, dashboardWidgets)&&(identical(other.viewWidth, viewWidth) || other.viewWidth == viewWidth));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(dashboardWidgets),viewWidth);
+
+@override
+String toString() {
+  return 'DashboardState(dashboardWidgets: $dashboardWidgets, viewWidth: $viewWidth)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DashboardStateCopyWith<$Res>  {
+  factory $DashboardStateCopyWith(DashboardState value, $Res Function(DashboardState) _then) = _$DashboardStateCopyWithImpl;
+@useResult
+$Res call({
+ List<DashboardWidget> dashboardWidgets, double viewWidth
+});
+
+
+
+
+}
+/// @nodoc
+class _$DashboardStateCopyWithImpl<$Res>
+    implements $DashboardStateCopyWith<$Res> {
+  _$DashboardStateCopyWithImpl(this._self, this._then);
+
+  final DashboardState _self;
+  final $Res Function(DashboardState) _then;
+
+/// Create a copy of DashboardState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? dashboardWidgets = null,Object? viewWidth = null,}) {
+  return _then(DashboardState(
+dashboardWidgets: null == dashboardWidgets ? _self.dashboardWidgets : dashboardWidgets // ignore: cast_nullable_to_non_nullable
+as List<DashboardWidget>,viewWidth: null == viewWidth ? _self.viewWidth : viewWidth // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [DashboardState].
+extension DashboardStatePatterns on DashboardState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DashboardState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _DashboardState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DashboardState value)  $default,){
+final _that = this;
+switch (_that) {
+case _DashboardState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DashboardState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _DashboardState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DashboardWidget> dashboardWidgets,  double viewWidth)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _DashboardState() when $default != null:
+return $default(_that.dashboardWidgets,_that.viewWidth);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DashboardWidget> dashboardWidgets,  double viewWidth)  $default,) {final _that = this;
+switch (_that) {
+case _DashboardState():
+return $default(_that.dashboardWidgets,_that.viewWidth);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DashboardWidget> dashboardWidgets,  double viewWidth)?  $default,) {final _that = this;
+switch (_that) {
+case _DashboardState() when $default != null:
+return $default(_that.dashboardWidgets,_that.viewWidth);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _DashboardState implements DashboardState {
+  const _DashboardState({required  List<DashboardWidget> dashboardWidgets, required this.viewWidth}): _dashboardWidgets = dashboardWidgets;
+  
+
+ final  List<DashboardWidget> _dashboardWidgets;
+@override List<DashboardWidget> get dashboardWidgets {
+  if (_dashboardWidgets is EqualUnmodifiableListView) return _dashboardWidgets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_dashboardWidgets);
+}
+
+@override final  double viewWidth;
+
+/// Create a copy of DashboardState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DashboardStateCopyWith<_DashboardState> get copyWith => __$DashboardStateCopyWithImpl<_DashboardState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DashboardState&&const DeepCollectionEquality().equals(other._dashboardWidgets, _dashboardWidgets)&&(identical(other.viewWidth, viewWidth) || other.viewWidth == viewWidth));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_dashboardWidgets),viewWidth);
+
+@override
+String toString() {
+  return 'DashboardState(dashboardWidgets: $dashboardWidgets, viewWidth: $viewWidth)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DashboardStateCopyWith<$Res> implements $DashboardStateCopyWith<$Res> {
+  factory _$DashboardStateCopyWith(_DashboardState value, $Res Function(_DashboardState) _then) = __$DashboardStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<DashboardWidget> dashboardWidgets, double viewWidth
+});
+
+
+
+
+}
+/// @nodoc
+class __$DashboardStateCopyWithImpl<$Res>
+    implements _$DashboardStateCopyWith<$Res> {
+  __$DashboardStateCopyWithImpl(this._self, this._then);
+
+  final _DashboardState _self;
+  final $Res Function(_DashboardState) _then;
+
+/// Create a copy of DashboardState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? dashboardWidgets = null,Object? viewWidth = null,}) {
+  return _then(_DashboardState(
+dashboardWidgets: null == dashboardWidgets ? _self._dashboardWidgets : dashboardWidgets // ignore: cast_nullable_to_non_nullable
+as List<DashboardWidget>,viewWidth: null == viewWidth ? _self.viewWidth : viewWidth // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ProxyCardState {
+
+ String get proxyName; String? get testUrl;
+/// Create a copy of ProxyCardState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProxyCardStateCopyWith<ProxyCardState> get copyWith => _$ProxyCardStateCopyWithImpl<ProxyCardState>(this as ProxyCardState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxyCardState&&(identical(other.proxyName, proxyName) || other.proxyName == proxyName)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,proxyName,testUrl);
+
+@override
+String toString() {
+  return 'ProxyCardState(proxyName: $proxyName, testUrl: $testUrl)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProxyCardStateCopyWith<$Res>  {
+  factory $ProxyCardStateCopyWith(ProxyCardState value, $Res Function(ProxyCardState) _then) = _$ProxyCardStateCopyWithImpl;
+@useResult
+$Res call({
+ String proxyName, String? testUrl
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProxyCardStateCopyWithImpl<$Res>
+    implements $ProxyCardStateCopyWith<$Res> {
+  _$ProxyCardStateCopyWithImpl(this._self, this._then);
+
+  final ProxyCardState _self;
+  final $Res Function(ProxyCardState) _then;
+
+/// Create a copy of ProxyCardState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? proxyName = null,Object? testUrl = freezed,}) {
+  return _then(ProxyCardState(
+proxyName: null == proxyName ? _self.proxyName : proxyName // ignore: cast_nullable_to_non_nullable
+as String,testUrl: freezed == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProxyCardState].
+extension ProxyCardStatePatterns on ProxyCardState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProxyCardState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProxyCardState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProxyCardState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProxyCardState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProxyCardState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProxyCardState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String proxyName,  String? testUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProxyCardState() when $default != null:
+return $default(_that.proxyName,_that.testUrl);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String proxyName,  String? testUrl)  $default,) {final _that = this;
+switch (_that) {
+case _ProxyCardState():
+return $default(_that.proxyName,_that.testUrl);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String proxyName,  String? testUrl)?  $default,) {final _that = this;
+switch (_that) {
+case _ProxyCardState() when $default != null:
+return $default(_that.proxyName,_that.testUrl);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProxyCardState implements ProxyCardState {
+  const _ProxyCardState({required this.proxyName, this.testUrl});
+  
+
+@override final  String proxyName;
+@override final  String? testUrl;
+
+/// Create a copy of ProxyCardState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProxyCardStateCopyWith<_ProxyCardState> get copyWith => __$ProxyCardStateCopyWithImpl<_ProxyCardState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxyCardState&&(identical(other.proxyName, proxyName) || other.proxyName == proxyName)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,proxyName,testUrl);
+
+@override
+String toString() {
+  return 'ProxyCardState(proxyName: $proxyName, testUrl: $testUrl)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProxyCardStateCopyWith<$Res> implements $ProxyCardStateCopyWith<$Res> {
+  factory _$ProxyCardStateCopyWith(_ProxyCardState value, $Res Function(_ProxyCardState) _then) = __$ProxyCardStateCopyWithImpl;
+@override @useResult
+$Res call({
+ String proxyName, String? testUrl
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProxyCardStateCopyWithImpl<$Res>
+    implements _$ProxyCardStateCopyWith<$Res> {
+  __$ProxyCardStateCopyWithImpl(this._self, this._then);
+
+  final _ProxyCardState _self;
+  final $Res Function(_ProxyCardState) _then;
+
+/// Create a copy of ProxyCardState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? proxyName = null,Object? testUrl = freezed,}) {
+  return _then(_ProxyCardState(
+proxyName: null == proxyName ? _self.proxyName : proxyName // ignore: cast_nullable_to_non_nullable
+as String,testUrl: freezed == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$VpnState {
+
+ TunStack get stack; VpnProps get vpnProps;
+/// Create a copy of VpnState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VpnStateCopyWith<VpnState> get copyWith => _$VpnStateCopyWithImpl<VpnState>(this as VpnState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VpnState&&(identical(other.stack, stack) || other.stack == stack)&&(identical(other.vpnProps, vpnProps) || other.vpnProps == vpnProps));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,stack,vpnProps);
+
+@override
+String toString() {
+  return 'VpnState(stack: $stack, vpnProps: $vpnProps)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VpnStateCopyWith<$Res>  {
+  factory $VpnStateCopyWith(VpnState value, $Res Function(VpnState) _then) = _$VpnStateCopyWithImpl;
+@useResult
+$Res call({
+ TunStack stack, VpnProps vpnProps
+});
+
+
+$VpnPropsCopyWith<$Res> get vpnProps;
+
+}
+/// @nodoc
+class _$VpnStateCopyWithImpl<$Res>
+    implements $VpnStateCopyWith<$Res> {
+  _$VpnStateCopyWithImpl(this._self, this._then);
+
+  final VpnState _self;
+  final $Res Function(VpnState) _then;
+
+/// Create a copy of VpnState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? stack = null,Object? vpnProps = null,}) {
+  return _then(VpnState(
+stack: null == stack ? _self.stack : stack // ignore: cast_nullable_to_non_nullable
+as TunStack,vpnProps: null == vpnProps ? _self.vpnProps : vpnProps // ignore: cast_nullable_to_non_nullable
+as VpnProps,
+  ));
+}
+/// Create a copy of VpnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$VpnPropsCopyWith<$Res> get vpnProps {
+  
+  return $VpnPropsCopyWith<$Res>(_self.vpnProps, (value) {
+    return _then(_self.copyWith(vpnProps: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [VpnState].
+extension VpnStatePatterns on VpnState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VpnState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VpnState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VpnState value)  $default,){
+final _that = this;
+switch (_that) {
+case _VpnState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VpnState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VpnState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TunStack stack,  VpnProps vpnProps)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VpnState() when $default != null:
+return $default(_that.stack,_that.vpnProps);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TunStack stack,  VpnProps vpnProps)  $default,) {final _that = this;
+switch (_that) {
+case _VpnState():
+return $default(_that.stack,_that.vpnProps);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TunStack stack,  VpnProps vpnProps)?  $default,) {final _that = this;
+switch (_that) {
+case _VpnState() when $default != null:
+return $default(_that.stack,_that.vpnProps);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VpnState implements VpnState {
+  const _VpnState({required this.stack, required this.vpnProps});
+  
+
+@override final  TunStack stack;
+@override final  VpnProps vpnProps;
+
+/// Create a copy of VpnState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VpnStateCopyWith<_VpnState> get copyWith => __$VpnStateCopyWithImpl<_VpnState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VpnState&&(identical(other.stack, stack) || other.stack == stack)&&(identical(other.vpnProps, vpnProps) || other.vpnProps == vpnProps));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,stack,vpnProps);
+
+@override
+String toString() {
+  return 'VpnState(stack: $stack, vpnProps: $vpnProps)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VpnStateCopyWith<$Res> implements $VpnStateCopyWith<$Res> {
+  factory _$VpnStateCopyWith(_VpnState value, $Res Function(_VpnState) _then) = __$VpnStateCopyWithImpl;
+@override @useResult
+$Res call({
+ TunStack stack, VpnProps vpnProps
+});
+
+
+@override $VpnPropsCopyWith<$Res> get vpnProps;
+
+}
+/// @nodoc
+class __$VpnStateCopyWithImpl<$Res>
+    implements _$VpnStateCopyWith<$Res> {
+  __$VpnStateCopyWithImpl(this._self, this._then);
+
+  final _VpnState _self;
+  final $Res Function(_VpnState) _then;
+
+/// Create a copy of VpnState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? stack = null,Object? vpnProps = null,}) {
+  return _then(_VpnState(
+stack: null == stack ? _self.stack : stack // ignore: cast_nullable_to_non_nullable
+as TunStack,vpnProps: null == vpnProps ? _self.vpnProps : vpnProps // ignore: cast_nullable_to_non_nullable
+as VpnProps,
+  ));
+}
+
+/// Create a copy of VpnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$VpnPropsCopyWith<$Res> get vpnProps {
+  
+  return $VpnPropsCopyWith<$Res>(_self.vpnProps, (value) {
+    return _then(_self.copyWith(vpnProps: value));
+  });
+}
+}
+
+/// @nodoc
+mixin _$ProfileOverrideStateModel {
+
+ ClashConfigSnippet? get snippet; Set<String> get selectedRules; OverrideData? get overrideData;
+/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProfileOverrideStateModelCopyWith<ProfileOverrideStateModel> get copyWith => _$ProfileOverrideStateModelCopyWithImpl<ProfileOverrideStateModel>(this as ProfileOverrideStateModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileOverrideStateModel&&(identical(other.snippet, snippet) || other.snippet == snippet)&&const DeepCollectionEquality().equals(other.selectedRules, selectedRules)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,snippet,const DeepCollectionEquality().hash(selectedRules),overrideData);
+
+@override
+String toString() {
+  return 'ProfileOverrideStateModel(snippet: $snippet, selectedRules: $selectedRules, overrideData: $overrideData)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProfileOverrideStateModelCopyWith<$Res>  {
+  factory $ProfileOverrideStateModelCopyWith(ProfileOverrideStateModel value, $Res Function(ProfileOverrideStateModel) _then) = _$ProfileOverrideStateModelCopyWithImpl;
+@useResult
+$Res call({
+ ClashConfigSnippet? snippet, Set<String> selectedRules, OverrideData? overrideData
+});
+
+
+$ClashConfigSnippetCopyWith<$Res>? get snippet;$OverrideDataCopyWith<$Res>? get overrideData;
+
+}
+/// @nodoc
+class _$ProfileOverrideStateModelCopyWithImpl<$Res>
+    implements $ProfileOverrideStateModelCopyWith<$Res> {
+  _$ProfileOverrideStateModelCopyWithImpl(this._self, this._then);
+
+  final ProfileOverrideStateModel _self;
+  final $Res Function(ProfileOverrideStateModel) _then;
+
+/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? snippet = freezed,Object? selectedRules = null,Object? overrideData = freezed,}) {
+  return _then(ProfileOverrideStateModel(
+snippet: freezed == snippet ? _self.snippet : snippet // ignore: cast_nullable_to_non_nullable
+as ClashConfigSnippet?,selectedRules: null == selectedRules ? _self.selectedRules : selectedRules // ignore: cast_nullable_to_non_nullable
+as Set<String>,overrideData: freezed == overrideData ? _self.overrideData : overrideData // ignore: cast_nullable_to_non_nullable
+as OverrideData?,
+  ));
+}
+/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ClashConfigSnippetCopyWith<$Res>? get snippet {
+    if (_self.snippet == null) {
+    return null;
+  }
+
+  return $ClashConfigSnippetCopyWith<$Res>(_self.snippet!, (value) {
+    return _then(_self.copyWith(snippet: value));
+  });
+}/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$OverrideDataCopyWith<$Res>? get overrideData {
+    if (_self.overrideData == null) {
+    return null;
+  }
+
+  return $OverrideDataCopyWith<$Res>(_self.overrideData!, (value) {
+    return _then(_self.copyWith(overrideData: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ProfileOverrideStateModel].
+extension ProfileOverrideStateModelPatterns on ProfileOverrideStateModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProfileOverrideStateModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProfileOverrideStateModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProfileOverrideStateModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProfileOverrideStateModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProfileOverrideStateModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProfileOverrideStateModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProfileOverrideStateModel() when $default != null:
+return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData)  $default,) {final _that = this;
+switch (_that) {
+case _ProfileOverrideStateModel():
+return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData)?  $default,) {final _that = this;
+switch (_that) {
+case _ProfileOverrideStateModel() when $default != null:
+return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ProfileOverrideStateModel implements ProfileOverrideStateModel {
+  const _ProfileOverrideStateModel({this.snippet, required  Set<String> selectedRules, this.overrideData}): _selectedRules = selectedRules;
+  
+
+@override final  ClashConfigSnippet? snippet;
+ final  Set<String> _selectedRules;
+@override Set<String> get selectedRules {
+  if (_selectedRules is EqualUnmodifiableSetView) return _selectedRules;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_selectedRules);
+}
+
+@override final  OverrideData? overrideData;
+
+/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProfileOverrideStateModelCopyWith<_ProfileOverrideStateModel> get copyWith => __$ProfileOverrideStateModelCopyWithImpl<_ProfileOverrideStateModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileOverrideStateModel&&(identical(other.snippet, snippet) || other.snippet == snippet)&&const DeepCollectionEquality().equals(other._selectedRules, _selectedRules)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,snippet,const DeepCollectionEquality().hash(_selectedRules),overrideData);
+
+@override
+String toString() {
+  return 'ProfileOverrideStateModel(snippet: $snippet, selectedRules: $selectedRules, overrideData: $overrideData)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProfileOverrideStateModelCopyWith<$Res> implements $ProfileOverrideStateModelCopyWith<$Res> {
+  factory _$ProfileOverrideStateModelCopyWith(_ProfileOverrideStateModel value, $Res Function(_ProfileOverrideStateModel) _then) = __$ProfileOverrideStateModelCopyWithImpl;
+@override @useResult
+$Res call({
+ ClashConfigSnippet? snippet, Set<String> selectedRules, OverrideData? overrideData
+});
+
+
+@override $ClashConfigSnippetCopyWith<$Res>? get snippet;@override $OverrideDataCopyWith<$Res>? get overrideData;
+
+}
+/// @nodoc
+class __$ProfileOverrideStateModelCopyWithImpl<$Res>
+    implements _$ProfileOverrideStateModelCopyWith<$Res> {
+  __$ProfileOverrideStateModelCopyWithImpl(this._self, this._then);
+
+  final _ProfileOverrideStateModel _self;
+  final $Res Function(_ProfileOverrideStateModel) _then;
+
+/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? snippet = freezed,Object? selectedRules = null,Object? overrideData = freezed,}) {
+  return _then(_ProfileOverrideStateModel(
+snippet: freezed == snippet ? _self.snippet : snippet // ignore: cast_nullable_to_non_nullable
+as ClashConfigSnippet?,selectedRules: null == selectedRules ? _self._selectedRules : selectedRules // ignore: cast_nullable_to_non_nullable
+as Set<String>,overrideData: freezed == overrideData ? _self.overrideData : overrideData // ignore: cast_nullable_to_non_nullable
+as OverrideData?,
+  ));
+}
+
+/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ClashConfigSnippetCopyWith<$Res>? get snippet {
+    if (_self.snippet == null) {
+    return null;
+  }
+
+  return $ClashConfigSnippetCopyWith<$Res>(_self.snippet!, (value) {
+    return _then(_self.copyWith(snippet: value));
+  });
+}/// Create a copy of ProfileOverrideStateModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$OverrideDataCopyWith<$Res>? get overrideData {
+    if (_self.overrideData == null) {
+    return null;
+  }
+
+  return $OverrideDataCopyWith<$Res>(_self.overrideData!, (value) {
+    return _then(_self.copyWith(overrideData: value));
+  });
+}
+}
+
+// dart format on

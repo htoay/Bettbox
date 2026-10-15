@@ -1,0 +1,738 @@
+import 'package:bett_box/common/common.dart';
+import 'package:bett_box/enum/enum.dart';
+import 'package:bett_box/models/models.dart';
+import 'package:bett_box/providers/providers.dart';
+import 'package:bett_box/state.dart';
+import 'package:bett_box/widgets/widgets.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<void> _handleNetworkConfigChange(WidgetRef ref) async {
+  if (system.isMobile) {
+    final isVpnEnabled = ref.read(vpnSettingProvider).enable;
+    final isCoreRunning = ref.read(runTimeProvider) != null;
+    if (isVpnEnabled && isCoreRunning) {
+      globalState.showNotifier(
+        appLocalizations.vpnTip,
+        actionLabel: appLocalizations.restart,
+        showCountdown: true,
+        onAction: () async {
+          await globalState.appController.restartCore();
+          globalState.showNotifier(appLocalizations.success);
+        },
+      );
+      return;
+    }
+  }
+  globalState.appController.updateClashConfig();
+}
+
+class VPNItem extends ConsumerWidget {
+  const VPNItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final enable = ref.watch(
+      vpnSettingProvider.select((state) => state.enable),
+    );
+    return ListItem.switchItem(
+      title: const Text('VPN'),
+      subtitle: Text(appLocalizations.vpnEnableDesc),
+      delegate: SwitchDelegate(
+        value: enable,
+        onChanged: (value) async {
+          ref
+              .read(vpnSettingProvider.notifier)
+              .updateState((state) => state.copyWith(enable: value));
+        },
+      ),
+    );
+  }
+}
+
+class TUNItem extends ConsumerWidget {
+  const TUNItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final enable = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.enable),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.tun),
+      subtitle: Text(appLocalizations.tunDesc),
+      delegate: SwitchDelegate(
+        value: enable,
+        onChanged: (value) async {
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState((state) => state.copyWith.tun(enable: value));
+        },
+      ),
+    );
+  }
+}
+
+class AllowBypassItem extends ConsumerWidget {
+  const AllowBypassItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final allowBypass = ref.watch(
+      vpnSettingProvider.select((state) => state.allowBypass),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.allowBypass),
+      subtitle: Text(appLocalizations.allowBypassDesc),
+      delegate: SwitchDelegate(
+        value: allowBypass,
+        onChanged: (bool value) async {
+          ref
+              .read(vpnSettingProvider.notifier)
+              .updateState((state) => state.copyWith(allowBypass: value));
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class VpnSystemProxyItem extends ConsumerWidget {
+  const VpnSystemProxyItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final systemProxy = ref.watch(
+      vpnSettingProvider.select((state) => state.systemProxy),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.systemProxy),
+      subtitle: Text(appLocalizations.vpnSystemProxyDesc),
+      delegate: SwitchDelegate(
+        value: systemProxy,
+        onChanged: (bool value) async {
+          ref
+              .read(vpnSettingProvider.notifier)
+              .updateState((state) => state.copyWith(systemProxy: value));
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class SystemProxyItem extends ConsumerWidget {
+  const SystemProxyItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final systemProxy = ref.watch(
+      networkSettingProvider.select((state) => state.systemProxy),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.systemProxy),
+      subtitle: Text(appLocalizations.systemProxyDesc),
+      delegate: SwitchDelegate(
+        value: systemProxy,
+        onChanged: (bool value) async {
+          ref
+              .read(networkSettingProvider.notifier)
+              .updateState((state) => state.copyWith(systemProxy: value));
+        },
+      ),
+    );
+  }
+}
+
+class AutoSetSystemDnsItem extends ConsumerWidget {
+  const AutoSetSystemDnsItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final autoSetSystemDnsState = ref.watch(autoSetSystemDnsStateProvider);
+    final canSetSystemDns = autoSetSystemDnsState.a;
+    final autoSetSystemDns = autoSetSystemDnsState.b;
+    return ListItem.switchItem(
+      title: Text(appLocalizations.autoSetSystemDns),
+      delegate: SwitchDelegate(
+        value: autoSetSystemDns,
+        onChanged: canSetSystemDns
+            ? (bool value) async {
+                ref
+                    .read(networkSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(autoSetSystemDns: value),
+                    );
+              }
+            : null,
+      ),
+    );
+  }
+}
+
+class StrictRouteItem extends ConsumerWidget {
+  const StrictRouteItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strictRoute = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.strictRoute),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.strictRoute),
+      subtitle: Text(appLocalizations.strictRouteDesc),
+      delegate: SwitchDelegate(
+        value: strictRoute,
+        onChanged: (value) async {
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState((state) => state.copyWith.tun(strictRoute: value));
+
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class IcmpForwardingItem extends ConsumerWidget {
+  const IcmpForwardingItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Note: inverted because disableIcmpForwarding=true means disabled
+    // UI shows "Enable ICMP forwarding"
+    final icmpForwarding = ref.watch(
+      patchClashConfigProvider.select(
+        (state) => !state.tun.disableIcmpForwarding,
+      ),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.icmpForwarding),
+      subtitle: Text(appLocalizations.icmpForwardingDesc),
+      delegate: SwitchDelegate(
+        value: icmpForwarding,
+        onChanged: (value) async {
+          // Invert before passing to core
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState(
+                (state) => state.copyWith.tun(disableIcmpForwarding: !value),
+              );
+
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class DnsHijackItem extends ConsumerWidget {
+  const DnsHijackItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dnsHijack = ref.watch(
+      patchClashConfigProvider.select(
+        (state) => state.tun.dnsHijack.isNotEmpty,
+      ),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.dnsHijack),
+      subtitle: Text(appLocalizations.dnsHijackDesc),
+      delegate: SwitchDelegate(
+        value: dnsHijack,
+        onChanged: (value) async {
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState(
+                (state) => state.copyWith.tun(
+                  dnsHijack: value ? ['any:53', 'tcp://any:53'] : [],
+                ),
+              );
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class EndpointIndependentNatItem extends ConsumerWidget {
+  const EndpointIndependentNatItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final endpointIndependentNat = ref.watch(
+      patchClashConfigProvider.select(
+        (state) => state.tun.endpointIndependentNat,
+      ),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.endpointIndependentNat),
+      subtitle: Text(appLocalizations.endpointIndependentNatDesc),
+      delegate: SwitchDelegate(
+        value: endpointIndependentNat,
+        onChanged: (value) async {
+          if (value) {
+            final res = await globalState.showMessage(
+              title: appLocalizations.tip,
+              message: TextSpan(
+                text: appLocalizations.endpointIndependentNatConfirmDesc,
+              ),
+            );
+            if (res != true) return;
+          }
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState(
+                (state) => state.copyWith.tun(endpointIndependentNat: value),
+              );
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class TunStackItem extends ConsumerWidget {
+  const TunStackItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final stack = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.stack),
+    );
+
+    return ListItem.options(
+      title: Text(appLocalizations.stackMode),
+      subtitle: Text(stack.name),
+      delegate: OptionsDelegate<TunStack>(
+        value: stack,
+        options: TunStack.values,
+        textBuilder: (value) => value.name,
+        onChanged: (value) async {
+          if (value == null) {
+            return;
+          }
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState((state) => state.copyWith.tun(stack: value));
+          await _handleNetworkConfigChange(ref);
+        },
+        title: appLocalizations.stackMode,
+      ),
+    );
+  }
+}
+
+class TunCongestionControllerItem extends ConsumerWidget {
+  const TunCongestionControllerItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (stack, congestionController) = ref.watch(
+      patchClashConfigProvider.select(
+        (state) => (state.tun.stack, state.tun.congestionController),
+      ),
+    );
+
+    if (stack != TunStack.mips) {
+      return const SizedBox.shrink();
+    }
+
+    return ListItem.options(
+      title: Text(appLocalizations.congestionController),
+      subtitle: Text(congestionController.name),
+      delegate: OptionsDelegate<CongestionController>(
+        value: congestionController,
+        options: CongestionController.values,
+        textBuilder: (value) => value.name,
+        onChanged: (value) async {
+          if (value == null) {
+            return;
+          }
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState(
+                (state) => state.copyWith.tun(congestionController: value),
+              );
+          await _handleNetworkConfigChange(ref);
+        },
+        title: appLocalizations.congestionController,
+      ),
+    );
+  }
+}
+
+class MtuItem extends ConsumerWidget {
+  const MtuItem({super.key});
+
+  Future<void> _showCustomMtuDialog(
+    BuildContext context,
+    WidgetRef ref,
+    int currentMtu,
+  ) async {
+    String inputValue = '$currentMtu';
+    String? errorText;
+    // 鸿蒙 VPN 的 vNIC MTU 官方取值范围是 [576,1500]：BettboxVpnAbility 会按该区间夹取，
+    // Go 侧 core/tun/mtu_ohos.go 用同一区间。界面按同一区间校验，避免出现
+    //「填了 9000、实际生效 1500」这种误导（Android 侧区间仍是 1280-65535）。
+    final mtuMin = system.isOhos ? 576 : 1280;
+    final mtuMax = system.isOhos ? 1500 : 65535;
+    final controller = TextEditingController(text: inputValue);
+
+    final result = await globalState.showCommonDialog<bool>(
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return CommonDialog(
+            title: 'MTU',
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(appLocalizations.cancel),
+              ),
+              TextButton(
+                onPressed: errorText == null && inputValue.isNotEmpty
+                    ? () {
+                        Navigator.of(context).pop(true);
+                      }
+                    : null,
+                child: Text(appLocalizations.confirm),
+              ),
+            ],
+            child: IdleFocusBuilder(
+              builder: (_, focusNode) => TextField(
+                focusNode: focusNode,
+                keyboardType: TextInputType.number,
+                controller: controller,
+                decoration: InputDecoration(
+                  labelText: 'MTU',
+                  errorText: errorText,
+                  hintText: '$mtuMin-$mtuMax',
+                ),
+                onChanged: (value) {
+                  inputValue = value;
+                  // Real-time validation
+                  if (value.isEmpty) {
+                    setState(() {
+                      errorText = appLocalizations.emptyTip('MTU');
+                    });
+                  } else {
+                    final intValue = int.tryParse(value);
+                    if (intValue == null) {
+                      setState(() {
+                        errorText = appLocalizations.numberTip('MTU');
+                      });
+                    } else if (intValue < mtuMin || intValue > mtuMax) {
+                      setState(() {
+                        errorText = 'MTU Must be $mtuMin-$mtuMax';
+                      });
+                    } else {
+                      setState(() {
+                        errorText = null;
+                      });
+                    }
+                  }
+                },
+                onSubmitted: (value) {
+                  if (errorText == null && value.isNotEmpty) {
+                    Navigator.of(context).pop(true);
+                  }
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    // Clean up controller
+    controller.dispose();
+
+    if (result == true && inputValue.isNotEmpty) {
+      final intValue = int.tryParse(inputValue);
+      if (intValue != null && intValue >= mtuMin && intValue <= mtuMax) {
+        ref
+            .read(patchClashConfigProvider.notifier)
+            .updateState((state) => state.copyWith.tun(mtu: intValue));
+        await _handleNetworkConfigChange(ref);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final mtu = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.mtu),
+    );
+
+    // Preset options
+    // 预设值随平台：鸿蒙上限就是 1500，给 9000 只会被静默夹取
+    final presetOptions = system.isOhos ? [1500, 1400] : [9000, 4064];
+    final isCustom = !presetOptions.contains(mtu);
+
+    return ListItem.options(
+      title: const Text('MTU'),
+      subtitle: Text(isCustom ? '$mtu (${appLocalizations.custom})' : '$mtu'),
+      delegate: OptionsDelegate<String>(
+        value: isCustom ? 'custom' : '$mtu',
+        options: [...presetOptions.map((e) => '$e'), 'custom'],
+        textBuilder: (value) {
+          if (value == 'custom') {
+            return '${appLocalizations.custom}...';
+          }
+          return value;
+        },
+        onChanged: (value) async {
+          if (value == null) return;
+
+          // If custom option selected
+          if (value == 'custom') {
+            await _showCustomMtuDialog(context, ref, mtu);
+          } else {
+            // Apply preset value directly
+            final intValue = int.parse(value);
+            ref
+                .read(patchClashConfigProvider.notifier)
+                .updateState((state) => state.copyWith.tun(mtu: intValue));
+            await _handleNetworkConfigChange(ref);
+          }
+        },
+        title: 'MTU',
+      ),
+    );
+  }
+}
+
+class BypassDomainItem extends StatelessWidget {
+  const BypassDomainItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.next(
+      title: Text(appLocalizations.bypassDomain),
+      subtitle: Text(appLocalizations.bypassDomainDesc),
+      delegate: NextDelegate(
+        blur: false,
+        actions: [
+          Consumer(
+            builder: (_, ref, _) {
+              return IconButton(
+                onPressed: () async {
+                  final res = await globalState.showMessage(
+                    title: appLocalizations.reset,
+                    message: TextSpan(text: appLocalizations.resetTip),
+                  );
+                  if (res != true) {
+                    return;
+                  }
+                  ref
+                      .read(networkSettingProvider.notifier)
+                      .updateState(
+                        (state) =>
+                            state.copyWith(bypassDomain: defaultBypassDomain),
+                      );
+                  await _handleNetworkConfigChange(ref);
+                },
+                tooltip: appLocalizations.reset,
+                icon: const Icon(Icons.replay),
+              );
+            },
+          ),
+        ],
+        title: appLocalizations.bypassDomain,
+        widget: Consumer(
+          builder: (_, ref, _) {
+            final bypassDomain = ref.watch(
+              networkSettingProvider.select((state) => state.bypassDomain),
+            );
+            return ListInputPage(
+              title: appLocalizations.bypassDomain,
+              items: bypassDomain,
+              titleBuilder: (item) => Text(item),
+              onChange: (items) async {
+                ref
+                    .read(networkSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(bypassDomain: List.from(items)),
+                    );
+                await _handleNetworkConfigChange(ref);
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class BypassPrivateRouteItem extends ConsumerWidget {
+  const BypassPrivateRouteItem({super.key});
+
+  void _showEditPage(BuildContext context, WidgetRef ref) {
+    showExtend(
+      context,
+      builder: (_, type) => AdaptiveSheetScaffold(
+        type: type,
+        title: appLocalizations.bypassPrivateRoute,
+        actions: [
+          Consumer(
+            builder: (_, ref, _) {
+              return IconButton(
+                onPressed: () async {
+                  final res = await globalState.showMessage(
+                    title: appLocalizations.reset,
+                    message: TextSpan(text: appLocalizations.resetTip),
+                  );
+                  if (res != true) return;
+                  ref
+                      .read(networkSettingProvider.notifier)
+                      .updateState(
+                        (state) => state.copyWith(
+                          bypassPrivateRouteAddress: system.isDesktop
+                              ? defaultDesktopBypassPrivateRouteAddress
+                              : defaultBypassPrivateRouteAddress,
+                        ),
+                      );
+                  await _handleNetworkConfigChange(ref);
+                },
+                tooltip: appLocalizations.reset,
+                icon: const Icon(Icons.replay),
+              );
+            },
+          ),
+        ],
+        body: Consumer(
+          builder: (_, ref, _) {
+            final bypassPrivateRouteAddress = ref.watch(
+              networkSettingProvider.select(
+                (state) => state.realBypassPrivateRouteAddress,
+              ),
+            );
+            return ListInputPage(
+              title: appLocalizations.bypassPrivateRoute,
+              items: bypassPrivateRouteAddress,
+              titleBuilder: (item) => Text(item),
+              onChange: (items) async {
+                ref
+                    .read(networkSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(
+                        bypassPrivateRouteAddress: List.from(items),
+                      ),
+                    );
+                await _handleNetworkConfigChange(ref);
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final bypassPrivateRoute = ref.watch(
+      networkSettingProvider.select((state) => state.bypassPrivateRoute),
+    );
+    return ListItem.switchItem(
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(appLocalizations.bypassPrivateRoute),
+          Tooltip(
+            message: appLocalizations.edit,
+            child: Material(
+              color: Colors.transparent,
+              child: InkResponse(
+                radius: 16,
+                highlightShape: BoxShape.circle,
+                onTap: () => _showEditPage(context, ref),
+                child: Padding(
+                  padding: const EdgeInsets.all(7),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    size: 18,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      subtitle: Text(appLocalizations.bypassPrivateRouteDesc),
+      delegate: SwitchDelegate(
+        value: bypassPrivateRoute,
+        onChanged: (value) async {
+          ref
+              .read(networkSettingProvider.notifier)
+              .updateState(
+                (state) => state.copyWith(bypassPrivateRoute: value),
+              );
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
+class NetworkListView extends ConsumerWidget {
+  const NetworkListView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 鸿蒙/移动端：isMobile 覆盖 ohos（本仓库改动），保留上游写法
+    final vpnSystemProxy = system.isMobile &&
+        ref.watch(vpnSettingProvider.select((state) => state.systemProxy));
+    final isMipsStack = ref.watch(
+      patchClashConfigProvider.select(
+        (state) => state.tun.stack == TunStack.mips,
+      ),
+    );
+    final networkItems = [
+      if (system.isMobile) ...generateSection(items: const [VPNItem()]),
+      if (system.isMobile)
+        ...generateSection(
+          title: 'VPN',
+          items: [
+            const AllowBypassItem(),
+            // 鸿蒙的 VpnConfig 没有系统 HTTP 代理字段（那是 Android 的能力：
+            // BettboxVpnService 用 setHttpProxy 设的），留着开关就是「设置项说谎」，
+            // 所以鸿蒙隐藏这两项；需要系统级代理的程序请手动指向 127.0.0.1:<混合端口>。
+            if (!system.isOhos) const VpnSystemProxyItem(),
+            if (vpnSystemProxy && !system.isOhos) const BypassDomainItem(),
+          ],
+        ),
+      if (system.isDesktop)
+        ...generateSection(
+          title: appLocalizations.system,
+          items: const [SystemProxyItem(), BypassDomainItem()],
+        ),
+      ...generateSection(
+        title: appLocalizations.options,
+        items: [
+          if (system.isDesktop) const TUNItem(),
+          if (system.isMacOS) const AutoSetSystemDnsItem(),
+          if (system.isDesktop) const StrictRouteItem(),
+          const IcmpForwardingItem(),
+          const DnsHijackItem(),
+          const EndpointIndependentNatItem(),
+          const TunStackItem(),
+          if (isMipsStack) const TunCongestionControllerItem(),
+          const MtuItem(),
+          const BypassPrivateRouteItem(),
+        ],
+      ),
+    ];
+    return generateListView(networkItems);
+  }
+}

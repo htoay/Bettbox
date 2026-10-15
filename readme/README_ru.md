@@ -1,0 +1,159 @@
+<h4 align="right">
+  <a href="../README.md">简体中文</a> | <a href="README_en.md">English</a> | <strong>Русский</strong> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+</h4>
+
+<h1 align="center">⚡ Bettbox</h1>
+<p align="center">
+  <strong>Another Better Mihomo Client, Forked from FlClash</strong>
+</p>
+
+**Bettbox — это кроссплатформенный инструмент для маршрутизации трафика и отладки DNS, созданный на базе мощного ядра Mihomo. Мы уделяем особое внимание приватности, безопасности и деталям функций, стремясь предоставить лучший клиентский опыт (проект уже успешно прошёл ручную проверку безопасности и происхождения от Signpath Foundation, а версия для Windows подписана цифровым сертификатом OV).**
+
+Следуя принципу «Better Experience» (Лучший опыт), Bettbox сохраняет отличный UI оригинала, глубоко оптимизируя множество деталей, а также практические функции и логику для разных платформ. Ключевые особенности и цели: плавность на переднем плане, энергосбережение в фоновом режиме — надёжный клиент Mihomo для долгосрочной стабильной работы с минимальным потреблением ресурсов.
+
+Название Bettbox означает: Better Experience, Out of the box — Превосходный опыт из коробки.
+
+
+[![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
+
+<p align="center">
+  <img src="../snapshots/home.png" alt="Bettbox" />
+</p>
+
+---
+### ✈️ Сообщество в Telegram
+
+</div>
+
+<div align="left">
+
+[![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
+
+---
+## 🚀 Основные особенности
+
+* **Готово к работе**: Стабильное управление правами и удобный TUN/VPN. Предустановленные оптимизации для мгновенного старта.
+* **Отточенный UI**: Тщательная проработка UI и взаимодействия. Плавные высококадровые анимации, экономия батареи на мобильных, минимум нагрузки на ПК.
+* **Надёжная защита**: Ядро следует основной ветке Mihomo, соблюдает принцип наименьших привилегий на всех платформах и имеет официальную цифровую подпись OV от SignPath.
+* **Высокая отказоустойчивость**: Оптимизация крайних сценариев и двойная проверка конфигурации для надёжности корпоративного уровня.
+* **Фокус на производительность**: Нативный ARM64 для ПК, аппаратное профилирование и глубокая оптимизация Flutter для выжимания максимума из железа.
+* **Умные утилиты**: Умный автозапуск/остановка, поддержка режима сна Android, отключение QUIC в один клик и расширенное меню в трее.
+* **Наглядные настройки**: Ещё более богатые возможности визуальной настройки через UI с мгновенным применением — без ручной правки конфигурации.
+* **Виджеты на главном экране**: Множество качественно оформленных встроенных виджетов для контроля скорости сети и общего состояния системы прямо на главном экране.
+* **Кастомизация**: Разнообразные цветовые темы, пользовательские иконки/заголовки и целых 30 красивых анимаций проверки скорости.
+* **Гибкая адаптация**: Первая в своем роде поддержка UI правил для скриптов оверрайда JS с удобными визуальными переключателями.
+* **Профессиональный редактор**: Встроенный высокопроизводительный редактор code-forge на всех платформах, не уступающий профессиональным IDE.
+* **Поддержка старых устройств**: Постоянный релиз сборок Compatible для старых ОС и железа, продлевающий срок службы устройств.
+* **Конфиденциальность 100%**: Открытый исходный код, без рекламы, полностью прозрачный процесс CI/CD, прошедший всесторонний аудит, исключающий любой сбор данных в фоновом режиме.
+* **Внимание к сообществу**: Мы ценим обратную связь и оперативно реагируем на качественные Issue — ваш голос важен.
+
+</div>
+
+###   🛩️ Рекомендуемые сервисы
+#### Транзитные и выделенные линии  〢  [BBXY](https://www.bbxy01.com/v2/register?code=c09R)  〢  [BaiYueGuang](https://www.sibker.com/register?invite_code=YZq6L5zd)  〢  [MESL](https://panel.meslcloud.com/#/register?code=7vy22Bv2)  〢  [Ytoo](https://y-too.net/aff.php?aff=10354)
+--------------------------------
+#### Бюджетные прямые линии  〢  [Liangxin Cloud](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [Chuixue Cloud](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [YiFen](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [Peiqian](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+--------------------------------
+####   Эксклюзивный промокод на скидку 32% для BBXY: bettbox68
+--------------------------------
+
+**Краткий обзор** : ❚ ❚  Приведенные ссылки основаны на личном использовании или обсуждениях/рекомендациях участников групп TG и представлены исключительно в качестве партнерских (AFF) ссылок (Примечание: при покупке по ссылкам разработчик получает небольшую комиссию в поддержку проекта). Это не является гарантией качества услуг. Пожалуйста, оценивайте риски и выбирайте осознанно.
+
+---
+## 🛠️ Установка и загрузка
+
+Перейдите на страницу **[[Releases]](https://github.com/appshubcc/Bettbox/releases)**, чтобы скачать актуальный установочный пакет для вашей платформы и системы.
+
+
+* **Все ПК платформы**: 
+**Windows 8.1+:** (x64/arm64)
+**Linux Kernel 5.4+:** (x64/arm64)
+**macOS 12.0+:** (Intel/Apple Silicon)
+* **Устройства Android 8.0+:** Android (ARMv8 / ARMv7 / x86_64 / Universal)
+* **Android TV:** Полностью адаптирован, для устройств с малым объемом памяти доступна 32-битная версия ARMv7
+* **HarmonyOS NEXT:** Стабильно работает при использовании с [[ZhuoYiTong]](https://harmonyos.cool/android-app)
+
+**Другие способы установки:**<br>
+**ArchLinux:** <code>yay -S bettbox-bin или paru -S bettbox-bin</code> (поддерживается [ lyj404 ](https://github.com/lyj404/bettbox-aur))<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin или paru -S bettbox-compatible-bin</code> (поддерживается [ VillagerTom ](https://github.com/VillagerTom))
+
+---
+## ❓ FAQ (Часто задаваемые вопросы)
+
+1. **Проблемы с установкой, запуском и безопасностью**:
+   - Android устройства: **убедитесь в наличии фоновых разрешений и соответствии системным требованиям**: Android 8.0+
+   - Старые ПК: проверьте архитектуру системы, **требуется ли сборка CPU класса Compatible**.
+   - **Безопасность: Беттбокс прозрачен и открыт, код успешно прошёл аудит безопасности Signpath.**
+
+2. **Частые проблемы на ПК**:
+   - Права администратора Windows: В инсталляторе Bettbox всё настроено заранее — **ручная авторизация не требуется**.
+   - Не удается включить виртуальный адаптер TUN: На macOS/Linux **убедитесь, что ввели правильный пароль для прав**.
+   - Другие ошибки: Предоставьте Debug информацию и **убедитесь в отсутствии конфликтующих прокси-сервисов**.
+   - Если проблема не решена, пожалуйста, создайте ISSUE для обратной связи.
+
+3. **Важные примечания по установке на macOS**:
+   - Скачайте образ для вашей платформы (Intel / Apple Silicon) и откройте `Bettbox-macos-xx.dmg`.
+   - Перетащите значок Bettbox в папку `Applications` (Программы).
+   - **Обход блокировок Gatekeeper при установке или обновлении** ([так как мы пока не приобретали сертификат разработчика Apple](https://support.apple.com/en-us/102445)):
+     - **Рекомендуемый**: откройте папку «Программы», **нажмите правой кнопкой мыши по значку Bettbox**, выберите **«Открыть»**, а затем снова **«Открыть»** в окне подтверждения.
+     - **Альтернативный**: если запуск заблокирован, перейдите в «Системные настройки» -> «Конфиденциальность и безопасность», найдите Bettbox и нажмите **«Подтвердить вход»**.
+   - При первом включении режима TUN появится окно авторизации: **введите пароль текущего вошедшего пользователя, чтобы разрешить Bettbox настроить сеть**.
+
+4. **Не удается импортировать ссылку на подписку**:
+   - **Обязательно сначала сбросьте ссылку**, чтобы убедиться в её работоспособности перед импортом.
+   - Если проблема не устранена, сначала обратитесь к поставщику услуг. Если с помощью DEBUG подтверждено, что проблема на стороне приложения, создайте ISSUE для обратной связи.
+
+---
+
+## 💻 Разработка и сборка
+
+Пример для Windows:
+
+* Требуется ПК с Windows (ОС ≥ Windows 10)
+* Окружение: Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+```bash
+* flutter pub get
+* dart .\setup.dart windows --arch amd64 --out core (Только ядро)
+* dart .\setup.dart windows --arch amd64 --out app --compatible (Опциональная сборка Compatible)
+* Готовые файлы располагаются в директории `dist/`
+```
+
+Адаптация пользовательских скриптов UI:
+
+* Начиная с v1.18.8, Bettbox поддерживает внешние скрипты оверрайда для UI. Например, для конфигураций AIsouler **[Репозиторий скриптов](https://github.com/AIsouler/MyClash)** достаточно добавить строку в начало скрипта:
+* <code>const Compatible_With_Bettbox = { ruleOptionsEnable: true };</code>
+
+---
+
+### ☕ Поддержка проекта
+
+**Если вам нравится проект, вы можете поддержать разработку:**
+
+* TRON (TRC-20):   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
+* Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
+---
+
+## 🙏 Благодарности
+
+<table>
+  <tr>
+    <td>
+      <img alt="SignPath" src="https://signpath.org/assets/favicon-50x50.png" />
+    </td>
+    <td>
+    Free code signing on Windows provided by <a href="https://signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org/">SignPath Foundation</a>
+    </td>
+  </tr>
+</table>
+
+**[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
+
+Отдельное спасибо всем [Участникам](https://github.com/appshubcc/Bettbox/graphs/contributors), а также используемым и связанным открытым проектам:
+
+[Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN), [Bett-rules](https://github.com/appshubcc/bett-rules)
+
+---
+
+## 📄 Лицензия
+
+Лицензия GPL-3.0

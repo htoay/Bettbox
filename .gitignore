@@ -1,0 +1,100 @@
+# Miscellaneous
+*.md
+!/README.md
+!/readme/*.md
+!/SIGNING-POLICY.md
+!.github/release_template.md
+!.github/release_template_pre.md
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+/specs/
+/dist/
+.test/
+# Unsupported generated iOS platform
+/ios/
+# Xcode project-local SwiftPM state; keep the workspace Package.resolved
+/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+/services/helper/target/
+# Symbolication related
+app.*.symbols
+# Obfuscation related
+app.*.map.json
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/core/.cxx
+#libclash
+/libclash/
+#jniLibs
+/android/app/src/main/jniLibs/
+/android/core/src/main/jniLibs/
+# Tool-generated local configuration
+/plugins/flutter_distributor/packages/flutter_distributor/devtools_options.yaml
+# FVM Version Cache
+.fvm/
+.fvmrc
+/assets/data/GeoSite.dat
+/assets/data/geoip.metadb
+/assets/data/ASN.mmdb
+/assets/data/zash.zip
+/assets/data/*.gz
+# Miscellaneous
+!/docs/*.md
+# 本机审计笔记：含本机排查细节（设备/构建环境），按约定不入库。
+# 注意 `!/docs/*.md` 是「放行」规则，会覆盖 .git/info/exclude，所以必须在它**后面**
+# 显式忽略，否则 `git add -A` 会把它们一起提交（2026-10-16 由 .home/sanitize_check.py 发现）。
+# 若将来要发布，先把里面的本机信息按 docs/ 其它文档的标准脱敏，再删掉这行。
+/docs/ohos_*_audit.md
+# HarmonyOS & Go / Rust build artifacts
+core/build/
+plugins/code_forge/rust/target/
+ohos/.hvigor/
+ohos/oh_modules/
+ohos/entry/oh_modules/
+ohos/entry/libs/
+ohos/build/
+# scripts/build_ohos.py 运行期从 ohos/pubspec_overrides.yaml 注入，构建后删除；
+# 构建被中断时会残留，忽略它以免污染工作区（也避免误提交）。
+/pubspec_overrides.yaml
+# 本机（沙箱）构建缓存：flutter 工具链副本、pub/rust/go/ohpm 缓存、$HOME 重定向目录。
+# 正常开发机上不会有这些目录，列在这里是为了防止 `git add -A` 把整份 Flutter SDK 或缓存提交进去。
+/.toolchain/
+/.pubcache/
+/.cargohome/
+/.ohpm/
+/.home/
+/ohos/.cache/

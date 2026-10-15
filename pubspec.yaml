@@ -1,0 +1,158 @@
+name: bett_box
+description: A multi-platform proxy client based on Mihomo, simple and easy to use, open-source and ad-free.
+publish_to: 'none'
+version: 1.19.5+2026101301
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.0
+  path_provider: ^2.1.6
+  path: ^1.9.0
+  shared_preferences: ^2.5.5
+  window_manager: ^0.5.2
+  dynamic_color: ^2.1.0
+  material_color_utilities: ^0.13.0
+  vclibs: ^0.1.3
+  proxy:
+    path: plugins/proxy
+  window_ext:
+    path: plugins/window_ext
+  tray_manager:
+    path: plugins/tray_manager
+  launch_at_startup:
+    path: plugins/launch_at_startup
+  json_annotation: ^4.12.0
+  file_picker: ^13.0.0
+  mobile_scanner: ^7.2.1
+  zxing2: ^0.2.4
+  image: ^4.3.0
+  app_links: ^7.2.2
+  win32_registry: ^3.0.0
+  collection: ^1.18.0
+  animations: ^3.0.0
+  package_info_plus: ^10.0.0
+  url_launcher: ^6.3.2
+  freezed_annotation: ^3.1.0
+  image_picker: ^1.2.3
+  webdav_client: ^1.2.2
+  dio: ^5.10.0
+  win32: ^6.0.0
+  ffi: ^2.2.0
+  re_highlight: ^0.0.3
+  archive: ^4.0.7
+  lpinyin: ^2.0.3
+  emoji_regex: ^0.0.5
+  hotkey_manager: ^0.2.3
+  uni_platform: ^0.1.3
+  device_info_plus: ^13.0.0
+  yaml: ^3.1.2
+  connectivity_plus: ^7.3.1
+  screen_retriever: ^0.2.0
+  defer_pointer: ^0.0.2
+  flutter_riverpod: ^3.4.3
+  riverpod_annotation: ^4.0.7
+  riverpod: ^3.4.3
+  flutter_svg: ^2.2.4
+  xml: ^6.6.1
+  crypto: ^3.0.7
+  google_nav_bar: ^5.0.7
+  wakelock_plus: ^1.8.0
+  flutter_spinkit: ^5.2.2
+  synchronized: ^3.4.0
+  restart_app: ^1.8.3
+  code_forge:
+    path: plugins/code_forge
+  # 注意：material_ui / cupertino_ui 上游用 ^1.6.0 / ^1.1.2，但它们要求 Dart ^3.13.0，
+  # 而鸿蒙工具链（flutter_ohos 3.44.9）只有 Dart 3.12.2 —— 只能钉到 Dart 3.12 兼容的最高版本：
+  #   material_ui 1.3.0 已被 pub.dev 撤回（retracted），故退到 1.2.0；1.4.0+ 要求 Dart ^3.13.0。
+  #   cupertino_ui 1.1.0 亦已被撤回、1.1.1+ 要求 Dart ^3.13.0，故钉 1.0.2（material_ui 1.2.0 依赖 ^1.0.0）。
+  #   ⚠️ 这两个包的实际来源见 dependency_overrides：鸿蒙上换成本地垫片（re-export 工具链自带的
+  #   material / cupertino，因为外部副本的 TargetPlatform 穷举 switch 不含 TargetPlatform.ohos）。
+  material_ui: 1.2.0
+  cupertino_ui: 1.0.2
+  # 鸿蒙移植保留：lib/main.dart / lib/application.dart 仍在用（上游已移除）
+  flutter_displaymode: ^0.7.0
+  # 鸿蒙移植保留：lib/main.dart 直接 import flutter_rust_bridge（上游只在 dev_dependencies 里给 any）
+  flutter_rust_bridge: 2.13.0
+dependency_overrides:
+  flutter_rust_bridge: 2.13.0
+  # 鸿蒙适配：material_ui / cupertino_ui 是上游 v1.19.5 新引入的外部 UI 包（Flutter 官方
+  # material/cupertino 的再发布副本），其穷举 TargetPlatform 的 switch 不含 flutter_ohos
+  # 新增的 TargetPlatform.ohos → Dart 前端报 "not exhaustively matched" 无法编译（实测 166 处）。
+  # 本地垫片直接 re-export 工具链自带（已处理 ohos）的库，上游 import 保持逐字不变。
+  # flutter_ohos 升到 Flutter 3.47+ 后可删除这两行与 third_party/{material_ui,cupertino_ui}。
+  material_ui:
+    path: third_party/material_ui
+  cupertino_ui:
+    path: third_party/cupertino_ui
+  # Fix compile failure: https://github.com/leanflutter/hotkey_manager/pull/66
+  hotkey_manager_linux:
+    git:
+      url: https://github.com/gepbird/hotkey_manager.git
+      path: packages/hotkey_manager_linux
+      ref: fix-build-failure
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  ffigen: ^20.1.1
+  json_serializable: ^6.14.1
+  # 约束链：flutter_test(sdk) 钉死 meta 1.18.0 → analyzer 必须 <13.1.0
+  #          → build_runner 必须 <2.15.2（2.15.2+ 要求 analyzer >=13.3.0）
+  #          → 取 2.15.1（analyzer >=8.0.0 <14.0.0，与 freezed 4.0.0-dev.3 的 ^13.0.0 求交为 13.0.x）。
+  build_runner: 2.15.1
+  args: ^2.4.2
+  # freezed 4.0.0 正式版要求 Dart >=3.13.0，鸿蒙工具链只有 3.12.2 → 用 4.0.0-dev.3
+  # （sdk >=3.12.0，analyzer ^13，与 riverpod_generator 4.0.9 / json_serializable 6.14.1 的
+  #  analyzer 区间一致；freezed 3.x 依赖 analyzer <11，与 riverpod_generator 4.0.9 冲突）。
+  # 运行时依赖 freezed_annotation 仍是 ^3.1.0，与上游一致。
+  freezed: ^4.0.0-dev.3
+  riverpod_generator: ^4.0.9
+  intl_utils: ^2.8.17
+  liquid_engine: ^0.2.2
+
+  flutter_rust_bridge: any
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/fonts/
+    - assets/images/
+    - assets/images/avatars/
+    - assets/images/platforms/
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+    - family: Twemoji
+      fonts:
+        - asset: assets/fonts/Twemoji.Mozilla.ttf
+    - family: Icons
+      fonts:
+        - asset: assets/fonts/Icons.ttf
+    - family: HarmonyOS_Sans
+      fonts:
+        - asset: assets/fonts/HarmonyOS_Sans_SC_Regular.ttf
+    # 只含 U+0020（0.28em）的极小字体：鸿蒙上系统 CJK 字体族与内置 HarmonyOS_Sans
+    # 都不带空格字形，导致空格落到 emoji 字体（为键盘帽 0️⃣–9️⃣ 自带 1em 宽空格），
+    # 表现为「中英混排间隔异常」。把它放在 fontFamilyFallback 最前面只补空格。
+    - family: SpaceFix
+      fonts:
+        - asset: assets/fonts/SpaceFix.ttf
+ffigen:
+  name: "ClashFFI"
+  output: 'lib/clash/generated/clash_ffi.dart'
+  headers:
+    entry-points:
+      - 'libclash/android/arm64-v8a/libmeta.h'
+flutter_intl:
+  enabled: true
+  class_name: AppLocalizations
+  arb_dir: arb
+  output_dir: lib/l10n

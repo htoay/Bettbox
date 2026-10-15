@@ -1,0 +1,9 @@
+{
+  "modelVersion": "5.1.0",
+  "dependencies": {
+  },
+  "properties": {
+    // 打包 HAP 时压缩 so 的体积等级（需 module.json5 开启 compressNativeLibs）
+    "ohos.pack.compressLevel": "ultimate"
+  }
+}

@@ -1,0 +1,14 @@
+name: cupertino_ui
+description: "OHOS 适配垫片：把上游的 cupertino_ui 重新指向 flutter_ohos 自带的 cupertino 库（已处理 TargetPlatform.ohos）。"
+version: 1.0.2
+publish_to: 'none'
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter

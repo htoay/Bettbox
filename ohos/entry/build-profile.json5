@@ -1,0 +1,31 @@
+
+{
+  "apiType": 'stageMode',
+  "buildOption": {
+    "externalNativeOptions": {
+      "path": "./src/main/cpp/CMakeLists.txt",
+      "arguments": "",
+      "cppFlags": "",
+      // 真机/发布只跑 arm64-v8a；不构建 x86_64（那是模拟器用的，
+      // 之前会让 HAP 里多出一份 ~40MB 的 libflutter.so）
+      "abiFilters": [
+        "arm64-v8a"
+      ]
+    },
+    "napiLibFilterOption": {
+      // 兜底：即使中间产物里残留 x86_64 的动态库，也不打进 HAP
+      "excludes": [
+        "**/x86_64/**"
+      ]
+    }
+  },
+  "targets": [
+    {
+      "name": "default",
+      "runtimeOS": "HarmonyOS"
+    },
+    {
+      "name": "ohosTest",
+    }
+  ]
+}

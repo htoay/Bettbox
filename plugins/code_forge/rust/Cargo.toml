@@ -1,0 +1,43 @@
+[package]
+name = "code_forge"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.13.0"
+fancy-regex = { version = "0.14", default-features = false, features = ["std"] }
+regex-automata = { version = "0.4", default-features = false, features = ["std", "syntax", "meta", "nfa-pikevm", "nfa-backtrack", "hybrid", "perf-literal", "unicode-case", "unicode-perl", "unicode-word-boundary"] }
+ropey = { version = "1.6.1", default-features = false, features = ["simd"] }
+rquickjs = { version = "0.12", default-features = false }
+serde_json = { version = "1", features = ["preserve_order"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+rquickjs = { version = "0.12", default-features = false, features = ["bindgen"] }
+
+# 鸿蒙（aarch64-unknown-linux-ohos）的 cfg 是 target_os = "linux" + target_env = "ohos"，
+# 不会命中上面的 android 分支。而 rquickjs-sys 在未开 bindgen 时执行
+# `include!(concat!("bindings/", bindings_env!("TARGET"), ".rs"))`，
+# 其 src/bindings/ 只预生成 16 个目标（无 *-linux-ohos），会直接编译失败。
+# 因此与 android 一样开启 bindgen（bindgen 0.72 已是 rquickjs-sys 的可选构建依赖）。
+[target.'cfg(target_env = "ohos")'.dependencies]
+rquickjs = { version = "0.12", default-features = false, features = ["bindgen"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.release.package.regex-automata]
+opt-level = "s"
+
+[profile.release.package.regex-syntax]
+opt-level = "s"
+
+[profile.release.package.fancy-regex]
+opt-level = "s"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

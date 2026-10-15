@@ -1,0 +1,118 @@
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "EntryAbility",
+    "deviceTypes": [
+      "phone",
+      "tablet",
+      "2in1"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "compressNativeLibs": true,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "EntryAbility",
+        "srcEntry": "./ets/entryability/EntryAbility.ets",
+        "description": "$string:EntryAbility_desc",
+        // 桌面图标：分层资源（entry 下 layered_image.json，前景透明 + 纯色背景）；
+        // 启动页图标单独用 icon_startwindow.png（透明底 + 深色 logo，配浅色 startWindowBackground）。
+        // 注意：AppScope 与 entry 同名资源会互相覆盖（AppScope 覆盖 entry），
+        // 所以 AppScope 侧用的是 app_* 命名，见 scripts/gen_ohos_icon.py。
+        "icon": "$media:layered_image",
+        "label": "$string:EntryAbility_label",
+        "startWindowIcon": "$media:icon_startwindow",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "backgroundModes": [
+          "dataTransfer",
+          "audioPlayback",
+          // 计算任务：VPN 转发是长期常驻的计算/网络任务，语义最匹配，且
+          // 不会像 audioPlayback 那样被音频打断、也不像 dataTransfer 有进度校验。
+          // 非 PC/2in1 设备从 API 21 起需 ACL 权限 KEEP_BACKGROUND_RUNNING_SYSTEM。
+          "taskKeeping"
+        ],
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          },
+          {
+            // 深链：clash://install-config?url=<订阅地址> 一键导入订阅。
+            // 独立一条 skills（不动上面那条 home，桌面识别依赖它）；
+            // want.uri 由 EntryAbility.onCreate / onNewWant 转给 Dart，见 lib/common/link.dart。
+            "actions": [
+              "ohos.want.action.viewData"
+            ],
+            "uris": [
+              {
+                "scheme": "clash",
+                "host": "install-config"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "BettboxVpnAbility",
+        "srcEntry": "./ets/vpnability/BettboxVpnAbility.ets",
+        "type": "vpn",
+        // 不要配 extensionProcessMode：官方《VPN流程问题排查指南》《后台保活方案》均说明
+        // 「VPN 扩展进程是一个独立进程」，且该字段只对状态栏扩展生效。
+        // 真机实测（HarmonyOS 7.0.0 / API 26）：无论配 bundle 还是
+        // runWithMainProcess，扩展都跑在独立进程 com.appshub.bettbox:vpn，
+        // SELinux 域为 vpn_isolate_hap（主进程是 normal_hap）。
+        // 跨域访问主进程创建的 unix socket 会被拒（connect 返回 EACCES/-13），
+        // 所以 TUN fd 无法用「主进程建 socket + 扩展投递」的方式交接 ——
+        // 见 docs/harmonyos_audit_fixes.md 的 TUN fd 交接一节。
+        "description": "$string:EntryAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:EntryAbility_label"
+      }
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET"
+      },
+      {
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING"
+      },
+      {
+        // 剪贴板读取为受限 user_grant 权限（API 12+ 管控）：Flutter 使用自绘控件，
+        // 无法集成系统粘贴控件 PasteButton，符合官方允许申请场景“应用中使用了开源框架”。
+        // 必须使用包含该权限 ACL 的签名 Profile（DevEco 自动签名会自动申请），
+        // 否则应用安装失败；授权后 Flutter 引擎的剪贴板读取才能返回内容。
+        "name": "ohos.permission.READ_PASTEBOARD",
+        "reason": "$string:pasteboard_permission_reason",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "inuse"
+        }
+      },
+      {
+        // 读取当前网络（物理网卡）的地址/网关/DNS：
+        // 1) 把设备真实 DNS 下发给 Go 核心（对应 Android 的 dnsChanged 事件），
+        //    否则 mihomo 的 system 解析器为空，会退回内置公共 DNS；
+        // 2) 智能停机（smart auto stop）需要按 IP/网关匹配目标网络。
+        "name": "ohos.permission.GET_NETWORK_INFO"
+      },
+      {
+        // ACL 受限权限（签名证书 profile 中需已授予该 ACL，否则安装/申请会失败）：
+        // 用于申请 taskKeeping（计算任务）长时任务 —— VPN 转发属于长期常驻的计算/网络
+        // 任务，语义最匹配，且不会被音频打断、也没有 dataTransfer 的进度校验要求。
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING_SYSTEM"
+      }
+    ]
+  }
+}

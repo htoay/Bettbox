@@ -1,0 +1,33 @@
+# 鸿蒙构建期注入的依赖覆盖（由 scripts/build_ohos.py 复制到仓库根目录的 pubspec_overrides.yaml）。
+#
+# ⚠️ 注意：pub 会用本文件的 `dependency_overrides` **整体替换**根 pubspec.yaml 里的同名段
+# （不是合并），所以根 pubspec.yaml 里的每一条 overrides 都必须在这里再写一遍，
+# 否则鸿蒙构建时会静默丢失。
+dependency_overrides:
+  # 1) OHOS 平台实现（鸿蒙端必需，否则会退化成 pub.dev 原版实现 → 能构建但装到机器上是坏包）
+  shared_preferences:
+    git:
+      url: https://gitcode.com/CPF-Flutter/flutter_packages.git
+      path: packages/shared_preferences/shared_preferences
+      ref: br_shared_preferences-v2.5.4_ohos
+  path_provider:
+    git:
+      url: https://gitcode.com/CPF-Flutter/flutter_packages.git
+      path: packages/path_provider/path_provider
+      ref: br_path_provider-v2.1.5_ohos
+  # 2) UI 垫片：上游 v1.19.5 引入的外部 material_ui / cupertino_ui 里，
+  #    对 TargetPlatform 的穷举 switch 不含 flutter_ohos 新增的 TargetPlatform.ohos，
+  #    Dart 前端会报 "not exhaustively matched" 而无法编译 → 换成本地垫片
+  #    （re-export 工具链自带的 material / cupertino）。
+  material_ui:
+    path: third_party/material_ui
+  cupertino_ui:
+    path: third_party/cupertino_ui
+  # 3) 与根 pubspec.yaml 保持一致（FRB 版本必须与 code_forge 的 Rust 产物一致）
+  flutter_rust_bridge: 2.13.0
+  # Fix compile failure: https://github.com/leanflutter/hotkey_manager/pull/66
+  hotkey_manager_linux:
+    git:
+      url: https://github.com/gepbird/hotkey_manager.git
+      path: packages/hotkey_manager_linux
+      ref: fix-build-failure

@@ -1,0 +1,330 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/metacubex/mihomo/component/age"
+	"github.com/metacubex/mihomo/log"
+)
+
+type Action struct {
+	Id     string      `json:"id"`
+	Method Method      `json:"method"`
+	Data   interface{} `json:"data"`
+}
+
+type ActionResult struct {
+	Id     string      `json:"id"`
+	Method Method      `json:"method"`
+	Data   interface{} `json:"data"`
+	Code   int         `json:"code"`
+	Port   int64
+}
+
+func (result ActionResult) Json() ([]byte, error) {
+	data, err := json.Marshal(result)
+	return data, err
+}
+
+func (result ActionResult) success(data interface{}) {
+	result.Code = 0
+	result.Data = data
+	result.send()
+}
+
+func (result ActionResult) error(data interface{}) {
+	result.Code = -1
+	result.Data = data
+	result.send()
+}
+
+func getStringData(data any) string {
+	if data == nil {
+		return ""
+	}
+	switch v := data.(type) {
+	case string:
+		return v
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			return ""
+		}
+		return string(b)
+	}
+}
+
+func handleAction(action *Action, result ActionResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			// 保留我方的 panic 日志，错误文案用上游版本
+			log.Errorln("handleAction panic: %v", r)
+			result.error(fmt.Sprintf("panic: %v", r))
+		}
+	}()
+	switch action.Method {
+	case initClashMethod:
+		paramsString := getStringData(action.Data)
+		result.success(handleInitClash(paramsString))
+		return
+	case getIsInitMethod:
+		result.success(handleGetIsInit())
+		return
+	case forceGcMethod:
+		var forceFreeOSMemory bool
+		if action.Data != nil {
+			if strVal, ok := action.Data.(string); ok {
+				forceFreeOSMemory = (strVal == "true")
+			} else if boolVal, ok := action.Data.(bool); ok {
+				forceFreeOSMemory = boolVal
+			}
+		}
+		handleForceGc(forceFreeOSMemory)
+		result.success(true)
+		return
+	case shutdownMethod:
+		result.success(handleShutdown())
+		return
+	case validateConfigMethod:
+		paramsString := action.Data.(string)
+		var params ValidateConfigParams
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			params.Data = paramsString
+		}
+		result.success(handleValidateConfig(&params))
+		return
+	case decryptAgeConfigMethod:
+		paramsString := action.Data.(string)
+		var params DecryptAgeConfigParams
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			params.Data = paramsString
+		}
+		result.success(handleDecryptAgeConfig(&params))
+		return
+	case updateConfigMethod:
+		data := []byte(action.Data.(string))
+		result.success(handleUpdateConfig(data))
+		return
+	case setupConfigMethod:
+		data := []byte(action.Data.(string))
+		result.success(handleSetupConfig(data))
+		return
+	case getModeMethod:
+		result.success(handleGetMode())
+		return
+	case getProxiesMethod:
+		result.success(handleGetProxies())
+		return
+	case changeProxyMethod:
+		data := action.Data.(string)
+		handleChangeProxy(data, func(value string) {
+			result.success(value)
+		})
+		return
+	case getTrafficMethod:
+		result.success(handleGetTraffic())
+		return
+	case getTotalTrafficMethod:
+		result.success(handleGetTotalTraffic())
+		return
+	case resetTrafficMethod:
+		handleResetTraffic()
+		result.success(true)
+		return
+	case asyncTestDelayMethod:
+		data := action.Data.(string)
+		handleAsyncTestDelay(data, func(value string) {
+			result.success(value)
+		})
+		return
+	case getConnectionsMethod:
+		result.success(handleGetConnections())
+		return
+	case closeConnectionsMethod:
+		result.success(handleCloseConnections())
+		return
+	case resetConnectionsMethod:
+		result.success(handleResetConnections())
+		return
+	case getRequestsMethod:
+		result.success(handleGetRequests())
+		return
+	case startTrackRequestsMethod:
+		result.success(handleStartTrackRequests())
+		return
+	case stopTrackRequestsMethod:
+		result.success(handleStopTrackRequests())
+		return
+	case clearRequestsMethod:
+		result.success(handleClearRequests())
+		return
+	case getLogsMethod:
+		result.success(handleGetLogs())
+		return
+	case clearLogsMethod:
+		result.success(handleClearLogs())
+		return
+	case exportConfigMethod:
+		var params ExportConfigParams
+		if err := json.Unmarshal([]byte(action.Data.(string)), &params); err != nil {
+			result.error(err)
+			return
+		}
+		if err := handleExportConfig(&params); err != nil {
+			result.error(err)
+			return
+		}
+		result.success("")
+		return
+	case getRuntimeConfigMethod:
+		params := defaultSetupParams()
+		if err := UnmarshalJson([]byte(action.Data.(string)), params); err != nil {
+			result.error(err)
+			return
+		}
+		content, err := handleGetRuntimeConfig(params)
+		if err != nil {
+			result.error(err)
+			return
+		}
+		result.success(content)
+		return
+	case getConfigMethod:
+		paramsString := action.Data.(string)
+		var params GetConfigParams
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			params.Path = paramsString
+		}
+		config, err := handleGetConfig(&params)
+		if err != nil {
+			result.error(err)
+			return
+		}
+		result.success(config)
+		return
+	case closeConnectionMethod:
+		id := action.Data.(string)
+		result.success(handleCloseConnection(id))
+		return
+	case getExternalProvidersMethod:
+		result.success(handleGetExternalProviders())
+		return
+	case getExternalProviderMethod:
+		externalProviderName := action.Data.(string)
+		result.success(handleGetExternalProvider(externalProviderName))
+	case updateGeoDataMethod:
+		paramsString := action.Data.(string)
+		var params = map[string]string{}
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			result.success(err.Error())
+			return
+		}
+		geoType := params["geo-type"]
+		geoName := params["geo-name"]
+		handleUpdateGeoData(geoType, geoName, func(value string) {
+			result.success(value)
+		})
+		return
+	case updateExternalProviderMethod:
+		providerName := action.Data.(string)
+		handleUpdateExternalProvider(providerName, func(value string) {
+			result.success(value)
+		})
+		return
+	case sideLoadExternalProviderMethod:
+		paramsString := action.Data.(string)
+		var params = map[string]string{}
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			result.success(err.Error())
+			return
+		}
+		providerName := params["providerName"]
+		data := params["data"]
+		handleSideLoadExternalProvider(providerName, []byte(data), func(value string) {
+			result.success(value)
+		})
+		return
+	case parseExternalProviderContentMethod:
+		providerName := action.Data.(string)
+		handleParseExternalProviderContent(providerName, func(value string) {
+			result.success(value)
+		})
+		return
+	case startLogMethod:
+		handleStartLog()
+		result.success(true)
+		return
+	case stopLogMethod:
+		handleStopLog()
+		result.success(true)
+		return
+	case startListenerMethod:
+		result.success(handleStartListener())
+		return
+	case stopListenerMethod:
+		result.success(handleStopListener())
+		return
+	case getCountryCodeMethod:
+		ip := action.Data.(string)
+		handleGetCountryCode(ip, func(value string) {
+			result.success(value)
+		})
+		return
+	case getMemoryMethod:
+		handleGetMemory(func(value string) {
+			result.success(value)
+		})
+		return
+	case getCoreStatusMethod:
+		handleGetCoreStatus(func(value string) {
+			result.success(value)
+		})
+		return
+	case setStateMethod:
+		data := action.Data.(string)
+		handleSetState(data)
+		result.success(true)
+	case flushFakeIPMethod:
+		result.success(handleFlushFakeIP())
+		return
+	case flushDnsCacheMethod:
+		handleFlushDnsCache()
+		result.success(true)
+		return
+	case generateAgeKeyPairMethod:
+		secretKey, publicKey, err := age.GenX25519KeyPair()
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		result.success(map[string]string{
+			"secret-key": secretKey,
+			"public-key": publicKey,
+		})
+		return
+	case convertAgeSecretKeyToPublicKeyMethod:
+		secretKey := action.Data.(string)
+		publicKeys, err := age.ToPublicKeys(secretKey)
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		if len(publicKeys) == 0 {
+			result.error("no public keys found")
+			return
+		}
+		result.success(publicKeys[0])
+		return
+	case crashMethod:
+		result.success(true)
+		handleCrash()
+	default:
+		nextHandle(action, result)
+	}
+}

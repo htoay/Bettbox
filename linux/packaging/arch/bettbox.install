@@ -1,0 +1,44 @@
+post_install() {
+  CORE_PATH="/usr/share/Bettbox/BettboxCore"
+  if [ -f "$CORE_PATH" ]; then
+    SETCAP_CMD=""
+    for cmd in setcap /sbin/setcap /usr/sbin/setcap; do
+      if command -v "$cmd" >/dev/null 2>&1; then
+        SETCAP_CMD="$cmd"
+        break
+      fi
+    done
+    if [ -n "$SETCAP_CMD" ] && "$SETCAP_CMD" 'cap_net_admin,cap_net_bind_service,cap_net_raw=+ep' "$CORE_PATH" 2>/dev/null; then
+      sync
+    else
+      chown root:root "$CORE_PATH" 2>/dev/null || true
+      chmod +sx "$CORE_PATH" 2>/dev/null || true
+    fi
+  fi
+
+  for pdir in /usr/share/polkit-1/rules.d /etc/polkit-1/rules.d; do
+    if [ -d "$pdir" ]; then
+      echo 'polkit.addRule(function(action, subject) { if (action.id.indexOf("org.freedesktop.resolve1.") === 0 && subject.local && subject.active) { return polkit.Result.YES; } });' > "$pdir/99-bettbox.rules"
+      chmod 0644 "$pdir/99-bettbox.rules" 2>/dev/null || true
+      break
+    fi
+  done
+}
+
+post_upgrade() {
+  post_install "$1"
+}
+
+post_remove() {
+  CORE_PATH="/usr/share/Bettbox/BettboxCore"
+  if [ -f "$CORE_PATH" ]; then
+    for cmd in setcap /sbin/setcap /usr/sbin/setcap; do
+      if command -v "$cmd" >/dev/null 2>&1; then
+        "$cmd" -r "$CORE_PATH" 2>/dev/null || true
+        break
+      fi
+    done
+    chmod -s "$CORE_PATH" 2>/dev/null || true
+  fi
+  rm -f /usr/share/polkit-1/rules.d/99-bettbox.rules /etc/polkit-1/rules.d/99-bettbox.rules 2>/dev/null || true
+}

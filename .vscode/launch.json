@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Bettbox Dev",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define",
+        "APP_DEV=true"
+      ],
+      "preLaunchTask": "bettbox: ensure dev core"
+    }
+  ]
+}

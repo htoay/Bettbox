@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "bettbox: ensure dev core",
+      "type": "shell",
+      "command": "dart",
+      "args": [
+        "./setup.dart",
+        "auto",
+        "--device-id=${command:flutter.getSelectedDeviceId}",
+        "--out=core",
+        "--dev",
+        "--ensure"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": "build"
+    }
+  ]
+}

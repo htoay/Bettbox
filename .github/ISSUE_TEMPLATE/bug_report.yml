@@ -1,0 +1,59 @@
+name: 🐞 问题反馈 / Bug Report
+description: 反馈你遇到的问题 / Report an issue
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你提交问题！在提交之前，请确保已搜索过 [现有 Issue](https://github.com/appshubcc/Bettbox/issues)。
+        Thanks for reporting! Please search [existing issues](https://github.com/appshubcc/Bettbox/issues) before submitting.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 问题描述 / Description
+      placeholder: 注意注明系统版本, 例如 HyperOS 3 或 macOS 11。请清晰地描述你遇到的问题，必要时附上截图。 / Describe the issue in detail, with screenshots if possible.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 软件版本 / Version
+      placeholder: 例如 1.18.2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: 操作系统 / OS
+      options:
+        - Android
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤 / Reproduction Steps
+      placeholder: |
+        1. 打开...
+        2. 点击...
+        3. 出现...
+        4. 注意: Android系统相关ISSUE，如为国内OS版本务必注明, 例如: HyperOS 3
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志 / Logs
+      description: 请在设置中开启 Debug 等级日志，并在此粘贴相关内容。尽量不要上传庞大的日志文件。 / Paste relevant debug logs here.
+      render: shell
+    validations:
+      required: true
