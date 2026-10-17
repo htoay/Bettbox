@@ -5,7 +5,7 @@
 # Bettbox for HarmonyOS NEXT（鸿蒙移植发行版）
 
 本仓库是 [appshubcc/Bettbox](https://github.com/appshubcc/Bettbox) 的**鸿蒙（HarmonyOS NEXT / OpenHarmony）
-移植分支**，基于上游 **v1.19.5**。除鸿蒙适配外不改变上游行为。
+移植分支**，基于上游 **v1.19.6**。除鸿蒙适配外不改变上游行为。
 
 > 本 fork 只维护鸿蒙端；上游新版本通过 `upstream` 远程合并进来。
 
@@ -99,7 +99,8 @@ python3 scripts/gen_ohos_icon.py    # 需要 rsvg-convert（librsvg2-bin）与 P
 ### 2.3 上游更新后必须重建核心
 
 上游经常改核心源码（例如 v1.19.4 给 `t.Start(...)` 增加了拥塞控制参数；v1.19.5 把 JS 脚本引擎
-从 `flutter_qjs` 换成了 `plugins/code_forge` 的 Rust 实现，并新增 `core/patch.go`、`core/bundle.go`）。
+从 `flutter_qjs` 换成了 `plugins/code_forge` 的 Rust 实现，并新增 `core/patch.go`、`core/bundle.go`；
+v1.19.6 新增运行时配置合成 `core/runtime_config.go`，并让配置读取支持禁用分组过滤）。
 **只改 Dart 不重建核心会导致「新 Dart + 旧核心」错配**：
 
 ```bash

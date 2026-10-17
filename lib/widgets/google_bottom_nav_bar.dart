@@ -1,9 +1,10 @@
 import 'dart:math' as math;
-import 'dart:ui' show lerpDouble;
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/common.dart';
 import 'package:bett_box/providers/providers.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,13 +41,11 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
   bool _isDragging = false;
   bool _dragCancel = false;
   Offset? _downPosition;
+  VelocityTracker? _velocityTracker;
   double _anchorSlot = 0.0;
   double _barWidth = 0;
   int _lastSnappedIndex = 0;
   int _lastHapticTime = 0;
-  int _lastMoveTime = 0;
-  double _lastMoveDx = 0.0;
-  double _velocityX = 0.0;
   late final ValueNotifier<int> _highlightedIndex = ValueNotifier(
     widget.selectedIndex,
   );
@@ -56,33 +55,27 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
   static const double _horizontalInset = 17.0;
 
   double? _posTarget;
-  TickerFuture? _posFuture;
-  int _commitGeneration = 0;
+  bool _motion = true;
 
   void _glideTo(int index, int milliseconds) {
     _posTarget = index.toDouble();
-    _posFuture = _posController.animateTo(
+    if (milliseconds <= 0) {
+      _posController.value = index.toDouble();
+      return;
+    }
+    _posController.animateTo(
       index.toDouble(),
       duration: Duration(milliseconds: milliseconds),
       curve: Curves.easeOutCubic,
     );
   }
 
-  void _commitWhenSettled(int index) {
-    final generation = ++_commitGeneration;
-    void commit() {
-      if (!mounted || generation != _commitGeneration) return;
-      if (index != widget.selectedIndex) {
-        widget.onTabChange(index);
-      }
-    }
-
-    final future = _posFuture;
-    if (future == null || !_posController.isAnimating) {
-      commit();
-      return;
-    }
-    future.whenCompleteOrCancel(commit);
+  void _liftTo(double value, int milliseconds) {
+    _liftController.animateTo(
+      value,
+      duration: Duration(milliseconds: milliseconds),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
@@ -99,7 +92,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
       _highlightedIndex.value = widget.selectedIndex;
       _lastSnappedIndex = widget.selectedIndex;
       if (!_posController.isAnimating) {
-        _glideTo(widget.selectedIndex, 160);
+        _glideTo(widget.selectedIndex, _motion ? 160 : 0);
       }
     }
   }
@@ -169,6 +162,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
     final enableFeedback = ref.watch(
       appSettingProvider.select((state) => state.enableNavBarHapticFeedback),
     );
+    _motion = enableFeedback;
     final pureBlack = ref.watch(
       themeSettingProvider.select((s) => s.pureBlack),
     );
@@ -187,10 +181,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
         : (pureBlack ? Colors.black : colorScheme.surfaceContainerHigh);
 
     final navColor = widgetBodyColor.withValues(alpha: 0.98);
-
-    final borderColor = isLight
-        ? colorScheme.outlineVariant.withValues(alpha: 0.10)
-        : Colors.white.withValues(alpha: 0.08);
+    final shadowStrength = isLight ? 1.0 : 3.0;
 
     const itemTextStyle = TextStyle(
       fontSize: 10.5,
@@ -210,12 +201,10 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
           behavior: HitTestBehavior.opaque,
           onPointerDown: (event) {
             if (_activePointerId != null) return;
-            _commitGeneration++;
             _activePointerId = event.pointer;
             _downPosition = event.localPosition;
-            _lastMoveTime = DateTime.now().millisecondsSinceEpoch;
-            _lastMoveDx = event.localPosition.dx;
-            _velocityX = 0.0;
+            _velocityTracker = VelocityTracker.withKind(event.kind)
+              ..addPosition(event.timeStamp, event.localPosition);
             _dragCancel = false;
             _isDragging = false;
             _dragOffset.value = 0.0;
@@ -233,46 +222,34 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
 
             final distance = (_posController.value - touchedIndex.toDouble())
                 .abs();
-            final glideMs = (120 + (distance * 25)).clamp(130, 180).toInt();
-            _glideTo(touchedIndex, glideMs);
+            final glideMs = (160 + (distance * 30)).clamp(180, 240).toInt();
+            _glideTo(touchedIndex, _motion ? glideMs : 0);
 
-            _liftController.animateTo(
-              1.0,
-              duration: const Duration(milliseconds: 140),
-              curve: Curves.easeOutCubic,
-            );
+            _liftTo(1.0, 140);
           },
           onPointerMove: (event) {
             if (_activePointerId != event.pointer || _dragCancel) return;
             final downPos = _downPosition;
             if (downPos == null) return;
+            _velocityTracker?.addPosition(
+              event.timeStamp,
+              event.localPosition,
+            );
             final delta = event.localPosition - downPos;
             if (delta.dy < -50 || delta.dy > 80) {
               _dragCancel = true;
               _isDragging = false;
+              _velocityTracker = null;
               _pressedIndex.value = null;
               _highlightedIndex.value = widget.selectedIndex;
               _commitDragOffset();
-              _glideTo(widget.selectedIndex, 140);
-              _liftController.animateTo(
-                0.0,
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOutCubic,
-              );
+              _glideTo(widget.selectedIndex, 180);
+              _liftTo(0.0, 180);
               return;
             }
 
-            final now = DateTime.now().millisecondsSinceEpoch;
-            final dt = now - _lastMoveTime;
-            if (dt > 0) {
-              final instantV = (event.localPosition.dx - _lastMoveDx) / dt;
-              _velocityX = _velocityX * 0.4 + instantV * 0.6;
-              _lastMoveTime = now;
-              _lastMoveDx = event.localPosition.dx;
-            }
-
             final slotWidth = _slotWidth;
-            if (!_isDragging && delta.dx.abs() > 5) {
+            if (!_isDragging && delta.dx.abs() > 4) {
               _isDragging = true;
             }
             if (!_isDragging || slotWidth <= 0) return;
@@ -293,36 +270,38 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             if (_activePointerId != event.pointer) return;
             _activePointerId = null;
             _pressedIndex.value = null;
-            _liftController.animateTo(
-              0.0,
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutCubic,
-            );
+            _liftTo(0.0, 180);
             if (_dragCancel) {
               _dragCancel = false;
               _isDragging = false;
+              _velocityTracker = null;
               return;
             }
 
             final slotWidth = _slotWidth;
             final int targetIndex;
             if (_isDragging && slotWidth > 0) {
-              final now = DateTime.now().millisecondsSinceEpoch;
-              final isStationary = (now - _lastMoveTime) > 90;
-              final effectiveV = isStationary ? 0.0 : _velocityX;
-              final velocityBias = (effectiveV * 60.0 / slotWidth).clamp(
-                -0.45,
-                0.45,
-              );
-              targetIndex = (_anchorSlot + _dragOffset.value + velocityBias)
-                  .round()
-                  .clamp(0, count - 1);
+              final velocityPx =
+                  _velocityTracker?.getVelocity().pixelsPerSecond.dx ?? 0.0;
+              final slotVelocity = velocityPx / slotWidth;
+              final currentSlot = _anchorSlot + _dragOffset.value;
+              final fling = (slotVelocity * 0.16).clamp(-1.2, 1.2);
+              var projected = (currentSlot + fling).round();
+              if (velocityPx.abs() > 240.0) {
+                final baseIndex = currentSlot.round();
+                if (projected == baseIndex) {
+                  projected += velocityPx.sign.toInt();
+                }
+              }
+              targetIndex = projected.clamp(0, count - 1);
 
               _commitDragOffset();
               _highlightedIndex.value = targetIndex;
               final distance = (_posController.value - targetIndex.toDouble())
                   .abs();
-              final snapMs = (100 + (distance * 110)).clamp(120, 180).toInt();
+              final snapMs = (130 + (distance * 80) - (velocityPx.abs() * 0.03))
+                  .clamp(120, 220)
+                  .toInt();
               _glideTo(targetIndex, snapMs);
             } else {
               targetIndex = _indexFromLocalDx(
@@ -331,18 +310,19 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
               _highlightedIndex.value = targetIndex;
               final distance = (_posController.value - targetIndex.toDouble())
                   .abs();
-              final glideMs = (120 + (distance * 25)).clamp(130, 180).toInt();
+              final glideMs = (160 + (distance * 30)).clamp(180, 240).toInt();
               final needsGlide = _posController.isAnimating
                   ? _posTarget != targetIndex.toDouble()
                   : distance > 0.01;
               if (needsGlide) {
-                _glideTo(targetIndex, glideMs);
+                _glideTo(targetIndex, _motion ? glideMs : 0);
               }
             }
 
+            _velocityTracker = null;
             _isDragging = false;
             if (targetIndex != widget.selectedIndex) {
-              _commitWhenSettled(targetIndex);
+              widget.onTabChange(targetIndex);
             }
           },
           onPointerCancel: (event) {
@@ -350,26 +330,19 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             _activePointerId = null;
             _isDragging = false;
             _dragCancel = false;
+            _velocityTracker = null;
             _pressedIndex.value = null;
             _highlightedIndex.value = widget.selectedIndex;
             _commitDragOffset();
-            _glideTo(widget.selectedIndex, 140);
-            _liftController.animateTo(
-              0.0,
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutCubic,
-            );
+            _glideTo(widget.selectedIndex, 180);
+            _liftTo(0.0, 180);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: _horizontalInset),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 _barWidth = constraints.maxWidth;
-                const borderWidth = 1.0;
-                final innerWidth = math.max(0.0, _barWidth - (2 * borderWidth));
-                final slotWidth = count > 0 ? innerWidth / count : innerWidth;
                 const barHeight = 60.0;
-                final innerHeight = barHeight - (2 * borderWidth);
 
                 return RepaintBoundary(
                   child: Container(
@@ -378,165 +351,116 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                       color: navColor,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: borderColor,
+                        color: Colors.transparent,
                         width: 1,
                         strokeAlign: BorderSide.strokeAlignInside,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          blurRadius: 18,
-                          offset: const Offset(0, 4),
-                          color: Colors.black.withValues(
-                            alpha: isLight ? 0.06 : 0.20,
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                          color: colorScheme.shadow.withValues(
+                            alpha: 0.08 * shadowStrength,
+                          ),
+                        ),
+                        BoxShadow(
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                          color: colorScheme.shadow.withValues(
+                            alpha: 0.04 * shadowStrength,
                           ),
                         ),
                       ],
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(29),
-                      child: RepaintBoundary(
-                        child: Stack(
-                          alignment: Alignment.centerLeft,
-                          children: [
-                            AnimatedBuilder(
-                              animation: Listenable.merge([
-                                _posController,
-                                _liftController,
-                                _dragOffset,
-                              ]),
-                              builder: (context, _) {
-                                if (count == 0) return const SizedBox.shrink();
-                                final lensPos = _clampWithResistance(
-                                  _posController.value + _dragOffset.value,
-                                  count,
-                                );
-                                final lift = _liftController.value;
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        if (count > 0)
+                          Positioned.fill(
+                            child: RepaintBoundary(
+                              child: CustomPaint(
+                                painter: NavBarPillPainter(
+                                  position: _posController,
+                                  lift: _liftController,
+                                  dragOffset: _dragOffset,
+                                  count: count,
+                                  slot: _clampWithResistance,
+                                  color: primaryColor,
+                                  baseAlpha: isLight ? 0.12 : 0.20,
+                                  activeAlpha: isLight ? 0.18 : 0.26,
+                                ),
+                              ),
+                            ),
+                          ),
+                        RepaintBoundary(
+                          child: AnimatedBuilder(
+                            animation: Listenable.merge([
+                              _posController,
+                              _dragOffset,
+                              _pressedIndex,
+                              _liftController,
+                            ]),
+                            builder: (context, _) {
+                              final currentPos = _clampWithResistance(
+                                _posController.value + _dragOffset.value,
+                                count,
+                              );
+                              final pressedIdx = _pressedIndex.value;
+                              final liftValue = _liftController.value;
 
-                                const restingGap = 4.0;
-                                final vGap = lerpDouble(restingGap, 0.0, lift)!;
-                                final hGap = lerpDouble(restingGap, 0.0, lift)!;
+                              return Row(
+                                children: List.generate(count, (index) {
+                                  final item = widget.navigationItems[index];
+                                  final dist =
+                                      (currentPos - index).abs().clamp(0.0, 1.0);
+                                  final selectFactor =
+                                      1.0 - Curves.easeOut.transform(dist);
+                                  final isPressed = index == pressedIdx;
 
-                                final pillWidth = math.max(
-                                  0.0,
-                                  slotWidth - (2 * hGap),
-                                );
-                                final centerDx = (lensPos + 0.5) * slotWidth;
-                                final pillLeft = centerDx - (pillWidth / 2);
-                                final pillRadius = lerpDouble(
-                                  (innerHeight - (2 * restingGap)) / 2,
-                                  29.0,
-                                  lift,
-                                )!;
+                                  final itemScale = isPressed
+                                      ? (1.0 - 0.05 * liftValue)
+                                      : (1.0 + 0.04 * selectFactor);
+                                  final itemColor = Color.lerp(
+                                    onSurfaceVariantColor,
+                                    primaryColor,
+                                    selectFactor,
+                                  )!;
 
-                                final baseAlpha = isLight ? 0.12 : 0.20;
-                                final activeAlpha = isLight ? 0.18 : 0.26;
-                                final pillAlpha = lerpDouble(
-                                  baseAlpha,
-                                  activeAlpha,
-                                  lift,
-                                )!;
-                                final pillColor = primaryColor.withValues(
-                                  alpha: pillAlpha,
-                                );
-
-                                return Positioned(
-                                  left: pillLeft,
-                                  top: vGap,
-                                  bottom: vGap,
-                                  width: pillWidth,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: pillColor,
-                                      borderRadius: BorderRadius.circular(
-                                        pillRadius,
+                                  return Expanded(
+                                    child: Center(
+                                      child: Transform.scale(
+                                        scale: itemScale,
+                                        alignment: Alignment.center,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconTheme(
+                                              data: IconThemeData(
+                                                color: itemColor,
+                                                size: 22,
+                                              ),
+                                              child: item.icon,
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              item.label.localizedName,
+                                              style: itemTextStyle.copyWith(
+                                                color: itemColor,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-                            ValueListenableBuilder<int>(
-                              valueListenable: _highlightedIndex,
-                              builder: (context, highlightedIndex, _) {
-                                return ValueListenableBuilder<int?>(
-                                  valueListenable: _pressedIndex,
-                                  builder: (context, pressedIndex, _) {
-                                    return Row(
-                                      children: List.generate(count, (index) {
-                                        final item =
-                                            widget.navigationItems[index];
-                                        final isHighlighted =
-                                            index == highlightedIndex;
-                                        final isPressed = index == pressedIndex;
-
-                                        final itemScale = isPressed
-                                            ? 0.94
-                                            : (isHighlighted ? 1.04 : 1.0);
-                                        final itemColor = isHighlighted
-                                            ? primaryColor
-                                            : onSurfaceVariantColor;
-
-                                        return Expanded(
-                                          child: Center(
-                                            child: AnimatedScale(
-                                              scale: itemScale,
-                                              duration: const Duration(
-                                                milliseconds: 120,
-                                              ),
-                                              curve: Curves.easeOutCubic,
-                                              alignment: Alignment.center,
-                                              child: TweenAnimationBuilder<Color?>(
-                                                tween: ColorTween(
-                                                  begin: onSurfaceVariantColor,
-                                                  end: itemColor,
-                                                ),
-                                                duration: const Duration(
-                                                  milliseconds: 150,
-                                                ),
-                                                curve: Curves.easeOut,
-                                                builder: (context, color, child) {
-                                                  return Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      IconTheme(
-                                                        data: IconThemeData(
-                                                          color:
-                                                              color ??
-                                                              onSurfaceVariantColor,
-                                                          size: 22,
-                                                        ),
-                                                        child: item.icon,
-                                                      ),
-                                                      const SizedBox(height: 2),
-                                                      Text(
-                                                        item
-                                                            .label
-                                                            .localizedName,
-                                                        style: itemTextStyle
-                                                            .copyWith(
-                                                              color: color,
-                                                            ),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ],
+                                  );
+                                }),
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 );
@@ -546,5 +470,67 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
         ),
       ),
     );
+  }
+}
+
+class NavBarPillPainter extends CustomPainter {
+  final Animation<double> position;
+  final Animation<double> lift;
+  final ValueListenable<double> dragOffset;
+  final int count;
+  final double Function(double slot, int count) slot;
+  final Color color;
+  final double baseAlpha;
+  final double activeAlpha;
+
+  NavBarPillPainter({
+    required this.position,
+    required this.lift,
+    required this.dragOffset,
+    required this.count,
+    required this.slot,
+    required this.color,
+    required this.baseAlpha,
+    required this.activeAlpha,
+  }) : super(repaint: Listenable.merge([position, lift, dragOffset]));
+
+  static const double _restingGap = 4.0;
+
+  Rect pillRect(Size size) {
+    final slotWidth = size.width / count;
+    final gap = _restingGap * (1 - lift.value);
+    final width = math.max(0.0, slotWidth - 2 * gap);
+    final center =
+        (slot(position.value + dragOffset.value, count) + 0.5) * slotWidth;
+    return Rect.fromLTWH(center - width / 2, gap, width, size.height - 2 * gap);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = lift.value;
+    final restingRadius = (size.height - 2 * _restingGap) / 2;
+    final radius = restingRadius + (size.height / 2 - restingRadius) * t;
+    final alpha = baseAlpha + (activeAlpha - baseAlpha) * t;
+    canvas.clipRRect(
+      RRect.fromRectAndRadius(
+        Offset.zero & size,
+        Radius.circular(size.height / 2),
+      ),
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(pillRect(size), Radius.circular(radius)),
+      Paint()..color = color.withValues(alpha: alpha),
+    );
+  }
+
+  @override
+  bool shouldRepaint(NavBarPillPainter oldDelegate) {
+    return oldDelegate.position != position ||
+        oldDelegate.lift != lift ||
+        oldDelegate.dragOffset != dragOffset ||
+        oldDelegate.count != count ||
+        oldDelegate.color != color ||
+        oldDelegate.baseAlpha != baseAlpha ||
+        oldDelegate.activeAlpha != activeAlpha;
   }
 }

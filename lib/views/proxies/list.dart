@@ -393,6 +393,7 @@ class _GroupHeader extends ConsumerWidget {
     final selectedProxyIcon = ref.watch(proxyIconProvider(selectedProxyName));
 
     return CommonCard(
+      elevated: false,
       radius: 16,
       type: CommonCardType.filled,
       onPressed: onToggle,

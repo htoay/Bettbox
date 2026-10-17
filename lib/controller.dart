@@ -217,7 +217,7 @@ class AppController {
     if (isDesktop && patchConfig.tun.enable) {
       await _quickSetupConfig(enableTun: false);
 
-      if (system.isMacOS) {
+      if (system.isMacOS || system.isLinux) {
         try {
           final res = await _requestAdmin(true);
           if (res.needRestart) {
@@ -230,7 +230,7 @@ class AppController {
               try {
                 await _updateClashConfig();
               } catch (e) {
-                commonPrint.warn('FastStart macOS TUN update failed: $e');
+                commonPrint.warn('FastStart desktop TUN update failed: $e');
               }
               _backgroundLoad();
             });
@@ -238,7 +238,7 @@ class AppController {
             _backgroundLoad();
           }
         } catch (e) {
-          commonPrint.warn('FastStart macOS auth error: $e');
+          commonPrint.warn('FastStart desktop auth error: $e');
           await globalState.handleStart([updateRunTime, updateTraffic]);
           _backgroundLoad();
         }
@@ -677,7 +677,8 @@ class AppController {
 
   Future<Result<bool>> _requestAdmin(bool enableTun) async {
     final realTunEnable = _ref.read(realTunEnableProvider);
-    if (enableTun != realTunEnable && realTunEnable == false) {
+    final hasAdmin = await system.checkIsAdmin();
+    if (enableTun && (!realTunEnable || !hasAdmin)) {
       final code = await system.authorizeCore();
       switch (code) {
         case AuthorizeCode.success:
@@ -686,9 +687,7 @@ class AppController {
         case AuthorizeCode.none:
           break;
         case AuthorizeCode.error:
-          globalState.showNotifier(
-            'TUN mode requires administrator privileges.',
-          );
+          globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);
           enableTun = false;
           break;
       }
@@ -1479,7 +1478,9 @@ class AppController {
   Future<bool> _detectAbnormalExit() async {
     final prefs = await preferences.sharedPreferencesCompleter.future;
 
-    if (system.isAndroid) {
+    // 鸿蒙与 Android 一样走 VPN 实现，也写 is_vpn_running 标记：
+    // 异常退出（进程被杀）后标记会残留，启动时据此恢复一次配置
+    if (system.isMobile) {
       final isVpnRunningFlag = prefs?.getBool('is_vpn_running') ?? false;
       return !globalState.isStart && isVpnRunningFlag;
     }

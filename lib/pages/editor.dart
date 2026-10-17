@@ -11,6 +11,7 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,7 @@ const double _kMaxEditorZoom = 1.5;
 const double _kMaxLineNumberZoom = 1;
 const double _kToolbarGapAbove = 32;
 const double _kToolbarGapBelow = 16;
+const double _kToolbarClearance = 72;
 
 final List<String> _emojiFontFallback = [FontFamily.twEmoji.value];
 
@@ -404,18 +406,29 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     if (overlayBox is! RenderBox) return;
     final position = overlayBox.globalToLocal(request.globalPosition);
     final selectionRect = request.selectionRect;
+    var anchorAbove = position.translate(0, -_kToolbarGapAbove);
+    var anchorBelow = position.translate(0, _kToolbarGapBelow);
+    if (selectionRect != null) {
+      final media = MediaQuery.of(overlay.context);
+      final above = overlayBox.globalToLocal(selectionRect.topCenter);
+      final below = overlayBox.globalToLocal(selectionRect.bottomCenter);
+      final fitsAbove = above.dy - media.padding.top >= _kToolbarClearance;
+      final fitsBelow =
+          below.dy + _kToolbarClearance <=
+          overlayBox.size.height - media.viewInsets.bottom;
+      if (fitsAbove || fitsBelow) {
+        anchorAbove = above;
+        anchorBelow = below;
+      }
+    }
     final root = _editorTheme['root'];
     final background = HSLColor.fromColor(
       root?.backgroundColor ?? context.colorScheme.surface,
     );
     final entry = OverlayEntry(
       builder: (_) => EditorSelectionToolbar(
-        anchorAbove: selectionRect == null
-            ? position.translate(0, -_kToolbarGapAbove)
-            : overlayBox.globalToLocal(selectionRect.topCenter),
-        anchorBelow: selectionRect == null
-            ? position.translate(0, _kToolbarGapBelow)
-            : overlayBox.globalToLocal(selectionRect.bottomCenter),
+        anchorAbove: anchorAbove,
+        anchorBelow: anchorBelow,
         items: items,
         backgroundColor: background
             .withLightness((background.lightness + 0.03).clamp(0.0, 1.0))
@@ -758,7 +771,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                       radius: const Radius.circular(4),
                       interactive: true,
                       thumbColor: context.colorScheme.onSurface.withAlpha(100),
-                      child: child,
+                      child: _NoMouseDragScroll(child: child),
                     ),
                     finderBuilder: (context, controller) => FindPanel(
                       controller: controller,
@@ -1242,6 +1255,23 @@ class _ImportOptionsDialogState extends State<_ImportOptionsDialog> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _NoMouseDragScroll extends StatelessWidget {
+  const _NoMouseDragScroll({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final behavior = ScrollConfiguration.of(context);
+    return ScrollConfiguration(
+      behavior: behavior.copyWith(
+        dragDevices: {...behavior.dragDevices}..remove(PointerDeviceKind.mouse),
+      ),
+      child: child,
     );
   }
 }

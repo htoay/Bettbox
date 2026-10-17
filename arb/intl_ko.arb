@@ -24,6 +24,7 @@
   "totalTraffic": "전체 전송량",
   "restartApp": "앱 재시작",
   "outboundMode": "아웃바운드 모드",
+  "runningMode": "실행 모드",
   "networkDetection": "네트워크 진단",
   "upload": "업로드",
   "download": "다운로드",
@@ -607,8 +608,8 @@
   "saveChanges": "변경사항을 저장하시겠습니까?",
   "generalDesc": "글로벌 일반 설정 변경",
   "findProcessModeDesc": "활성화 시 프로세스 매칭 검색 가능",
-  "navBarHapticFeedback": "진동 피드백",
-  "navBarHapticFeedbackDesc": "하단 탭 전환 시 진동 피드백",
+  "navBarHapticFeedback": "모션 피드백",
+  "navBarHapticFeedbackDesc": "하단 내비게이션 바 애니메이션 및 진동 피드백",
   "saveTip": "저장하시겠습니까?",
   "colorSchemes": "색상 팔레트",
   "palette": "팔레트",
@@ -658,7 +659,6 @@
   "rename": "이름 변경",
   "unnamed": "제목 없음",
   "pleaseEnterScriptName": "스크립트 이름을 입력하세요",
-  "overrideInvalidTip": "스크립트 모드에서는 적용되지 않습니다",
   "mixedPort": "혼합 포트 (Mixed)",
   "socksPort": "Socks 포트",
   "redirPort": "Redir 포트",
@@ -730,7 +730,6 @@
   "clear": "지우기",
   "back": "뒤로",
   "closeAll": "모두 닫기",
-  "script": "스크립트",
   "moreIpInfo": "상세 IP 정보",
   "viewDetailedIpData": "상세 IP 데이터 보기",
   "ipAddress": "IP 주소",
@@ -769,7 +768,6 @@
   "mediaUnlockRefreshOnNodeChange": "노드 변경 시 자동 새로고침",
   "mediaUnlockColorfulIcons": "기본적으로 컬러 아이콘 표시",
   "mediaUnlockRefreshByCategory": "현재 카테고리를 기반으로 부분 새로고침",
-
   "mediaUnlockPinnedSettingsDesc": "위젯에 고정 표시할 항목을 최대 3개 선택할 수 있습니다",
   "mediaUnlockSelectLimit": "최대 3개 항목까지 선택할 수 있습니다",
   "categoryAll": "전체",
@@ -786,7 +784,6 @@
   "notUnlocked": "잠김",
   "checkFailed": "Timeout",
   "testing": "검사 중",
-  "other": "기타",
   "flagged": "표시됨",
   "tvScanImport": "스캔 / LAN 가져오기",
   "tvScanImportDesc": "스마트폰으로 스캔하거나 LAN을 통해 TV로 프로필 푸시",
@@ -806,7 +803,6 @@
   "userAuthEmpty": "인증 사용자가 설정되지 않았습니다. LAN 연결에는 자격 증명이 필요하지 않습니다",
   "usernameCannotContainColon": "사용자 이름에는 콜론(:)을 포함할 수 없습니다",
   "intranetAndGateway": "LAN 및 게이트웨이",
-  "networkType": "네트워크 유형",
   "defaultGateway": "게이트웨이",
   "lanSharing": "LAN 공유",
   "sharedAddress": "공유 주소",
@@ -823,6 +819,11 @@
   "collapse": "접기",
   "analyzeLogPrompt": "Bettbox(Mihomo) 로그 분석: {log}",
   "geoBuiltInResources": "GEO 내장 리소스",
+  "setcapNotInstalledFallback": "setcap이 설치되어 있지 않아 setuid로 대체했습니다",
+  "xattrUnsupportedFallback": "파일 시스템이 파일 capability(xattr)를 지원하지 않아 setuid로 대체했습니다",
+  "setcapFailedFallback": "파일 capability를 부여할 수 없어 setuid로 대체했습니다",
+  "coreMountNosuid": "코어가 nosuid로 마운트된 파일 시스템에 있어 파일 capability와 setuid가 적용되지 않습니다",
+  "coreCapabilityNotEffective": "코어 권한 부여가 적용되지 않았습니다: 실행 중인 코어에 CAP_NET_ADMIN이 없어 TUN이 작동하지 않을 수 있습니다",
   "descOhos": "Bettbox HarmonyOS 버전은 Flutter-OHOS와 강력하고 유연한 Mihomo(Clash.Meta) 코어를 기반으로 한 네이티브 프록시 클라이언트로, HarmonyOS 시스템 VPN 및 백그라운드 장시간 실행 작업과 매끄럽게 통합됩니다. 우리의 비전: Connecting Open Source and AI, Accelerating Innovation",
   "backgroundTask": "장시간 실행 작업",
   "backgroundTaskDesc": "데이터 전송 및 오디오 재생 장시간 실행 작업으로 앱을 백그라운드에서 계속 실행합니다",
@@ -835,6 +836,3 @@
   "ohosAccessManualOnly": "시스템 제한으로 설치된 앱 목록을 불러올 수 없습니다. 패키지 이름을 직접 추가하거나 설정 패널의 클립보드 가져오기로 일괄 추가하세요",
   "modeTaskKeeping": "계산 작업"
 }
-
-
-

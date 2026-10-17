@@ -445,11 +445,13 @@ class ClashCore {
   Future<Map<String, dynamic>> getConfig(
     String id, {
     String? ageSecretKey,
+    List<String> disabledGroups = const [],
   }) async {
     final profilePath = await appPath.getProfilePath(id);
     final res = await clashInterface.getConfig(
       profilePath,
       ageSecretKey: ageSecretKey,
+      disabledGroups: disabledGroups,
     );
     if (res.isSuccess) {
       final data = res.data;

@@ -21,6 +21,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   final ValueNotifier<bool> selectionActiveNotifier;
   final ValueNotifier<Rect?> caretRectNotifier;
   final ValueChanged<Offset> onContextMenuRequest;
+  final ValueChanged<PointerSignalEvent> onPointerSignal;
   final ValueNotifier<MagnifierInfo?> magnifierNotifier;
   final Map<int, double> _lineWidthCache = {};
   final Map<int, String> _lineTextCache = {};
@@ -125,6 +126,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     required this.isMobile,
     required this.selectionActiveNotifier,
     required this.onContextMenuRequest,
+    required this.onPointerSignal,
     required this.caretRectNotifier,
     required this.magnifierNotifier,
     required this._lineWrap,
@@ -717,6 +719,8 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           return;
         }
         _onPointerUp(event);
+      case PointerSignalEvent():
+        onPointerSignal(event);
     }
   }
 
@@ -806,6 +810,13 @@ extension _RendererLayout on _CodeFieldRenderer {
       sampled++;
     }
     lines.setEstimate(rows / sampled);
+    for (
+      var i = max(0, lineCount - kExactWrappedTailLines);
+      i < lineCount;
+      i++
+    ) {
+      if (!lines.isMeasured(i)) _measureWrappedLine(i);
+    }
   }
 
   // Widget listeners on the controller run before the renderer's and can

@@ -7,7 +7,6 @@ import 'package:bett_box/views/proxies/common.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -264,7 +263,7 @@ class Tray {
       final restartMenuItem = MenuItem(
         label: appLocalizations.restartApp,
         onClick: (_) async {
-          await Restart.restartApp();
+          await system.restartApp();
         },
       );
       menuItems.add(restartMenuItem);

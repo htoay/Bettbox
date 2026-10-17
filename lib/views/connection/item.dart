@@ -21,7 +21,10 @@ Future<Uint8List?>? _defaultIconFuture;
 void _addToIconCache(String key, Uint8List? value) {
   _iconCache.remove(key);
   while (_iconCache.length >= _maxIconCacheSize) {
-    _iconCache.remove(_iconCache.keys.first);
+    final evicted = _iconCache.remove(_iconCache.keys.first);
+    if (evicted != null) {
+      imageCache.evict(MemoryImage(evicted), includeLive: false);
+    }
   }
   _iconCache[key] = value;
 }
@@ -179,6 +182,7 @@ class TrackerInfoItem extends ConsumerWidget {
         ? _ProcessIcon(
             process: trackerInfo.metadata.process,
             path: trackerInfo.metadata.processPath,
+            port: trackerInfo.metadata.destinationPort,
             onClick: onClickKeyword,
           )
         : null;
@@ -274,9 +278,15 @@ Future<Uint8List?> _getDefaultPackageIcon() {
 class _ProcessIcon extends StatefulWidget {
   final String process;
   final String path;
+  final String port;
   final Function(String)? onClick;
 
-  const _ProcessIcon({required this.process, required this.path, this.onClick});
+  const _ProcessIcon({
+    required this.process,
+    required this.path,
+    required this.port,
+    this.onClick,
+  });
 
   @override
   State<_ProcessIcon> createState() => _ProcessIconState();
@@ -285,12 +295,19 @@ class _ProcessIcon extends StatefulWidget {
 class _ProcessIconState extends State<_ProcessIcon> {
   late Future<Uint8List?> _iconFuture;
 
-  String get _cacheKey => system.isDesktop ? widget.path : widget.process;
+  String get _cacheKey =>
+      system.isDesktop ? processIcon.keyOf(widget.path) : widget.process;
 
   @override
   void initState() {
     super.initState();
     _iconFuture = _getIcon(_cacheKey);
+  }
+
+  IconData get _fallbackIcon {
+    if (widget.port == '53') return Icons.dns_outlined;
+    if (widget.path.isNotEmpty) return Icons.settings_suggest_outlined;
+    return Icons.terminal;
   }
 
   @override
@@ -324,13 +341,32 @@ class _ProcessIconState extends State<_ProcessIcon> {
               if (iconBytes == null) {
                 if (system.isDesktop &&
                     snapshot.connectionState == ConnectionState.done) {
-                  return Icon(
-                    Icons.terminal,
-                    size: 24,
-                    color: context.colorScheme.onSurfaceVariant.opacity60,
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: context.colorScheme.onSurfaceVariant.opacity10,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: SizedBox(
+                      width: 38,
+                      height: 38,
+                      child: Icon(
+                        _fallbackIcon,
+                        size: 22,
+                        color: context.colorScheme.onSurfaceVariant.opacity80,
+                      ),
+                    ),
                   );
                 }
                 return const SizedBox(width: 38, height: 38);
+              }
+              if (system.isDesktop) {
+                return Image.memory(
+                  iconBytes,
+                  width: 38,
+                  height: 38,
+                  filterQuality: FilterQuality.medium,
+                  gaplessPlayback: true,
+                );
               }
               return Image(
                 image: ResizeImage(

@@ -14,6 +14,7 @@ import 'package:bett_box/widgets/input.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:synchronized/synchronized.dart';
 
 class System {
@@ -59,8 +60,40 @@ class System {
     return "'${value.replaceAll("'", "'\\''")}'";
   }
 
+  static Future<bool> _isSetuidRootOwned(
+    String corePath,
+    String ownerPrefix,
+  ) async {
+    final macOS = system.isMacOS;
+    final result = await Process.run('stat', [
+      if (macOS) '-f' else '-c',
+      if (macOS) '%Su:%Sg %Sp' else '%U:%G %A',
+      corePath,
+    ]);
+    if (result.exitCode != 0) return false;
+    final parts = result.stdout.toString().trim().split(' ');
+    if (parts.length < 2) return false;
+    return parts.first.startsWith(ownerPrefix) && parts.last.contains('s');
+  }
+
+  static Future<bool> _hasCoreCapabilities() async {
+    for (final getcap in [
+      'getcap',
+      '/usr/sbin/getcap',
+      '/sbin/getcap',
+      '/usr/bin/getcap',
+      '/bin/getcap',
+    ]) {
+      try {
+        final result = await Process.run(getcap, [appPath.corePath]);
+        return result.exitCode == 0 &&
+            result.stdout.toString().contains('cap_net_admin');
+      } catch (_) {}
+    }
+    return false;
+  }
+
   Future<bool> checkIsAdmin() async {
-    final corePath = appPath.corePath;
     if (system.isWindows) {
       if (kDebugMode) return windows?.isUserAnAdmin ?? false;
       final result = await windows?.checkService();
@@ -68,33 +101,15 @@ class System {
     }
 
     if (system.isMacOS) {
-      final result = await Process.run('stat', ['-f', '%Su:%Sg %Sp', corePath]);
-      final output = result.stdout.trim();
-      final parts = output.split(' ');
-      if (parts.length < 2) return false;
-      return parts.first.startsWith('root:admin') && parts.last.contains('s');
+      return _isSetuidRootOwned(appPath.corePath, 'root:admin');
     }
 
     if (Platform.isLinux) {
       if (appPath.isAppImage) {
         await appPath.ensureAppImageCoreSynced();
       }
-
-      for (final cmd in ['getcap', '/sbin/getcap', '/usr/sbin/getcap']) {
-        try {
-          final res = await Process.run(cmd, [corePath]);
-          if (res.exitCode == 0 &&
-              res.stdout.toString().contains('cap_net_admin')) {
-            return true;
-          }
-        } catch (_) {}
-      }
-
-      final result = await Process.run('stat', ['-c', '%U:%G %A', corePath]);
-      final output = result.stdout.trim();
-      final parts = output.split(' ');
-      if (parts.length < 2) return false;
-      return parts.first.startsWith('root:') && parts.last.contains('s');
+      return await _isSetuidRootOwned(appPath.corePath, 'root:') ||
+          await _hasCoreCapabilities();
     }
 
     return true;
@@ -102,6 +117,8 @@ class System {
 
   Future<AuthorizeCode> authorizeCore() async {
     if (system.isAndroid || system.isOhos) return AuthorizeCode.none;
+
+    if (Platform.isLinux) return _authorizeLinuxCore();
 
     if (await checkIsAdmin()) return AuthorizeCode.none;
 
@@ -113,19 +130,20 @@ class System {
     }
 
     if (system.isMacOS) {
-      final corePath = appPath.corePath;
       var quarantineCleared = true;
+      const quarantineAttr = 'com.apple.quarantine';
+      final core = _shellEscape(appPath.corePath);
 
       final xattrCheck = await Process.run('/usr/bin/xattr', [
         '-p',
-        'com.apple.quarantine',
-        corePath,
+        quarantineAttr,
+        appPath.corePath,
       ]);
       if (xattrCheck.exitCode == 0) {
         final removeResult = await Process.run('/usr/bin/xattr', [
           '-d',
-          'com.apple.quarantine',
-          corePath,
+          quarantineAttr,
+          appPath.corePath,
         ]);
         if (removeResult.exitCode == 0) {
           commonPrint.log('Cleared quarantine attribute from BettboxCore');
@@ -137,110 +155,299 @@ class System {
         }
       }
 
-      final escapedPath = _shellEscape(corePath);
-      final shell = 'chown root:admin $escapedPath && chmod u+s $escapedPath';
+      final shell = 'chown root:admin $core && chmod u+s $core';
       final result = await Process.run('osascript', [
         '-e',
         'do shell script "$shell" with administrator privileges',
       ]);
 
       if (result.exitCode != 0) {
-        if (!quarantineCleared) {
-          globalState.showNotifier(
-            'Failed to authorize BettboxCore. Try: xattr -dr com.apple.quarantine /Applications/Bettbox.app',
-          );
-        } else {
-          globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);
-        }
+        globalState.showNotifier(
+          !quarantineCleared
+              ? 'Failed to authorize BettboxCore. Try: xattr -dr com.apple.quarantine /Applications/Bettbox.app'
+              : appLocalizations.tunEnableRequireAdmin,
+        );
         return AuthorizeCode.error;
       }
       return AuthorizeCode.success;
     }
 
-    if (Platform.isLinux) {
-      if (appPath.isAppImage) {
-        await appPath.ensureAppImageCoreSynced();
-      }
-      final escapedCorePath = _shellEscape(appPath.corePath);
-      final homeDir = await appPath.homeDirPath;
-      final escapedHomeDir = _shellEscape(homeDir);
+    return AuthorizeCode.error;
+  }
 
-      var chownLegacy = '';
-      try {
-        final uidRes = await Process.run('id', ['-u']);
-        final gidRes = await Process.run('id', ['-g']);
-        if (uidRes.exitCode == 0 && gidRes.exitCode == 0) {
-          final uid = int.tryParse(uidRes.stdout.toString().trim());
-          final gid = int.tryParse(gidRes.stdout.toString().trim());
-          if (uid != null && gid != null) {
-            chownLegacy =
-                'if [ -d $escapedHomeDir ]; then chown -R $uid:$gid $escapedHomeDir 2>/dev/null || true; fi';
-          }
-        }
-      } catch (_) {}
+  Future<AuthorizeCode> _authorizeLinuxCore() async {
+    if (appPath.isAppImage) {
+      await appPath.ensureAppImageCoreSynced();
+    }
+    final corePath = appPath.corePath;
+    if (await _isOnNosuidMount(corePath)) {
+      globalState.showNotifier(appLocalizations.coreMountNosuid);
+      return AuthorizeCode.error;
+    }
+    if (await _isSetuidRootOwned(corePath, 'root:')) return AuthorizeCode.none;
 
-      final script = [
-        'SETCAP_CMD=""',
-        'for cmd in setcap /sbin/setcap /usr/sbin/setcap; do',
-        '  if command -v "\$cmd" >/dev/null 2>&1; then',
-        '    SETCAP_CMD="\$cmd"',
-        '    break',
-        '  fi',
-        'done',
-        'if [ -n "\$SETCAP_CMD" ] && "\$SETCAP_CMD" \'cap_net_admin,cap_net_bind_service,cap_net_raw=+ep\' $escapedCorePath 2>/dev/null; then',
-        '  sync',
-        'else',
-        '  chown root:root $escapedCorePath && chmod u+s $escapedCorePath && sync',
-        'fi',
-        'for pdir in /etc/polkit-1/rules.d /usr/share/polkit-1/rules.d; do',
-        '  if [ -d "\$pdir" ]; then',
-        '    echo \'polkit.addRule(function(action, subject) { if (action.id.indexOf("org.freedesktop.resolve1.") === 0 && subject.local && subject.active) { return polkit.Result.YES; } });\' > "\$pdir/99-bettbox.rules"',
-        '    chmod 0644 "\$pdir/99-bettbox.rules" 2>/dev/null || true',
-        '    break',
-        '  fi',
-        'done',
-        if (chownLegacy.isNotEmpty) chownLegacy,
-      ].join('\n');
-
-      try {
-        final pkexecResult = await Process.run('pkexec', ['sh', '-c', script]);
-        if (pkexecResult.exitCode == 0) {
-          return AuthorizeCode.success;
-        }
-        if (pkexecResult.exitCode != 127) {
-          globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);
-          return AuthorizeCode.error;
-        }
-      } catch (e) {
-        commonPrint.warn('pkexec failed: $e');
-      }
-
-      window?.show();
-      final shell = Platform.environment['SHELL'] ?? 'bash';
-      final password = await globalState.showCommonDialog<String>(
-        child: InputDialog(
-          obscureText: true,
-          title: appLocalizations.pleaseInputAdminPassword,
-          value: '',
-        ),
-      );
-      if (password == null || password.isEmpty) {
-        globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);
-        return AuthorizeCode.error;
-      }
-      final escapedPassword = _shellEscape(password);
-      final escapedScript = _shellEscape(script);
-      final result = await Process.run(shell, [
-        '-c',
-        'echo $escapedPassword | sudo -S sh -c $escapedScript',
-      ]);
-      if (result.exitCode != 0) {
-        globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);
-      }
-      return result.exitCode == 0 ? AuthorizeCode.success : AuthorizeCode.error;
+    final needCapabilities = !await _hasCoreCapabilities();
+    final dataDirRepair = await _dataDirRepairScript;
+    final stagedRule = await _stagePolkitRule();
+    if (!needCapabilities && dataDirRepair == null && stagedRule == null) {
+      return AuthorizeCode.none;
     }
 
+    final script = [
+      _legacyPolkitRuleCleanupScript,
+      ?dataDirRepair,
+      if (stagedRule != null) _polkitRuleInstallScript(stagedRule.path),
+      if (needCapabilities) _linuxCapabilityScript(corePath),
+    ].join('\n');
+    final result = await _runPrivileged(script);
+    await stagedRule?.delete();
+    if (stagedRule != null && result != null) {
+      await _recordPolkitRuleOutcome(result.stdout);
+    }
+
+    if (!needCapabilities) {
+      if (result?.exitCode != 0) {
+        commonPrint.log('Privileged repair failed: ${result?.stderr.trim()}');
+      }
+      return AuthorizeCode.none;
+    }
+
+    final fallback = switch (result?.exitCode) {
+      _setcapNotInstalledExit => appLocalizations.setcapNotInstalledFallback,
+      _xattrUnsupportedExit => appLocalizations.xattrUnsupportedFallback,
+      _setcapFailedExit => appLocalizations.setcapFailedFallback,
+      _ => null,
+    };
+    if (fallback != null) {
+      commonPrint.log('Falling back to setuid: ${result?.stderr.trim()}');
+      globalState.showNotifier(fallback);
+      return AuthorizeCode.success;
+    }
+    if (result?.exitCode == 0) return AuthorizeCode.success;
+
+    globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);
     return AuthorizeCode.error;
+  }
+
+  static const _setcapNotInstalledExit = 10;
+
+  static const _xattrUnsupportedExit = 11;
+
+  static const _setcapFailedExit = 12;
+
+  static const _polkitRuleFileName = '90-bettbox.rules';
+
+  static const _legacyPolkitRuleFileName = '99-bettbox.rules';
+
+  static const _polkitRuleSystemPath =
+      '/usr/share/polkit-1/rules.d/$_polkitRuleFileName';
+
+  static String _linuxCapabilityScript(String corePath) {
+    final core = _shellEscape(corePath);
+    const capabilities = 'cap_net_admin,cap_net_bind_service,cap_net_raw=+ep';
+    return [
+      'export PATH="/usr/sbin:/sbin:/usr/bin:/bin:\$PATH"',
+      'if command -v setcap >/dev/null 2>&1; then',
+      "  if output=\$(setcap '$capabilities' $core 2>&1); then",
+      '    sync',
+      '    exit 0',
+      '  fi',
+      '  echo "\$output" >&2',
+      '  case "\$output" in',
+      '    *"not supported"*) fallback=$_xattrUnsupportedExit ;;',
+      '    *) fallback=$_setcapFailedExit ;;',
+      '  esac',
+      'else',
+      '  fallback=$_setcapNotInstalledExit',
+      'fi',
+      'chown root:root $core && chmod u+s $core && sync || exit 1',
+      'exit "\$fallback"',
+    ].join('\n');
+  }
+
+  static const _legacyPolkitRuleCleanupScript =
+      'rm -f /etc/polkit-1/rules.d/$_legacyPolkitRuleFileName '
+      '/usr/share/polkit-1/rules.d/$_legacyPolkitRuleFileName';
+
+  static const _polkitRuleEtcPath =
+      '/etc/polkit-1/rules.d/$_polkitRuleFileName';
+
+  static const _polkitRuleEtcMarker = 'bettbox-polkit-rule:etc';
+
+  static const _polkitRuleFailedMarker = 'bettbox-polkit-rule:failed';
+
+  static const _polkitRuleSettledKey = 'linux_polkit_rule_settled';
+
+  static String _polkitRuleInstallScript(String stagedPath) {
+    final staged = _shellEscape(stagedPath);
+    return [
+      'if ! install -Dm644 $staged $_polkitRuleSystemPath 2>/dev/null; then',
+      '  if install -Dm644 $staged $_polkitRuleEtcPath; then',
+      '    echo $_polkitRuleEtcMarker',
+      '  else',
+      '    echo $_polkitRuleFailedMarker',
+      '  fi',
+      'fi',
+    ].join('\n');
+  }
+
+  static Future<void> _recordPolkitRuleOutcome(String stdout) async {
+    final settled =
+        stdout.contains(_polkitRuleEtcMarker) ||
+        stdout.contains(_polkitRuleFailedMarker);
+    if (!settled) return;
+    commonPrint.log('Polkit rule outcome: ${stdout.trim()}');
+    final prefs = await preferences.sharedPreferencesCompleter.future;
+    await prefs?.setBool(_polkitRuleSettledKey, true);
+  }
+
+  static Future<bool> _isOnNosuidMount(String path) async {
+    try {
+      final target = await File(path).resolveSymbolicLinks();
+      final lines = await File('/proc/self/mountinfo').readAsLines();
+      final octal = RegExp(r'\\([0-7]{3})');
+      var bestLength = -1;
+      var nosuid = false;
+      for (final line in lines) {
+        final fields = line.split(' ');
+        if (fields.length < 6) continue;
+        final mountPoint = fields[4].replaceAllMapped(
+          octal,
+          (m) => String.fromCharCode(int.parse(m[1] ?? '0', radix: 8)),
+        );
+        final contains =
+            mountPoint == '/' ||
+            target == mountPoint ||
+            target.startsWith('$mountPoint/');
+        if (!contains || mountPoint.length < bestLength) continue;
+        bestLength = mountPoint.length;
+        nosuid = fields[5].split(',').contains('nosuid');
+      }
+      return nosuid;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> verifyCoreProcessPrivileges(int pid) async {
+    if (!Platform.isLinux || !globalState.appState.realTunEnable) return;
+    final corePath = appPath.corePath;
+    if (!await _isSetuidRootOwned(corePath, 'root:') &&
+        !await _hasCoreCapabilities()) {
+      return;
+    }
+    try {
+      for (var attempt = 0; attempt < 3; attempt++) {
+        final lines = await File('/proc/$pid/status').readAsLines();
+        String? field(String name) => lines
+            .where((line) => line.startsWith('$name:'))
+            .map((line) => line.substring(name.length + 1).trim())
+            .firstOrNull;
+        final effectiveUid = field(
+          'Uid',
+        )?.split(RegExp(r'\s+')).elementAtOrNull(1);
+        final capEff = int.tryParse(field('CapEff') ?? '', radix: 16) ?? 0;
+        const capNetAdmin = 1 << 12;
+        if (effectiveUid == '0' || capEff & capNetAdmin != 0) return;
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      commonPrint.log('Core process lacks CAP_NET_ADMIN');
+      globalState.showNotifier(appLocalizations.coreCapabilityNotEffective);
+    } catch (e) {
+      commonPrint.log('Core privilege check skipped: $e');
+    }
+  }
+
+  static Future<File?> _stagePolkitRule() async {
+    final bundled = File(join(appPath.executableDirPath, _polkitRuleFileName));
+    if (!await bundled.exists()) return null;
+    if (await File(_polkitRuleSystemPath).exists()) return null;
+    final prefs = await preferences.sharedPreferencesCompleter.future;
+    if (prefs?.getBool(_polkitRuleSettledKey) ?? false) return null;
+    return bundled.copy(join(await appPath.homeDirPath, _polkitRuleFileName));
+  }
+
+  static Future<String?> get _dataDirRepairScript async {
+    final uid = await _idField('-u');
+    final gid = await _idField('-g');
+    if (uid == null || gid == null) return null;
+
+    final homeDir = await appPath.homeDirPath;
+    try {
+      final result = await Process.run('find', [
+        homeDir,
+        '!',
+        '-user',
+        '$uid',
+        '-print',
+        '-quit',
+      ]);
+      if (result.stdout.toString().trim().isEmpty) return null;
+    } catch (_) {
+      return null;
+    }
+    return 'chown -R $uid:$gid ${_shellEscape(homeDir)}';
+  }
+
+  static Future<int?> _idField(String flag) async {
+    try {
+      final result = await Process.run('id', [flag]);
+      if (result.exitCode != 0) return null;
+      return int.tryParse(result.stdout.toString().trim());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<({int exitCode, String stdout, String stderr})?> _runPrivileged(
+    String script,
+  ) async {
+    try {
+      final result = await Process.run('pkexec', ['sh', '-c', script]);
+      if (result.exitCode != 127) {
+        return (
+          exitCode: result.exitCode,
+          stdout: result.stdout.toString(),
+          stderr: result.stderr.toString(),
+        );
+      }
+    } catch (e) {
+      commonPrint.warn('pkexec failed: $e');
+    }
+
+    window?.show();
+    final password = await globalState.showCommonDialog<String>(
+      child: InputDialog(
+        obscureText: true,
+        title: appLocalizations.pleaseInputAdminPassword,
+        value: '',
+      ),
+    );
+    if (password == null || password.isEmpty) return null;
+
+    final Process process;
+    try {
+      process = await Process.start('sudo', [
+        '-S',
+        '-p',
+        '',
+        'sh',
+        '-c',
+        script,
+      ]);
+    } catch (e) {
+      commonPrint.warn('sudo failed: $e');
+      return null;
+    }
+    final stdout = process.stdout.transform(utf8.decoder).join();
+    final stderr = process.stderr.transform(utf8.decoder).join();
+    process.stdin.writeln(password);
+    await process.stdin.close();
+    return (
+      exitCode: await process.exitCode,
+      stdout: await stdout,
+      stderr: await stderr,
+    );
   }
 
   Future<void> back() async {
@@ -251,6 +458,29 @@ class System {
   Future<void> exit() async {
     if (system.isMobile) await SystemNavigator.pop();
     await window?.close();
+  }
+
+  Future<void> restartApp() async {
+    if (Platform.isLinux) {
+      final appImage = Platform.environment['APPIMAGE'];
+      final executable = (appImage != null && appImage.isNotEmpty)
+          ? appImage
+          : Platform.resolvedExecutable;
+      await Process.start(
+        'sh',
+        [
+          '-c',
+          'while kill -0 \$1 2>/dev/null; do sleep 0.1; done; exec "\$2"',
+          '--',
+          '$pid',
+          executable,
+        ],
+        mode: ProcessStartMode.detached,
+      );
+      await globalState.appController.handleExit();
+      return;
+    }
+    await Restart.restartApp();
   }
 
   Future<void> setProcessPriority(String processName, bool enable) async {

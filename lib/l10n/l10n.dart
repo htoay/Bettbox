@@ -234,6 +234,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Running Mode`
+  String get runningMode {
+    return Intl.message(
+      'Running Mode',
+      name: 'runningMode',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Network`
   String get networkDetection {
     return Intl.message(
@@ -5004,20 +5014,20 @@ class AppLocalizations {
     );
   }
 
-  /// `Haptic Feedback`
+  /// `Motion Feedback`
   String get navBarHapticFeedback {
     return Intl.message(
-      'Haptic Feedback',
+      'Motion Feedback',
       name: 'navBarHapticFeedback',
       desc: '',
       args: [],
     );
   }
 
-  /// `Vibrate on navigation tab switch`
+  /// `Bottom navigation bar animation and haptic feedback`
   String get navBarHapticFeedbackDesc {
     return Intl.message(
-      'Vibrate on navigation tab switch',
+      'Bottom navigation bar animation and haptic feedback',
       name: 'navBarHapticFeedbackDesc',
       desc: '',
       args: [],
@@ -5394,16 +5404,6 @@ class AppLocalizations {
     return Intl.message(
       'Please enter a script name',
       name: 'pleaseEnterScriptName',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Inactive in script mode`
-  String get overrideInvalidTip {
-    return Intl.message(
-      'Inactive in script mode',
-      name: 'overrideInvalidTip',
       desc: '',
       args: [],
     );
@@ -6714,6 +6714,56 @@ class AppLocalizations {
     return Intl.message(
       'GEO Built-in Resources',
       name: 'geoBuiltInResources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `setcap is not installed, falling back to setuid`
+  String get setcapNotInstalledFallback {
+    return Intl.message(
+      'setcap is not installed, falling back to setuid',
+      name: 'setcapNotInstalledFallback',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The filesystem does not support file capabilities, falling back to setuid`
+  String get xattrUnsupportedFallback {
+    return Intl.message(
+      'The filesystem does not support file capabilities, falling back to setuid',
+      name: 'xattrUnsupportedFallback',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not grant file capabilities, falling back to setuid`
+  String get setcapFailedFallback {
+    return Intl.message(
+      'Could not grant file capabilities, falling back to setuid',
+      name: 'setcapFailedFallback',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The core is on a filesystem mounted with nosuid, so file capabilities and setuid cannot take effect`
+  String get coreMountNosuid {
+    return Intl.message(
+      'The core is on a filesystem mounted with nosuid, so file capabilities and setuid cannot take effect',
+      name: 'coreMountNosuid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Core authorization did not take effect: the running core lacks CAP_NET_ADMIN, TUN may fail`
+  String get coreCapabilityNotEffective {
+    return Intl.message(
+      'Core authorization did not take effect: the running core lacks CAP_NET_ADMIN, TUN may fail',
+      name: 'coreCapabilityNotEffective',
       desc: '',
       args: [],
     );

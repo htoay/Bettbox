@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/utils/platform_check.dart';
-import 'package:restart_app/restart_app.dart';
 
 class ExternalControl {
   static ServerSocket? _server;
@@ -168,7 +167,7 @@ class ExternalControl {
       case 'exit':
         globalState.appController.handleExit();
       case 'restart':
-        Restart.restartApp();
+        system.restartApp();
       case 'show':
         window?.show();
       default:

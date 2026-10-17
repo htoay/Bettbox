@@ -211,6 +211,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                 final hasTags = hasRemote || hasCustom;
                 return CommonCard(
                   key: ValueKey(script.id),
+                  elevated: false,
                   isSelected: isSelected,
                   radius: 16,
                   type: CommonCardType.filled,
@@ -564,6 +565,7 @@ class _ScriptSettingsSheet extends ConsumerWidget {
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: CommonCard(
+                      elevated: false,
                       type: CommonCardType.filled,
                       child: ListTile(
                         contentPadding: const EdgeInsets.only(

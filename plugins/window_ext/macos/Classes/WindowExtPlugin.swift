@@ -81,6 +81,7 @@ public class WindowExtPlugin: NSObject, FlutterPlugin {
         rep.size = NSSize(width: size, height: size)
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        NSGraphicsContext.current?.imageInterpolation = .high
         icon.draw(
             in: NSRect(x: 0, y: 0, width: size, height: size),
             from: .zero,

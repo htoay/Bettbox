@@ -34,7 +34,11 @@ mixin ClashInterface {
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey);
 
-  FutureOr<Result> getConfig(String path, {String? ageSecretKey});
+  FutureOr<Result> getConfig(
+    String path, {
+    String? ageSecretKey,
+    List<String> disabledGroups,
+  });
 
   Future<Map<String, String>> generateAgeKeyPair();
 
@@ -343,8 +347,16 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<Result> getConfig(String path, {String? ageSecretKey}) async {
-    final params = {'path': path, 'age-secret-key': ageSecretKey ?? ''};
+  Future<Result> getConfig(
+    String path, {
+    String? ageSecretKey,
+    List<String> disabledGroups = const [],
+  }) async {
+    final params = {
+      'path': path,
+      'age-secret-key': ageSecretKey ?? '',
+      'disabled-groups': disabledGroups,
+    };
     final res = await invoke<Result>(
       method: ActionMethod.getConfig,
       data: json.encode(params),

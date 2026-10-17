@@ -24,6 +24,7 @@
   "totalTraffic": "Total Traffic",
   "restartApp": "Restart App",
   "outboundMode": "Outbound Mode",
+  "runningMode": "Running Mode",
   "networkDetection": "Network",
   "upload": "Upload",
   "download": "Download",
@@ -607,8 +608,8 @@
   "saveChanges": "Save changes?",
   "generalDesc": "Modify global settings",
   "findProcessModeDesc": "Enable process matching",
-  "navBarHapticFeedback": "Haptic Feedback",
-  "navBarHapticFeedbackDesc": "Vibrate on navigation tab switch",
+  "navBarHapticFeedback": "Motion Feedback",
+  "navBarHapticFeedbackDesc": "Bottom navigation bar animation and haptic feedback",
   "saveTip": "Are you sure you want to save?",
   "colorSchemes": "Color Schemes",
   "palette": "Palette",
@@ -657,7 +658,6 @@
   "rename": "Rename",
   "unnamed": "Unnamed",
   "pleaseEnterScriptName": "Please enter a script name",
-  "overrideInvalidTip": "Inactive in script mode",
   "mixedPort": "Mixed Port",
   "socksPort": "Socks Port",
   "redirPort": "Redir Port",
@@ -729,7 +729,6 @@
   "clear": "Clear",
   "back": "Back",
   "closeAll": "Close All",
-  "script": "Script",
   "moreIpInfo": "More IP Information",
   "viewDetailedIpData": "View Detailed IP Data",
   "ipAddress": "IP Address",
@@ -768,7 +767,6 @@
   "mediaUnlockRefreshOnNodeChange": "Auto refresh on node change",
   "mediaUnlockColorfulIcons": "Show colored icons by default",
   "mediaUnlockRefreshByCategory": "Partially refresh based on current category",
-
   "mediaUnlockPinnedSettingsDesc": "Select up to 3 items to pin on the widget",
   "mediaUnlockSelectLimit": "You can select up to 3 items",
   "categoryAll": "All",
@@ -785,7 +783,6 @@
   "notUnlocked": "Not Unlocked",
   "checkFailed": "Timeout",
   "testing": "Testing",
-  "other": "Other",
   "flagged": "Flagged",
   "tvScanImport": "Scan / LAN Import",
   "tvScanImportDesc": "Scan QR or push profile to TV via LAN",
@@ -805,7 +802,6 @@
   "userAuthEmpty": "No authentication configured, LAN connections do not require credentials",
   "usernameCannotContainColon": "Username cannot contain colons",
   "intranetAndGateway": "LAN & Gateway",
-  "networkType": "Network Type",
   "defaultGateway": "Gateway",
   "lanSharing": "LAN Sharing",
   "sharedAddress": "Shared Address",
@@ -822,6 +818,11 @@
   "collapse": "Collapse",
   "analyzeLogPrompt": "Analyze Bettbox (Mihomo) log: {log}",
   "geoBuiltInResources": "GEO Built-in Resources",
+  "setcapNotInstalledFallback": "setcap is not installed, falling back to setuid",
+  "xattrUnsupportedFallback": "The filesystem does not support file capabilities, falling back to setuid",
+  "setcapFailedFallback": "Could not grant file capabilities, falling back to setuid",
+  "coreMountNosuid": "The core is on a filesystem mounted with nosuid, so file capabilities and setuid cannot take effect",
+  "coreCapabilityNotEffective": "Core authorization did not take effect: the running core lacks CAP_NET_ADMIN, TUN may fail",
   "descOhos": "Bettbox for HarmonyOS is a native proxy client built with Flutter-OHOS on the powerful and flexible Mihomo (Clash.Meta) proxy kernel, deeply integrated with HarmonyOS system VPN and background long-running tasks. Our vision: Connecting Open Source and AI, Accelerating Innovation",
   "backgroundTask": "Long-Running Task",
   "backgroundTaskDesc": "Keep the app running in the background through a long-running task (compute / data transfer / audio playback)",
@@ -834,6 +835,3 @@
   "ohosAccessManualOnly": "System restrictions prevent listing installed apps. Add package names manually, or bulk-import them via Clipboard Import in the settings panel",
   "modeTaskKeeping": "Compute task"
 }
-
-
-

@@ -75,9 +75,6 @@ pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
 find_package(X11 REQUIRED)
 
 add_definitions(-DAPPLICATION_ID="${APPLICATION_ID}")
-if("$ENV{BETTBOX_COMPATIBLE_BUILD}" STREQUAL "1")
-  add_definitions(-DBETTBOX_COMPATIBLE_BUILD)
-endif()
 
 # Define the application target. To change its name, change BINARY_NAME above,
 # not the value here, or `flutter run` will no longer work.

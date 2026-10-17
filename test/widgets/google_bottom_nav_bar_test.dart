@@ -75,13 +75,13 @@ Future<void> _pumpBar(
 }
 
 double _pillCenterX(WidgetTester tester) {
-  final pill = find
-      .descendant(
-        of: find.byType(ClipRRect),
-        matching: find.byType(DecoratedBox),
-      )
-      .first;
-  return tester.getCenter(pill).dx;
+  final finder = find.byWidgetPredicate(
+    (widget) => widget is CustomPaint && widget.painter is NavBarPillPainter,
+  );
+  final painter = tester.widget<CustomPaint>(finder).painter;
+  final rect = tester.getRect(finder);
+  if (painter is! NavBarPillPainter) return double.nan;
+  return rect.left + painter.pillRect(rect.size).center.dx;
 }
 
 void main() {
@@ -179,7 +179,7 @@ void main() {
     expect(changes, [0, 3]);
   });
 
-  testWidgets('跨多格点击时抬手不重启滑行，落定后才切换页面', (tester) async {
+  testWidgets('跨多格点击时抬手不重启滑行，并立即切换页面', (tester) async {
     final changes = <int>[];
     await _pumpBar(tester, selectedIndex: 0, onTabChange: changes.add);
 
@@ -201,7 +201,7 @@ void main() {
       previous = current;
     }
 
-    expect(changes, isEmpty);
+    expect(changes, [3]);
     for (var i = 1; i < steps.length; i++) {
       expect(steps[i], greaterThan(0), reason: 'step $i');
       expect(steps[i], lessThan(steps[i - 1]), reason: 'step $i');

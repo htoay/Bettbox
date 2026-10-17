@@ -70,9 +70,19 @@ class ApplicationState extends ConsumerState<Application>
   }
 
   InputDecorationTheme _inputDecorationTheme(ColorScheme colorScheme) {
-    const border = UnderlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
-      borderSide: BorderSide.none,
+    final isLight = colorScheme.brightness == Brightness.light;
+    final border = _FieldInputBorder(
+      borderSide: BorderSide(
+        color: isLight
+            ? colorScheme.outlineVariant
+            : colorScheme.outline.withValues(alpha: 0.45),
+      ),
+    );
+    final focusedBorder = _FieldInputBorder(
+      borderSide: BorderSide(color: colorScheme.primary, width: 1.6),
+    );
+    final errorBorder = _FieldInputBorder(
+      borderSide: BorderSide(color: colorScheme.error),
     );
     return InputDecorationTheme(
       filled: true,
@@ -85,10 +95,16 @@ class ApplicationState extends ConsumerState<Application>
           : colorScheme.surfaceContainerHighest,
       border: border,
       enabledBorder: border,
-      focusedBorder: border,
-      disabledBorder: border,
-      errorBorder: border,
-      focusedErrorBorder: border,
+      focusedBorder: focusedBorder,
+      disabledBorder: _FieldInputBorder(
+        borderSide: BorderSide(
+          color: colorScheme.onSurface.withValues(alpha: 0.12),
+        ),
+      ),
+      errorBorder: errorBorder,
+      focusedErrorBorder: errorBorder.copyWith(
+        borderSide: BorderSide(color: colorScheme.error, width: 1.6),
+      ),
       contentPadding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
     );
   }
@@ -303,12 +319,8 @@ class ApplicationState extends ConsumerState<Application>
                     builder: (_, enabled, _) {
                       return TickerMode(
                         enabled: enabled,
-                        child: AppEnvManager(
-                          child: _buildApp(
-                            AppSidebarContainer(
-                              child: _buildPlatformApp(child!),
-                            ),
-                          ),
+                        child: _buildApp(
+                          AppSidebarContainer(child: _buildPlatformApp(child!)),
                         ),
                       );
                     },
@@ -364,7 +376,7 @@ class ApplicationState extends ConsumerState<Application>
                   surfaceTintColor: Colors.transparent,
                   elevation: 10,
                   shadowColor: Colors.black.withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
                       color: _getAppColorScheme(
@@ -375,7 +387,7 @@ class ApplicationState extends ConsumerState<Application>
                   ),
                 ),
                 bottomSheetTheme: const BottomSheetThemeData(
-                  shape: RoundedRectangleBorder(
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(28),
                     ),
@@ -383,7 +395,7 @@ class ApplicationState extends ConsumerState<Application>
                   clipBehavior: Clip.antiAlias,
                 ),
                 popupMenuTheme: const PopupMenuThemeData(
-                  shape: RoundedRectangleBorder(
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
@@ -482,7 +494,7 @@ class ApplicationState extends ConsumerState<Application>
                   surfaceTintColor: Colors.transparent,
                   elevation: 10,
                   shadowColor: Colors.black.withValues(alpha: 0.6),
-                  shape: RoundedRectangleBorder(
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
                       color:
@@ -497,7 +509,7 @@ class ApplicationState extends ConsumerState<Application>
                   ),
                 ),
                 bottomSheetTheme: const BottomSheetThemeData(
-                  shape: RoundedRectangleBorder(
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(28),
                     ),
@@ -505,7 +517,7 @@ class ApplicationState extends ConsumerState<Application>
                   clipBehavior: Clip.antiAlias,
                 ),
                 popupMenuTheme: const PopupMenuThemeData(
-                  shape: RoundedRectangleBorder(
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
@@ -591,4 +603,83 @@ class ApplicationState extends ConsumerState<Application>
     }
     super.dispose();
   }
+}
+
+class _FieldInputBorder extends InputBorder {
+  const _FieldInputBorder({super.borderSide = BorderSide.none});
+
+  static const _borderRadius = BorderRadius.all(Radius.circular(16));
+
+  @override
+  bool get isOutline => false;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  _FieldInputBorder copyWith({BorderSide? borderSide}) {
+    return _FieldInputBorder(borderSide: borderSide ?? this.borderSide);
+  }
+
+  @override
+  ShapeBorder scale(double t) {
+    return _FieldInputBorder(borderSide: borderSide.scale(t));
+  }
+
+  @override
+  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
+    if (a is _FieldInputBorder) {
+      return _FieldInputBorder(
+        borderSide: BorderSide.lerp(a.borderSide, borderSide, t),
+      );
+    }
+    return super.lerpFrom(a, t);
+  }
+
+  @override
+  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
+    if (b is _FieldInputBorder) {
+      return _FieldInputBorder(
+        borderSide: BorderSide.lerp(borderSide, b.borderSide, t),
+      );
+    }
+    return super.lerpTo(b, t);
+  }
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
+    return Path()
+      ..addRRect(_borderRadius.toRRect(rect).deflate(borderSide.width));
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    return Path()..addRRect(_borderRadius.toRRect(rect));
+  }
+
+  @override
+  void paint(
+    Canvas canvas,
+    Rect rect, {
+    double? gapStart,
+    double gapExtent = 0.0,
+    double gapPercentage = 0.0,
+    TextDirection? textDirection,
+  }) {
+    if (borderSide.style == BorderStyle.none || borderSide.width == 0) {
+      return;
+    }
+    canvas.drawRRect(
+      _borderRadius.toRRect(rect).deflate(borderSide.width / 2),
+      borderSide.toPaint(),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _FieldInputBorder && other.borderSide == borderSide;
+  }
+
+  @override
+  int get hashCode => borderSide.hashCode;
 }

@@ -12,7 +12,9 @@ env:
   GRADLE_OPTS: -Dorg.gradle.vfs.watch=false
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SENTRY_BACKEND: none
-  SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+  # Temporarily disabled SignPath due to account risk control:
+  # SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+  SIGNPATH_API_TOKEN: ''
   IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN || vars.IPINFO_TOKEN }}
   
 jobs:
@@ -48,10 +50,10 @@ jobs:
             arch: amd64
             compatible: true
           - platform: macos
-            os: macos-15
+            os: macos-26
             arch: arm64
           - platform: macos
-            os: macos-15
+            os: macos-26
             arch: amd64
           - platform: linux
             os: ubuntu-22.04
@@ -146,7 +148,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ matrix.compatible == true && '1.24.x' || '1.26.x' }}
+          go-version: ${{ matrix.compatible == true && '1.24.x' || '1.25.x' }}
           cache-dependency-path: core/go.sum
 
       - name: Select Xcode (macOS)
@@ -199,10 +201,10 @@ jobs:
           dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }}
 
       - name: Install SignPath (Windows)
-        if: matrix.platform == 'windows'
+        if: matrix.platform == 'windows' && env.SIGNPATH_API_TOKEN != ''
         shell: pwsh
         env:
-          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          SIGNPATH_API_TOKEN: ${{ env.SIGNPATH_API_TOKEN }}
         run: |
           if (-not $env:SIGNPATH_API_TOKEN) {
             Write-Host "SIGNPATH_API_TOKEN is not configured. Skipping module installation."
@@ -213,7 +215,7 @@ jobs:
           Install-Module -Name SignPath -Force -Scope CurrentUser -Repository PSGallery
 
       - name: Set Signing Policy Slug (Windows)
-        if: matrix.platform == 'windows'
+        if: matrix.platform == 'windows' && env.SIGNPATH_API_TOKEN != ''
         shell: pwsh
         run: |
           $isStable = '${{ env.IS_STABLE }}' -eq 'true'
@@ -428,44 +430,6 @@ jobs:
             unsigned-installer-${{ matrix.arch }}-${{ matrix.compatible }}
           failOnError: false
       
-      - name: Verify Core Permissions (Linux)
-        if: matrix.platform == 'linux' && matrix.compatible != true
-        shell: bash
-        run: |
-          echo "=== Verifying BettboxCore permissions in DEB package ==="
-          if ls dist/Bettbox-*.deb 1>/dev/null 2>&1; then
-            DEB_FILE=$(ls dist/Bettbox-*.deb | head -n 1)
-            DEB_PERMS=$(dpkg-deb -c "$DEB_FILE" | grep BettboxCore || true)
-            echo "$DEB_PERMS"
-            if echo "$DEB_PERMS" | grep -q 'rws'; then
-              echo "OK: BettboxCore in DEB has setuid bit"
-            else
-              echo "OK: BettboxCore in DEB has standard permissions (permissions will be configured by postinst on install)"
-              rm -rf /tmp/bettbox-deb-control
-              dpkg-deb -e "$DEB_FILE" /tmp/bettbox-deb-control
-              POSTINST=$(cat /tmp/bettbox-deb-control/postinst 2>/dev/null || true)
-              if ! echo "$POSTINST" | grep -q '/usr/share/Bettbox/BettboxCore'; then
-                echo "ERROR: postinst script does not set permissions on /usr/share/Bettbox/BettboxCore"
-                exit 1
-              fi
-            fi
-          fi
-          echo "=== Verifying BettboxCore permissions in RPM package ==="
-          if ls dist/Bettbox-*.rpm 1>/dev/null 2>&1; then
-            RPM_FILE=$(ls dist/Bettbox-*.rpm | head -n 1)
-            RPM_PERMS=$(rpm -qplv "$RPM_FILE" | grep BettboxCore || true)
-            echo "$RPM_PERMS"
-            if echo "$RPM_PERMS" | grep -q 'rws'; then
-              echo "OK: BettboxCore in RPM has setuid bit"
-            else
-              echo "OK: BettboxCore in RPM has standard permissions (permissions will be configured by %post on install)"
-              RPM_POST=$(rpm -qp --scripts "$RPM_FILE" 2>/dev/null || true)
-              if ! echo "$RPM_POST" | grep -q 'BettboxCore'; then
-                echo "ERROR: %post script does not set permissions on BettboxCore"
-                exit 1
-              fi
-            fi
-          fi
 
       - name: Upload Artifacts (macOS & Android)
         if: matrix.platform != 'linux' && matrix.platform != 'windows'

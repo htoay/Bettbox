@@ -6,11 +6,24 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/state.dart';
 import 'package:material_ui/material_ui.dart';
 
+class FloatingBottomBarScope extends InheritedWidget {
+  const FloatingBottomBarScope({super.key, required super.child});
+
+  static bool has(BuildContext context) {
+    return context.getInheritedWidgetOfExactType<FloatingBottomBarScope>() !=
+        null;
+  }
+
+  @override
+  bool updateShouldNotify(FloatingBottomBarScope oldWidget) => false;
+}
+
 class CommonScrollBar extends StatelessWidget {
   final ScrollController? controller;
   final Widget child;
   final bool trackVisibility;
   final bool thumbVisibility;
+  final Axis axis;
 
   const CommonScrollBar({
     super.key,
@@ -18,10 +31,10 @@ class CommonScrollBar extends StatelessWidget {
     required this.controller,
     this.trackVisibility = false,
     this.thumbVisibility = false,
+    this.axis = Axis.vertical,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildScrollbar(Widget child) {
     final hasController = controller != null;
     return Scrollbar(
       controller: controller,
@@ -31,6 +44,22 @@ class CommonScrollBar extends StatelessWidget {
       radius: const Radius.circular(8),
       interactive: hasController,
       child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (axis != Axis.vertical || !FloatingBottomBarScope.has(context)) {
+      return _buildScrollbar(child);
+    }
+    final mediaQuery = MediaQuery.of(context);
+    return MediaQuery(
+      data: mediaQuery.copyWith(
+        padding: mediaQuery.padding.copyWith(
+          bottom: getFloatingBottomBarReserveHeight(context),
+        ),
+      ),
+      child: _buildScrollbar(MediaQuery(data: mediaQuery, child: child)),
     );
   }
 }

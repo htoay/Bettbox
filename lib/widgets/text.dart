@@ -65,34 +65,50 @@ class EmojiText extends StatelessWidget {
   });
 
   static List<TextSpan> buildSpans(String text, TextStyle style) {
-    final List<TextSpan> spans = [];
-    final matches = _emojiRegex.allMatches(text);
+    if (text.isEmpty) {
+      return const [];
+    }
 
-    int lastMatchEnd = 0;
-    for (final match in matches) {
-      if (match.start > lastMatchEnd) {
+    if (!_emojiRegex.hasMatch(text)) {
+      return [TextSpan(text: text, style: style)];
+    }
+
+    final emojiStyle = style.merge(
+      TextStyle(
+        fontFamily: FontFamily.twEmoji.value,
+        fontFamilyFallback: [FontFamily.twEmoji.value],
+      ),
+    );
+
+    final List<TextSpan> spans = [];
+    int segmentStart = 0;
+    int currentIndex = 0;
+    bool? isEmojiSegment;
+
+    for (final char in text.characters) {
+      final isEmoji = _emojiRegex.hasMatch(char);
+      if (isEmojiSegment == null) {
+        isEmojiSegment = isEmoji;
+      } else if (isEmojiSegment != isEmoji) {
         spans.add(
           TextSpan(
-            text: text.substring(lastMatchEnd, match.start),
-            style: style,
+            text: text.substring(segmentStart, currentIndex),
+            style: isEmojiSegment ? emojiStyle : style,
           ),
         );
+        segmentStart = currentIndex;
+        isEmojiSegment = isEmoji;
       }
+      currentIndex += char.length;
+    }
+
+    if (segmentStart < text.length && isEmojiSegment != null) {
       spans.add(
         TextSpan(
-          text: match.group(0),
-          style: style.merge(
-            TextStyle(
-              fontFamily: FontFamily.twEmoji.value,
-              fontFamilyFallback: [FontFamily.twEmoji.value],
-            ),
-          ),
+          text: text.substring(segmentStart, text.length),
+          style: isEmojiSegment ? emojiStyle : style,
         ),
       );
-      lastMatchEnd = match.end;
-    }
-    if (lastMatchEnd < text.length) {
-      spans.add(TextSpan(text: text.substring(lastMatchEnd), style: style));
     }
 
     return spans;

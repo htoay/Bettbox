@@ -35,7 +35,11 @@ class ShowBarScrollBehavior extends BaseScrollBehavior {
     Widget child,
     ScrollableDetails details,
   ) {
-    return CommonScrollBar(controller: details.controller, child: child);
+    return CommonScrollBar(
+      controller: details.controller,
+      axis: axisDirectionToAxis(details.direction),
+      child: child,
+    );
   }
 }
 

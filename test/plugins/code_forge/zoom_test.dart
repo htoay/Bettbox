@@ -4,6 +4,7 @@ import 'package:code_forge/code_forge.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:re_highlight/languages/yaml.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
@@ -16,6 +17,8 @@ void main() {
   group('pinch zoom tree stability', _pinchZoomTreeStability);
   group('pinch release', _pinchRelease);
   group('zoom anchor', _zoomAnchor);
+  group('wheel zoom', _wheelZoom);
+  group('trackpad pinch', _trackpadPinch);
 }
 
 void _pinchZoom() {
@@ -741,5 +744,147 @@ void _zoomAnchor() {
     await tester.pumpWidget(editor(24));
 
     expect(scroll!.offset, closeTo(40 * 30.0, 0.5));
+  });
+}
+
+Future<void> _wheel(
+  WidgetTester tester,
+  double dy, {
+  bool control = true,
+}) async {
+  final pointer = TestPointer(1, PointerDeviceKind.mouse);
+  if (control) await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+  await tester.sendEventToBinding(pointer.hover(_focal));
+  await tester.sendEventToBinding(pointer.scroll(Offset(0, dy)));
+  if (control) await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+  await settle(tester, 2);
+}
+
+void _wheelZoom() {
+  testWidgets('control and the wheel zoom in around the pointer', (
+    tester,
+  ) async {
+    final editor = _Editor(1);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+    editor.vertical!.jumpTo(800);
+    await settle(tester);
+
+    await _wheel(tester, -100);
+
+    expect(editor.zoom, greaterThan(1));
+    expect(
+      editor.position.pixels,
+      closeTo((800 + _focal.dy) * editor.zoom - _focal.dy, 2),
+    );
+  });
+
+  testWidgets('control and the wheel zoom out', (tester) async {
+    final editor = _Editor(1);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+
+    await _wheel(tester, 100);
+
+    expect(editor.zoom, lessThan(1));
+  });
+
+  testWidgets('the wheel alone scrolls without zooming', (tester) async {
+    final editor = _Editor(1);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+
+    await _wheel(tester, 100, control: false);
+
+    expect(editor.zoom, 1);
+    expect(editor.position.pixels, greaterThan(0));
+  });
+
+  testWidgets('control and the wheel at the largest size do not scroll', (
+    tester,
+  ) async {
+    final editor = _Editor(1.5);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+    editor.vertical!.jumpTo(800);
+    await settle(tester);
+
+    await _wheel(tester, -100);
+
+    expect(editor.zoom, 1.5);
+    expect(editor.position.pixels, 800);
+  });
+}
+
+void _trackpadPinch() {
+  const textArea = Rect.fromLTRB(90, 0, 400, 600);
+
+  Future<TestPointer> pinch(WidgetTester tester, double scale) async {
+    final pointer = TestPointer(1, PointerDeviceKind.trackpad);
+    await tester.sendEventToBinding(pointer.panZoomStart(_focal));
+    for (final value in [1.02, 1.05, 1.05 * scale]) {
+      await tester.sendEventToBinding(
+        pointer.panZoomUpdate(_focal, scale: value),
+      );
+      await tester.pump();
+    }
+    return pointer;
+  }
+
+  testWidgets('a trackpad pinch zooms and leaves the text where it showed it', (
+    tester,
+  ) async {
+    final editor = _Editor(1);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+    editor.vertical!.jumpTo(800);
+    await settle(tester);
+    final before = await _capture(tester);
+
+    final pointer = await pinch(tester, 1.25);
+    final shown = await _capture(tester);
+    await tester.sendEventToBinding(pointer.panZoomEnd());
+    await tester.pump();
+    final released = await _capture(tester);
+
+    expect(editor.zoom, 1.25);
+    expect(_difference(before, shown, textArea), greaterThan(0.1));
+    expect(_difference(shown, released, textArea), lessThan(0.02));
+    expect(_preview(tester).isIdentity(), isTrue);
+    await settle(tester);
+  });
+
+  testWidgets('a trackpad pinch locks scrolling until it ends', (tester) async {
+    final editor = _Editor(1);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+    editor.vertical!.jumpTo(800);
+    await settle(tester);
+
+    final pointer = await pinch(tester, 1.25);
+    await tester.sendEventToBinding(
+      pointer.panZoomUpdate(_focal, pan: const Offset(0, -200), scale: 1.3125),
+    );
+    await tester.pump();
+
+    expect(editor.position.pixels, 800);
+    await tester.sendEventToBinding(pointer.panZoomEnd());
+    await settle(tester);
+  });
+
+  testWidgets('a two finger trackpad scroll scrolls without zooming', (
+    tester,
+  ) async {
+    final editor = _Editor(1);
+    await editor.pump(tester, _lines((i) => 'key$i: value$i'));
+    final pointer = TestPointer(1, PointerDeviceKind.trackpad);
+
+    await tester.sendEventToBinding(pointer.panZoomStart(_focal));
+    for (var i = 1; i <= 5; i++) {
+      await tester.sendEventToBinding(
+        pointer.panZoomUpdate(_focal, pan: Offset(0, -40.0 * i)),
+      );
+      await tester.pump();
+    }
+    await tester.sendEventToBinding(pointer.panZoomEnd());
+    await settle(tester);
+
+    expect(editor.zoom, 1);
+    expect(editor.position.pixels, greaterThan(0));
+    expect(_preview(tester).isIdentity(), isTrue);
   });
 }

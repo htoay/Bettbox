@@ -88,6 +88,21 @@ class AppPackageMakerDeb extends AppPackageMaker {
       );
     }
 
+    for (final entry in makeConfig.extraFiles.entries) {
+      final sourceFile = File(entry.key);
+      if (!sourceFile.existsSync()) {
+        throw MakeError('extra file ${entry.key} path wasn\'t found');
+      }
+
+      final destinationPath = path.join(packagingDirectory.path, entry.value);
+      final destinationDir = Directory(path.dirname(destinationPath));
+      if (!destinationDir.existsSync()) {
+        destinationDir.createSync(recursive: true);
+      }
+      await sourceFile.copy(destinationPath);
+      await $('chmod', ['644', destinationPath]);
+    }
+
     // create & write the files got from makeConfig
     final controlFile = File(path.join(debianDir, 'control'));
     final postinstFile = File(path.join(debianDir, 'postinst'));

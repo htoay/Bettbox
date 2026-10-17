@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:bett_box/state.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:bett_box/common/common.dart';
@@ -26,6 +27,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   final GlobalKey<_DashboardStartSwitchState> _startSwitchKey = GlobalKey();
   final _isEditNotifier = ValueNotifier<bool>(false);
   final _addedWidgetsNotifier = ValueNotifier<List<GridItem>>([]);
+  final _menuOpenNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -49,6 +51,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     }
     _isEditNotifier.dispose();
     _addedWidgetsNotifier.dispose();
+    _menuOpenNotifier.dispose();
     super.dispose();
   }
 
@@ -96,12 +99,25 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         }
         return CommonPopupBox(
           targetBuilder: (open) {
-            return IconButton(
-              onPressed: () {
-                open(offset: const Offset(0, 20));
+            final button = IconButton(
+              onPressed: () async {
+                _menuOpenNotifier.value = true;
+                await open(offset: const Offset(0, 20));
+                if (!mounted) return;
+                _menuOpenNotifier.value = false;
               },
               tooltip: appLocalizations.more,
-              icon: const Icon(Icons.dashboard_outlined),
+              icon: showStartSwitch
+                  ? ValueListenableBuilder(
+                      valueListenable: _menuOpenNotifier,
+                      builder: (_, isOpen, _) => _MenuDots(isOpen: isOpen),
+                    )
+                  : const Icon(Icons.more_vert),
+            );
+            if (!showStartSwitch) return button;
+            return Transform.translate(
+              offset: const Offset(4, 0),
+              child: button,
             );
           },
           popup: CommonPopupMenu(
@@ -246,10 +262,28 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           .map((item) => item.widget)
           .toList();
     });
+    final title =
+        ref.watch(appSettingProvider.select((s) => s.dashboardTitle)) ??
+        appLocalizations.dashboard;
     return CommonScaffold(
-      title:
-          ref.watch(appSettingProvider.select((s) => s.dashboardTitle)) ??
-          appLocalizations.dashboard,
+      title: title,
+      titleWidget: globalState.isPre
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: EmojiText(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const _PreviewMark(),
+              ],
+            )
+          : null,
       actions: _buildActions(),
       body: ScrollEdgeRise(
         builder: (_, rise) => Align(
@@ -762,5 +796,96 @@ class _DashboardStartSwitchState extends ConsumerState<_DashboardStartSwitch> {
         ),
       ),
     );
+  }
+}
+
+class _PreviewMark extends StatelessWidget {
+  const _PreviewMark();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.6)),
+      ),
+      child: Text(
+        kDebugMode ? 'DEBUG' : 'PRE',
+        style: context.textTheme.labelSmall?.copyWith(
+          fontSize: 9.5,
+          height: 1.3,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.8,
+          color: colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDots extends ConsumerWidget {
+  final bool isOpen;
+
+  const _MenuDots({required this.isOpen});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isStart = ref.watch(runTimeProvider.select((value) => value != null));
+    final colorScheme = context.colorScheme;
+    final color = IconTheme.of(context).color ?? colorScheme.onSurfaceVariant;
+    return AnimatedRotation(
+      turns: isOpen ? 0.125 : 0,
+      duration: midDuration,
+      curve: Curves.easeOutBack,
+      child: TweenAnimationBuilder<Color?>(
+        tween: ColorTween(end: isStart ? colorScheme.primary : color),
+        duration: midDuration,
+        builder: (_, accent, _) => SizedBox.square(
+          dimension: 24,
+          child: CustomPaint(
+            painter: _MenuDotsPainter(color: color, accent: accent ?? color),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDotsPainter extends CustomPainter {
+  final Color color;
+  final Color accent;
+
+  const _MenuDotsPainter({required this.color, required this.accent});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const radius = 2.6;
+    const distance = 5.2;
+    final center = size.center(Offset.zero);
+    final paint = Paint()..color = color;
+    canvas.drawCircle(
+      center + const Offset(-distance, -distance),
+      radius,
+      paint,
+    );
+    canvas.drawCircle(
+      center + const Offset(-distance, distance),
+      radius,
+      paint,
+    );
+    canvas.drawCircle(center + const Offset(distance, distance), radius, paint);
+    canvas.drawCircle(
+      center + const Offset(distance, -distance),
+      radius,
+      Paint()..color = accent,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_MenuDotsPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.accent != accent;
   }
 }

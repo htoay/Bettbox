@@ -8,6 +8,7 @@ import (
 
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/log"
+	yamlv3 "go.yaml.in/yaml/v3"
 )
 
 func TestPatchYamlShortID(t *testing.T) {
@@ -56,7 +57,7 @@ func TestLogHistoryCarriesTime(t *testing.T) {
 	}
 }
 
-func TestMarshalYamlKeepingSupplementary(t *testing.T) {
+func TestMarshalYamlNodeKeepingSupplementary(t *testing.T) {
 	type entry struct {
 		Name  string `yaml:"name"`
 		Value string `yaml:"value"`
@@ -67,7 +68,11 @@ func TestMarshalYamlKeepingSupplementary(t *testing.T) {
 		{`literal \U0001F680 text`, "line one\nline two 🚀\n"},
 		{"☁️ plain \ue000", "quoted \"🚀\" \\U0001F680"},
 	}
-	out, err := marshalYamlKeepingSupplementary(map[string]any{"entries": entries})
+	var root yamlv3.Node
+	if err := root.Encode(map[string]any{"entries": entries}); err != nil {
+		t.Fatal(err)
+	}
+	out, err := marshalYamlNode(&root)
 	if err != nil {
 		t.Fatal(err)
 	}

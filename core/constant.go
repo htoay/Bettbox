@@ -24,8 +24,9 @@ type DecryptAgeConfigParams struct {
 }
 
 type GetConfigParams struct {
-	Path         string `json:"path"`
-	AgeSecretKey string `json:"age-secret-key"`
+	Path           string   `json:"path"`
+	AgeSecretKey   string   `json:"age-secret-key"`
+	DisabledGroups []string `json:"disabled-groups"`
 }
 
 type ExportConfigParams struct {

@@ -11,7 +11,7 @@ essential: false
 icon: ./assets/images/icon.png
 
 requires:
-  - libcap
+  - '(/usr/sbin/setcap or /usr/bin/setcap)'
 
 keywords:
   - Bettbox
@@ -26,6 +26,9 @@ group: Applications/Internet
 startup_notify: true
 startup_wm_class: com.appshub.bettbox
 
+extra_files:
+  linux/packaging/polkit/90-bettbox.rules: usr/share/polkit-1/rules.d/90-bettbox.rules
+
 install: |
   mkdir -p %{buildroot}%{_bindir}
   mkdir -p %{buildroot}%{_datadir}/%{name}
@@ -38,43 +41,14 @@ install: |
   chmod 0755 %{buildroot}%{_datadir}/%{name}/BettboxCore
   update-mime-database %{_datadir}/mime &> /dev/null || :
 
-post: |
+posttrans: |
   CORE_PATH="%{_datadir}/%{name}/BettboxCore"
   if [ -f "$CORE_PATH" ]; then
-    SETCAP_CMD=""
-    for cmd in setcap /sbin/setcap /usr/sbin/setcap; do
-      if command -v "$cmd" >/dev/null 2>&1; then
-        SETCAP_CMD="$cmd"
-        break
-      fi
-    done
-    if [ -n "$SETCAP_CMD" ] && "$SETCAP_CMD" 'cap_net_admin,cap_net_bind_service,cap_net_raw=+ep' "$CORE_PATH" 2>/dev/null; then
-      sync
-    else
-      chown root:root "$CORE_PATH" 2>/dev/null || true
-      chmod +sx "$CORE_PATH" 2>/dev/null || true
-    fi
+    setcap 'cap_net_admin,cap_net_bind_service,cap_net_raw=+ep' "$CORE_PATH" && sync
   fi
-  for pdir in /usr/share/polkit-1/rules.d /etc/polkit-1/rules.d; do
-    if [ -d "$pdir" ]; then
-      echo 'polkit.addRule(function(action, subject) { if (action.id.indexOf("org.freedesktop.resolve1.") === 0 && subject.local && subject.active) { return polkit.Result.YES; } });' > "$pdir/99-bettbox.rules"
-      chmod 0644 "$pdir/99-bettbox.rules" 2>/dev/null || true
-      break
-    fi
-  done
+  rm -f /etc/polkit-1/rules.d/90-bettbox.rules /etc/polkit-1/rules.d/99-bettbox.rules /usr/share/polkit-1/rules.d/99-bettbox.rules
 
 postun: |
-  CORE_PATH="%{_datadir}/%{name}/BettboxCore"
-  if [ -f "$CORE_PATH" ]; then
-    for cmd in setcap /sbin/setcap /usr/sbin/setcap; do
-      if command -v "$cmd" >/dev/null 2>&1; then
-        "$cmd" -r "$CORE_PATH" 2>/dev/null || true
-        break
-      fi
-    done
-    chmod -s "$CORE_PATH" 2>/dev/null || true
-  fi
-  rm -f /usr/share/polkit-1/rules.d/99-bettbox.rules /etc/polkit-1/rules.d/99-bettbox.rules 2>/dev/null || true
   update-mime-database %{_datadir}/mime &> /dev/null || :
 
 attr: |

@@ -281,8 +281,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "copyLink": MessageLookupByLibrary.simpleMessage("링크 복사"),
     "copySuccess": MessageLookupByLibrary.simpleMessage("복사 성공"),
     "core": MessageLookupByLibrary.simpleMessage("코어"),
+    "coreCapabilityNotEffective": MessageLookupByLibrary.simpleMessage(
+      "코어 권한 부여가 적용되지 않았습니다: 실행 중인 코어에 CAP_NET_ADMIN이 없어 TUN이 작동하지 않을 수 있습니다",
+    ),
     "coreConnected": MessageLookupByLibrary.simpleMessage("연결됨"),
     "coreInfo": MessageLookupByLibrary.simpleMessage("코어 정보"),
+    "coreMountNosuid": MessageLookupByLibrary.simpleMessage(
+      "코어가 nosuid로 마운트된 파일 시스템에 있어 파일 capability와 setuid가 적용되지 않습니다",
+    ),
     "coreStatus": MessageLookupByLibrary.simpleMessage("코어 부하 상세"),
     "coreSuspended": MessageLookupByLibrary.simpleMessage("일시 중지됨"),
     "country": MessageLookupByLibrary.simpleMessage("지역"),
@@ -664,9 +670,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "특정 도메인용 DNS 정책 지정",
     ),
-    "navBarHapticFeedback": MessageLookupByLibrary.simpleMessage("진동 피드백"),
+    "navBarHapticFeedback": MessageLookupByLibrary.simpleMessage("모션 피드백"),
     "navBarHapticFeedbackDesc": MessageLookupByLibrary.simpleMessage(
-      "하단 탭 전환 시 진동 피드백",
+      "하단 내비게이션 바 애니메이션 및 진동 피드백",
     ),
     "navConnections": MessageLookupByLibrary.simpleMessage("연결"),
     "navTools": MessageLookupByLibrary.simpleMessage("도구"),
@@ -783,9 +789,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "overrideExperimentalDesc": MessageLookupByLibrary.simpleMessage(
       "프로필의 실험적 설정을 덮어씁니다",
-    ),
-    "overrideInvalidTip": MessageLookupByLibrary.simpleMessage(
-      "스크립트 모드에서는 적용되지 않습니다",
     ),
     "overrideNtp": MessageLookupByLibrary.simpleMessage("NTP 오버라이드"),
     "overrideNtpDesc": MessageLookupByLibrary.simpleMessage(
@@ -968,6 +971,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("규칙 목적지"),
     "rulesCount": MessageLookupByLibrary.simpleMessage("라우팅 규칙"),
     "runTime": MessageLookupByLibrary.simpleMessage("실행 시간"),
+    "runningMode": MessageLookupByLibrary.simpleMessage("실행 모드"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage("런타임 설정"),
     "save": MessageLookupByLibrary.simpleMessage("저장"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("변경사항을 저장하시겠습니까?"),
@@ -984,6 +988,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectedCountTitle": m17,
     "serviceReady": MessageLookupByLibrary.simpleMessage("서비스 준비 완료"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("서비스 실행 중"),
+    "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
+      "파일 capability를 부여할 수 없어 setuid로 대체했습니다",
+    ),
+    "setcapNotInstalledFallback": MessageLookupByLibrary.simpleMessage(
+      "setcap이 설치되어 있지 않아 setuid로 대체했습니다",
+    ),
     "settings": MessageLookupByLibrary.simpleMessage("설정"),
     "sharedAddress": MessageLookupByLibrary.simpleMessage("공유 주소"),
     "show": MessageLookupByLibrary.simpleMessage("표시"),
@@ -1232,6 +1242,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("화이트리스트 모드"),
     "writeToSystem": MessageLookupByLibrary.simpleMessage("시스템 적용"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("관리자 권한이 필요합니다"),
+    "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
+      "파일 시스템이 파일 capability(xattr)를 지원하지 않아 setuid로 대체했습니다",
+    ),
     "years": m19,
   };
 }

@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
               removeLeft: true,
               removeRight: true,
               context: context,
-              child: child,
+              child: FloatingBottomBarScope(child: child),
             );
             final navBar = MediaQuery.removePadding(
               removeTop: true,
@@ -147,6 +147,13 @@ class _HomePageState extends State<HomePage> {
                 .watch(currentNavigationItemsStateProvider)
                 .value;
             final isMobile = ref.watch(isMobileViewProvider);
+            final keepAll =
+                isMobile &&
+                ref.watch(
+                  appSettingProvider.select(
+                    (state) => state.enableNavBarHapticFeedback,
+                  ),
+                );
             return _HomePageView(
               navigationItems: navigationItems,
               pageBuilder: (_, index) {
@@ -155,6 +162,7 @@ class _HomePageState extends State<HomePage> {
                   key: ValueKey(navigationItem.label),
                   item: navigationItem,
                   isMobile: isMobile,
+                  keep: navigationItem.keep || keepAll,
                   view: navigationItem.builder(context),
                 );
               },
@@ -301,23 +309,45 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+class _ActivePageLabelsScope extends InheritedWidget {
+  final Set<PageLabel> activeLabels;
+
+  const _ActivePageLabelsScope({
+    required this.activeLabels,
+    required super.child,
+  });
+
+  static bool isActive(BuildContext context, PageLabel label) {
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<_ActivePageLabelsScope>();
+    return scope?.activeLabels.contains(label) ?? true;
+  }
+
+  @override
+  bool updateShouldNotify(_ActivePageLabelsScope oldWidget) {
+    return activeLabels != oldWidget.activeLabels;
+  }
+}
+
 class _NavigationPage extends StatelessWidget {
   const _NavigationPage({
     super.key,
     required this.item,
     required this.isMobile,
+    required this.keep,
     required this.view,
   });
 
   final NavigationItem item;
   final bool isMobile;
+  final bool keep;
   final Widget view;
 
   @override
   Widget build(BuildContext context) {
     final keptView = KeepScope(
       key: ValueKey(item.label),
-      keep: item.keep,
+      keep: keep,
       child: isMobile
           ? view
           : Navigator(
@@ -326,20 +356,13 @@ class _NavigationPage extends StatelessWidget {
               onDidRemovePage: (_) {},
             ),
     );
-    return Consumer(
-      builder: (_, ref, child) {
-        final isActive = ref.watch(
-          currentPageLabelProvider.select((label) => label == item.label),
-        );
-        return PageActivityScope(
-          isActive: isActive,
-          child: TickerMode(
-            enabled: isActive,
-            child: ExcludeFocus(excluding: !isActive, child: child!),
-          ),
-        );
-      },
-      child: keptView,
+    final isActive = _ActivePageLabelsScope.isActive(context, item.label);
+    return PageActivityScope(
+      isActive: isActive,
+      child: TickerMode(
+        enabled: isActive,
+        child: ExcludeFocus(excluding: !isActive, child: keptView),
+      ),
     );
   }
 }
@@ -361,21 +384,38 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   late PageController _pageController;
   late final ProviderSubscription<PageLabel> _pageLabelSubscription;
   int _currentPageIndex = 0;
+  List<int>? _order;
+  int _slide = 0;
+  Set<PageLabel> _activeLabels = const {};
 
   @override
   initState() {
     super.initState();
     _currentPageIndex = _pageIndex;
-    _pageController = PageController(initialPage: _currentPageIndex);
+    final currentLabel = _currentPageIndex >= 0 &&
+            _currentPageIndex < widget.navigationItems.length
+        ? widget.navigationItems[_currentPageIndex].label
+        : ref.read(currentPageLabelProvider);
+    _activeLabels = {currentLabel};
+    _pageController = PageController(
+      initialPage: _currentPageIndex,
+      keepPage: false,
+    );
     _pageLabelSubscription = ref.listenManual(currentPageLabelProvider, (
       prev,
       next,
     ) {
       if (prev != next) {
-        _toPage(next);
+        final transition = _toPage(next);
         if (next == PageLabel.dashboard && !system.isDesktop) {
-          dashboardRefreshManager.triggerImmediateTick();
-          globalState.appController.updateTraffic();
+          transition.whenComplete(() {
+            if (!mounted ||
+                ref.read(currentPageLabelProvider) != PageLabel.dashboard) {
+              return;
+            }
+            dashboardRefreshManager.triggerImmediateTick();
+            globalState.appController.updateTraffic();
+          });
         }
       }
     });
@@ -385,6 +425,9 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   void didUpdateWidget(covariant _HomePageView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.navigationItems.length != widget.navigationItems.length) {
+      _order = null;
+      final currentLabel = ref.read(currentPageLabelProvider);
+      _activeLabels = {currentLabel};
       _updatePageController();
     }
   }
@@ -413,16 +456,68 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       FocusManager.instance.primaryFocus?.unfocus();
     }
 
-    if (ref.read(isMobileViewProvider)) {
+    final isMobile = ref.read(isMobileViewProvider);
+    if (isMobile && !ref.read(appSettingProvider).enableNavBarHapticFeedback) {
       if (_currentPageIndex != index) {
         setState(() {
           _currentPageIndex = index;
+          _activeLabels = {pageLabel};
         });
       }
       return;
     }
 
-    _pageController.jumpToPage(index);
+    if (!_pageController.hasClients) {
+      setState(() {
+        _order = null;
+        _activeLabels = {pageLabel};
+      });
+      return;
+    }
+
+    final slide = ++_slide;
+    final page = _pageController.page?.round() ?? index;
+    final current = _order?[page] ?? page;
+    final currentLabel = current >= 0 && current < widget.navigationItems.length
+        ? widget.navigationItems[current].label
+        : pageLabel;
+
+    if (_order != null) {
+      setState(() => _order = null);
+      _pageController.jumpToPage(current);
+    }
+    if (!isMobile || ignoreAnimateTo) {
+      _pageController.jumpToPage(index);
+      setState(() {
+        _activeLabels = {pageLabel};
+      });
+      return;
+    }
+
+    setState(() {
+      _activeLabels = {currentLabel, pageLabel};
+    });
+
+    if ((index - current).abs() > 1) {
+      final adjacent = index > current ? index - 1 : index + 1;
+      setState(() {
+        _order = List.generate(widget.navigationItems.length, (item) => item)
+          ..[adjacent] = current
+          ..[current] = adjacent;
+      });
+      _pageController.jumpToPage(adjacent);
+    }
+    await _pageController.animateToPage(
+      index,
+      duration: kTabScrollDuration,
+      curve: Curves.easeOut,
+    );
+    if (mounted && slide == _slide) {
+      setState(() {
+        if (_order != null) _order = null;
+        _activeLabels = {pageLabel};
+      });
+    }
   }
 
   void _updatePageController() {
@@ -439,28 +534,58 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
 
   @override
   Widget build(BuildContext context) {
-    if (ref.watch(isMobileViewProvider)) {
-      final index = _pageIndex < 0 ? 0 : _pageIndex;
-      return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (child, animation) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        child: KeyedSubtree(
-          key: ValueKey(widget.navigationItems[index].label),
-          child: widget.pageBuilder(context, index),
+    final isMobile = ref.watch(isMobileViewProvider);
+    final enableMotion = ref.watch(
+      appSettingProvider.select((state) => state.enableNavBarHapticFeedback),
+    );
+    final index = _pageIndex < 0 ? 0 : _pageIndex;
+    if (isMobile && !enableMotion) {
+      return _ActivePageLabelsScope(
+        activeLabels: _activeLabels,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: KeyedSubtree(
+            key: ValueKey(widget.navigationItems[index].label),
+            child: widget.pageBuilder(context, index),
+          ),
         ),
       );
     }
-    return PageView.builder(
-      controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.navigationItems.length,
-      itemBuilder: (context, index) {
-        return widget.pageBuilder(context, index);
-      },
+    if (!_pageController.hasClients && _pageController.initialPage != index) {
+      _order = null;
+      _pageController.dispose();
+      _pageController = PageController(initialPage: index, keepPage: false);
+    }
+    return _ActivePageLabelsScope(
+      activeLabels: _activeLabels,
+      child: PageView.builder(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        scrollBehavior: ScrollConfiguration.of(
+          context,
+        ).copyWith(scrollbars: false),
+        itemCount: widget.navigationItems.length,
+        findChildIndexCallback: (key) {
+          if (key is! ValueKey<PageLabel>) {
+            return null;
+          }
+          final index = widget.navigationItems.indexWhere(
+            (item) => item.label == key.value,
+          );
+          if (index == -1) {
+            return null;
+          }
+          return _order?.indexOf(index) ?? index;
+        },
+        itemBuilder: (context, index) {
+          return widget.pageBuilder(context, _order?[index] ?? index);
+        },
+      ),
     );
   }
 }

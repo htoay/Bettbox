@@ -20,6 +20,9 @@ part 'paint.dart';
 
 const int kExactWrappedHeightThreshold = 512;
 const int kWrappedHeightSampleSize = 64;
+const int kExactWrappedTailLines = 256;
+const double kWheelZoomStep = 1.1;
+const double kPanZoomPinchSlop = 0.05;
 
 /// FlClash's code editor, with syntax highlighting, code folding, a line
 /// number gutter, auto-indentation, bracket pairing, undo/redo, word
@@ -176,6 +179,7 @@ class _CodeField extends LeafRenderObjectWidget {
   final ValueNotifier<bool> selectionActiveNotifier;
   final ValueNotifier<Rect?> caretRectNotifier;
   final ValueChanged<Offset> onContextMenuRequest;
+  final ValueChanged<PointerSignalEvent> onPointerSignal;
   final ValueNotifier<MagnifierInfo?> magnifierNotifier;
 
   const _CodeField({
@@ -194,6 +198,7 @@ class _CodeField extends LeafRenderObjectWidget {
     required this.isMobile,
     required this.selectionActiveNotifier,
     required this.onContextMenuRequest,
+    required this.onPointerSignal,
     required this.caretRectNotifier,
     required this.magnifierNotifier,
     required this.lineWrap,
@@ -220,6 +225,7 @@ class _CodeField extends LeafRenderObjectWidget {
       isMobile: isMobile,
       selectionActiveNotifier: selectionActiveNotifier,
       onContextMenuRequest: onContextMenuRequest,
+      onPointerSignal: onPointerSignal,
       lineWrap: lineWrap,
       caretRectNotifier: caretRectNotifier,
       magnifierNotifier: magnifierNotifier,
@@ -335,6 +341,8 @@ class _CodeForgeState extends State<CodeForge>
   final ValueNotifier<bool> _isPinchingNotifier = ValueNotifier(false);
   int? _pinchPointer1;
   int? _pinchPointer2;
+  int? _panZoomPointer;
+  Offset _panZoomFocal = Offset.zero;
   Offset? _pinchFocalPoint;
   double? _startPinchDistance;
   double _pinchScale = 1.0;
@@ -523,6 +531,7 @@ class _CodeForgeState extends State<CodeForge>
     _touches.clear();
     _pinchPointer1 = null;
     _pinchPointer2 = null;
+    _panZoomPointer = null;
     _pinchFocalPoint = null;
     _startPinchDistance = null;
     _pinchScale = 1.0;
@@ -545,21 +554,51 @@ class _CodeForgeState extends State<CodeForge>
     _pinchScale = 1.0;
     _pinchDy = 0.0;
     _pinchShiftX = 0.0;
+    _pinchTransform.value = Matrix4.identity();
+    _zoomAround(focal, endScale, dy, shiftX);
+  }
 
+  void _zoomAround(Offset? focal, double scale, double dy, double shiftX) {
     final renderer = _renderer;
     if (renderer != null && focal != null) {
-      renderer._zoomFocus = (
-        y: focal.dy,
-        dy: dy,
-        scale: endScale,
-        shiftX: shiftX,
-      );
+      renderer._zoomFocus = (y: focal.dy, dy: dy, scale: scale, shiftX: shiftX);
       WidgetsBinding.instance
         ..addPostFrameCallback((_) => renderer._zoomFocus = null)
         ..ensureVisualUpdate();
     }
-    _pinchTransform.value = Matrix4.identity();
-    widget.onZoomEnd?.call(widget.zoom * endScale);
+    widget.onZoomEnd?.call(widget.zoom * scale);
+  }
+
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (_isMobile || !widget.enablePinchZoom || widget.onZoomEnd == null) {
+      return;
+    }
+    if (event is! PointerScrollEvent || event.scrollDelta.dy == 0) return;
+    final keyboard = HardwareKeyboard.instance;
+    if (!keyboard.isControlPressed && !keyboard.isMetaPressed) return;
+    GestureBinding.instance.pointerSignalResolver.register(event, (event) {
+      if (event is PointerScrollEvent) _zoomByWheel(event);
+    });
+  }
+
+  void _zoomByWheel(PointerScrollEvent event) {
+    event.respond(allowPlatformDefault: false);
+    final renderer = _renderer;
+    final stack = _editorStackKey.currentContext?.findRenderObject();
+    if (renderer == null || stack is! RenderBox || !stack.attached) return;
+    final baseZoom = max(0.001, widget.zoom);
+    final step = event.scrollDelta.dy < 0 ? kWheelZoomStep : 1 / kWheelZoomStep;
+    final targetZoom = (baseZoom * step).clamp(widget.minZoom, widget.maxZoom);
+    if (targetZoom == baseZoom) return;
+    final scale = targetZoom / baseZoom;
+    final focal = stack.globalToLocal(event.position);
+    final limit = widget.lineNumberMaxZoom;
+    final preview = renderer._pinchPreview(
+      focal,
+      scale,
+      min(targetZoom, limit) / min(baseZoom, limit),
+    );
+    _zoomAround(focal, scale, preview.dy, preview.shiftX);
   }
 
   void _handlePointerDown(PointerDownEvent event) {
@@ -573,30 +612,38 @@ class _CodeForgeState extends State<CodeForge>
       _pinchPointer2 = keys[1];
       final p1 = _touches[_pinchPointer1!]!;
       final p2 = _touches[_pinchPointer2!]!;
-      _startPinchDistance = max(1.0, (p1 - p2).distance);
-      _pinchFocalPoint = (p1 + p2) / 2;
-      _pinchScale = 1.0;
-      _pinchDy = 0.0;
-      _pinchShiftX = 0.0;
-      _isPinchingNotifier.value = true;
-      _controller.suggestionsNotifier.value = null;
-      _magnifierNotifier.value = null;
-      _renderer?._endGesture();
+      _beginPinch((p1 + p2) / 2, max(1.0, (p1 - p2).distance));
     }
+  }
+
+  void _beginPinch(Offset focal, double start) {
+    _startPinchDistance = start;
+    _pinchFocalPoint = focal;
+    _pinchScale = 1.0;
+    _pinchDy = 0.0;
+    _pinchShiftX = 0.0;
+    _isPinchingNotifier.value = true;
+    _controller.suggestionsNotifier.value = null;
+    _magnifierNotifier.value = null;
+    _renderer?._endGesture();
   }
 
   void _handlePointerMove(PointerMoveEvent event) {
     if (!_touches.containsKey(event.pointer)) return;
     _touches[event.pointer] = event.localPosition;
-    final start = _startPinchDistance;
     final p1 = _pinchPointer1;
     final p2 = _pinchPointer2;
-    if (start == null || p1 == null || p2 == null) return;
+    if (_startPinchDistance == null || p1 == null || p2 == null) return;
     if (event.pointer != p1 && event.pointer != p2) return;
     final pos1 = _touches[p1];
     final pos2 = _touches[p2];
     if (pos1 == null || pos2 == null) return;
-    final distance = (pos1 - pos2).distance;
+    _updatePinch((pos1 - pos2).distance);
+  }
+
+  void _updatePinch(double distance) {
+    final start = _startPinchDistance;
+    if (start == null) return;
     final baseZoom = max(0.001, widget.zoom);
     final targetZoom = (baseZoom * distance / start).clamp(
       widget.minZoom,
@@ -616,6 +663,29 @@ class _CodeForgeState extends State<CodeForge>
     _pinchShiftX = preview.shiftX;
     _pinchTransform.value = Matrix4.translationValues(preview.dx, preview.dy, 0)
       ..scaleByDouble(_pinchScale, _pinchScale, 1, 1);
+  }
+
+  void _handlePanZoomStart(PointerPanZoomStartEvent event) {
+    if (!widget.enablePinchZoom || _startPinchDistance != null) return;
+    _panZoomPointer = event.pointer;
+    _panZoomFocal = event.localPosition;
+  }
+
+  void _handlePanZoomUpdate(PointerPanZoomUpdateEvent event) {
+    if (event.pointer != _panZoomPointer || _pinchPointer1 != null) return;
+    if (_startPinchDistance == null) {
+      if ((event.scale - 1).abs() < kPanZoomPinchSlop) return;
+      _beginPinch(_panZoomFocal, event.scale);
+    }
+    _updatePinch(event.scale);
+  }
+
+  void _handlePanZoomEnd(PointerPanZoomEndEvent event) {
+    if (event.pointer != _panZoomPointer) return;
+    _panZoomPointer = null;
+    if (_pinchPointer1 != null || _startPinchDistance == null) return;
+    _finishPinch();
+    _isPinchingNotifier.value = false;
   }
 
   void _handlePointerEnd(PointerEvent event) {
@@ -698,6 +768,9 @@ class _CodeForgeState extends State<CodeForge>
                 onPointerMove: _handlePointerMove,
                 onPointerUp: _handlePointerEnd,
                 onPointerCancel: _handlePointerEnd,
+                onPointerPanZoomStart: _handlePanZoomStart,
+                onPointerPanZoomUpdate: _handlePanZoomUpdate,
+                onPointerPanZoomEnd: _handlePanZoomEnd,
                 child: _buildVerticalScrollbar(
                   context,
                   RawScrollbar(
@@ -803,6 +876,8 @@ class _CodeForgeState extends State<CodeForge>
                                                         _selectionActiveNotifier,
                                                     onContextMenuRequest:
                                                         _handleContextMenuRequest,
+                                                    onPointerSignal:
+                                                        _handlePointerSignal,
                                                     lineWrap: widget.lineWrap,
                                                     caretRectNotifier:
                                                         _caretRectNotifier,

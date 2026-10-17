@@ -409,3 +409,79 @@ func TestDecodeScriptedConfig(t *testing.T) {
 		t.Errorf("defaults should apply to keys the script left out")
 	}
 }
+
+func TestDisabledGroupsCascade(t *testing.T) {
+	rawCfg, err := config.UnmarshalRawConfig([]byte(`proxies:
+  - {name: A, type: ss, server: a.com, port: 1, cipher: aes-128-gcm, password: x}
+proxy-providers:
+  p1: {type: http, url: "https://example.com/p1", path: ./p1.yaml}
+proxy-groups:
+  - {name: Main, type: select, proxies: [HK, Media, A, DIRECT]}
+  - {name: Media, type: select, proxies: [HK]}
+  - {name: Stream, type: select, proxies: [Media], use: [p1]}
+  - {name: Auto, type: url-test, proxies: [HK], include-all: true}
+  - {name: HK, type: select, proxies: [A]}
+rules:
+  - DOMAIN,hk.com,HK
+  - DOMAIN,media.com,Media
+  - DOMAIN,stream.com,Stream
+  - MATCH,Main
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	params := patchParams(t, `{"disabled-groups":["HK"]}`)
+	if _, err := applyPatch(rawCfg, params); err != nil {
+		t.Fatal(err)
+	}
+	groups := map[string][]any{}
+	for _, group := range rawCfg.ProxyGroup {
+		name, _ := groupName(group)
+		proxies, _ := group["proxies"].([]any)
+		groups[name] = proxies
+	}
+	if _, ok := groups["HK"]; ok {
+		t.Fatal("HK should be removed")
+	}
+	if _, ok := groups["Media"]; ok {
+		t.Fatal("Media should cascade off")
+	}
+	if !reflect.DeepEqual(groups["Main"], []any{"A", "DIRECT"}) {
+		t.Fatalf("Main proxies: %v", groups["Main"])
+	}
+	if _, ok := groups["Stream"]; !ok || len(groups["Auto"]) != 0 {
+		t.Fatalf("source groups should stay: %v", groups)
+	}
+	want := []string{"DOMAIN,hk.com,PASS", "DOMAIN,media.com,PASS", "DOMAIN,stream.com,Stream", "MATCH,Main"}
+	if !reflect.DeepEqual(rawCfg.Rule, want) {
+		t.Fatalf("rules: %v", rawCfg.Rule)
+	}
+	if _, err := config.ParseRawConfig(rawCfg); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGetConfigDisabledGroups(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "p.yaml")
+	if err := os.WriteFile(path, []byte(`proxies:
+  - {name: A, type: ss, server: a.com, port: 1, cipher: aes-128-gcm, password: x}
+proxy-groups:
+  - {name: Main, type: select, proxies: [Media, A]}
+  - {name: Media, type: select, proxies: [HK]}
+  - {name: HK, type: select, proxies: [A]}
+rules:
+  - MATCH,Main
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rawCfg, err := handleGetConfig(&GetConfigParams{Path: path, DisabledGroups: []string{"HK"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rawCfg.ProxyGroup) != 1 || !reflect.DeepEqual(rawCfg.ProxyGroup[0]["proxies"], []any{"A"}) {
+		t.Fatalf("groups: %v", rawCfg.ProxyGroup)
+	}
+	if !reflect.DeepEqual(rawCfg.Rule, []string{"MATCH,Main"}) {
+		t.Fatalf("rules: %v", rawCfg.Rule)
+	}
+}

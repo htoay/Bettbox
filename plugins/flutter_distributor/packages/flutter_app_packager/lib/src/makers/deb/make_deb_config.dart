@@ -85,7 +85,6 @@ postinstall_scripts:
 postuninstall_scripts:
   - echo `Surprised Pickachu face`
 
-
 # application icon path relative to project url
 icon: assets/logo.png
 
@@ -117,6 +116,7 @@ categories:
 # the application will deny to the OS if it was added as a start_up 
 # application
 startup_notify: true  
+
 */
 
 class MakeDebConfig extends MakeLinuxPackageConfig {
@@ -150,8 +150,10 @@ class MakeDebConfig extends MakeLinuxPackageConfig {
     this.replaces,
     this.conflicts,
     this.supportedMimeType,
+    Map<String, String>? extraFiles,
   })  : _postinstallScripts = postinstallScripts ?? [],
-        _postuninstallScripts = postuninstallScripts ?? [];
+        _postuninstallScripts = postuninstallScripts ?? [],
+        extraFiles = extraFiles ?? {};
 
   factory MakeDebConfig.fromJson(Map<String, dynamic> map) {
     return MakeDebConfig(
@@ -221,6 +223,8 @@ class MakeDebConfig extends MakeLinuxPackageConfig {
       startupWMClass: map['startup_wm_class'],
       installedSize: map['installed_size'],
       icon: map['icon'],
+      extraFiles: (map['extra_files'] as Map?)
+          ?.map((key, value) => MapEntry('$key', '$value')),
     );
   }
 
@@ -253,6 +257,8 @@ class MakeDebConfig extends MakeLinuxPackageConfig {
   List<String>? supportedMimeType;
   List<String>? actions;
   List<String>? categories;
+
+  final Map<String, String> extraFiles;
 
   List<String> get postinstallScripts => [
         'ln -s /usr/share/$appBinaryName/$appBinaryName /usr/bin/$appBinaryName',

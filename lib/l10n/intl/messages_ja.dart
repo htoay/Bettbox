@@ -271,8 +271,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "copyLink": MessageLookupByLibrary.simpleMessage("リンクをコピー"),
     "copySuccess": MessageLookupByLibrary.simpleMessage("コピー成功"),
     "core": MessageLookupByLibrary.simpleMessage("カーネル"),
+    "coreCapabilityNotEffective": MessageLookupByLibrary.simpleMessage(
+      "コアの権限付与が有効になっていません：実行中のコアに CAP_NET_ADMIN がなく、TUN が動作しない可能性があります",
+    ),
     "coreConnected": MessageLookupByLibrary.simpleMessage("接続済み"),
     "coreInfo": MessageLookupByLibrary.simpleMessage("カーネル情報"),
+    "coreMountNosuid": MessageLookupByLibrary.simpleMessage(
+      "コアが nosuid でマウントされたファイルシステム上にあるため、ファイルケーパビリティと setuid は有効になりません",
+    ),
     "coreStatus": MessageLookupByLibrary.simpleMessage("コア負荷詳細"),
     "coreSuspended": MessageLookupByLibrary.simpleMessage("一時停止中"),
     "country": MessageLookupByLibrary.simpleMessage("地域"),
@@ -656,9 +662,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "特定ドメイン用のDNSポリシーを指定",
     ),
-    "navBarHapticFeedback": MessageLookupByLibrary.simpleMessage("触覚フィードバック"),
+    "navBarHapticFeedback": MessageLookupByLibrary.simpleMessage(
+      "モーションフィードバック",
+    ),
     "navBarHapticFeedbackDesc": MessageLookupByLibrary.simpleMessage(
-      "ボトムナビゲーション切り替え時の振動フィードバック",
+      "ボトムナビゲーションのアニメーションと触覚フィードバック",
     ),
     "navConnections": MessageLookupByLibrary.simpleMessage("セッション"),
     "navTools": MessageLookupByLibrary.simpleMessage("ツール"),
@@ -771,9 +779,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "overrideExperimentalDesc": MessageLookupByLibrary.simpleMessage(
       "プロファイル内の実験的設定を上書き",
-    ),
-    "overrideInvalidTip": MessageLookupByLibrary.simpleMessage(
-      "スクリプトモードでは無効です",
     ),
     "overrideNtp": MessageLookupByLibrary.simpleMessage("NTPオーバーライド"),
     "overrideNtpDesc": MessageLookupByLibrary.simpleMessage(
@@ -960,6 +965,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("ルールターゲット"),
     "rulesCount": MessageLookupByLibrary.simpleMessage("ルーティング規則"),
     "runTime": MessageLookupByLibrary.simpleMessage("稼働時間"),
+    "runningMode": MessageLookupByLibrary.simpleMessage("実行モード"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage("ランタイム設定"),
     "save": MessageLookupByLibrary.simpleMessage("保存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("変更を保存しますか？"),
@@ -980,6 +986,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectedCountTitle": m17,
     "serviceReady": MessageLookupByLibrary.simpleMessage("サービス準備完了"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("サービス稼働中"),
+    "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
+      "ファイルケーパビリティを付与できなかったため、setuid にフォールバックしました",
+    ),
+    "setcapNotInstalledFallback": MessageLookupByLibrary.simpleMessage(
+      "setcap がインストールされていないため、setuid にフォールバックしました",
+    ),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
     "sharedAddress": MessageLookupByLibrary.simpleMessage("共有アドレス"),
     "show": MessageLookupByLibrary.simpleMessage("表示"),
@@ -1228,6 +1240,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
     "writeToSystem": MessageLookupByLibrary.simpleMessage("システムへ適用"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("管理者権限が必要です"),
+    "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
+      "ファイルシステムがファイルケーパビリティ（xattr）に対応していないため、setuid にフォールバックしました",
+    ),
     "years": m19,
   };
 }

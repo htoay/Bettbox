@@ -171,9 +171,7 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 		for _, name := range params.DisabledGroups {
 			disabled[name] = true
 		}
-		raw.ProxyGroup = filterGroups(raw.ProxyGroup, func(name string) bool {
-			return !disabled[name]
-		})
+		raw.ProxyGroup = disableGroups(raw.ProxyGroup, disabled)
 		for i, rule := range rules {
 			parsed := parseRule(rule)
 			if parsed.hasTarget && disabled[parsed.target] {
@@ -564,6 +562,52 @@ func filterGroups(groups []map[string]any, keep func(name string) bool) []map[st
 		filtered = append(filtered, group)
 	}
 	return filtered
+}
+
+func disableGroups(groups []map[string]any, disabled map[string]bool) []map[string]any {
+	for changed := true; changed; {
+		changed = false
+		for _, group := range groups {
+			name, ok := groupName(group)
+			if !ok || disabled[name] {
+				continue
+			}
+			proxies, ok := group["proxies"].([]any)
+			if !ok || len(proxies) == 0 {
+				continue
+			}
+			kept := make([]any, 0, len(proxies))
+			for _, proxy := range proxies {
+				if value, ok := proxy.(string); ok && disabled[value] {
+					continue
+				}
+				kept = append(kept, proxy)
+			}
+			if len(kept) == len(proxies) {
+				continue
+			}
+			group["proxies"] = kept
+			if len(kept) == 0 && !hasGroupSource(group) {
+				disabled[name] = true
+				changed = true
+			}
+		}
+	}
+	return filterGroups(groups, func(name string) bool {
+		return !disabled[name]
+	})
+}
+
+func hasGroupSource(group map[string]any) bool {
+	if use, ok := group["use"].([]any); ok && len(use) > 0 {
+		return true
+	}
+	for _, key := range []string{"include-all", "include-all-proxies", "include-all-providers"} {
+		if value, ok := group[key].(bool); ok && value {
+			return true
+		}
+	}
+	return false
 }
 
 func combineExcludeFilter(target map[string]any, filter string) {

@@ -146,7 +146,7 @@ class PopupController extends ValueNotifier<bool> {
   }
 }
 
-typedef PopupOpen = Function({Offset offset});
+typedef PopupOpen = Future<void> Function({Offset offset});
 
 class CommonPopupBox extends StatefulWidget {
   final Widget Function(PopupOpen open) targetBuilder;
@@ -167,11 +167,11 @@ class _CommonPopupBoxState extends State<CommonPopupBox> {
   final _targetOffsetValueNotifier = ValueNotifier<Offset>(Offset.zero);
   Offset _offset = Offset.zero;
 
-  void _open({Offset offset = Offset.zero}) {
+  Future<void> _open({Offset offset = Offset.zero}) {
     _offset = offset;
     _updateOffset();
     _isOpen = true;
-    Navigator.of(context)
+    return Navigator.of(context)
         .push(
           CommonPopupRoute(
             barrierLabel: utils.id,
@@ -256,7 +256,7 @@ class CommonPopupMenu extends StatelessWidget {
     required this.items,
     this.footer,
     this.minWidth = 148,
-    this.minItemVerticalPadding = 16,
+    this.minItemVerticalPadding = 13,
     this.fontSize = 15,
   });
 
@@ -265,12 +265,27 @@ class CommonPopupMenu extends StatelessWidget {
     required PopupMenuItemData item,
     required int index,
   }) {
+    final colorScheme = context.colorScheme;
+    final isLight = colorScheme.brightness == Brightness.light;
     final onPressed = item.onPressed;
     final disabled = onPressed == null;
     final color = disabled
-        ? context.colorScheme.onSurface.opacity30
-        : context.colorScheme.onSurface;
+        ? colorScheme.onSurface.opacity30
+        : colorScheme.onSurface;
+    final iconColor = disabled
+        ? colorScheme.onSurface.opacity30
+        : item.icon == Icons.check_circle_rounded
+        ? colorScheme.primary
+        : colorScheme.onSurfaceVariant;
     return InkWell(
+      customBorder: RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      hoverColor: colorScheme.primary.withValues(alpha: isLight ? 0.08 : 0.12),
+      highlightColor: colorScheme.primary.withValues(
+        alpha: isLight ? 0.10 : 0.16,
+      ),
+      splashColor: colorScheme.primary.withValues(alpha: isLight ? 0.08 : 0.12),
       onTap: onPressed != null
           ? () {
               final route = ModalRoute.of(context);
@@ -285,8 +300,8 @@ class CommonPopupMenu extends StatelessWidget {
       child: Container(
         constraints: BoxConstraints(minWidth: minWidth),
         padding: EdgeInsets.only(
-          left: 16,
-          right: 24,
+          left: 14,
+          right: 22,
           top: minItemVerticalPadding,
           bottom: minItemVerticalPadding,
         ),
@@ -294,8 +309,8 @@ class CommonPopupMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: [
             if (item.icon != null) ...[
-              Icon(item.icon, size: fontSize + 4, color: color),
-              SizedBox(width: 16),
+              Icon(item.icon, size: fontSize + 5, color: iconColor),
+              const SizedBox(width: 14),
             ],
             Flexible(
               child: Text(
@@ -314,36 +329,41 @@ class CommonPopupMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLight = context.colorScheme.brightness == Brightness.light;
+    final colorScheme = context.colorScheme;
+    final isLight = colorScheme.brightness == Brightness.light;
     return IntrinsicHeight(
       child: IntrinsicWidth(
-        child: Card(
+        child: Material(
           elevation: 8,
+          shadowColor: Colors.black.withValues(alpha: isLight ? 0.5 : 0.8),
           color: isLight
-              ? context.colorScheme.surfaceContainerLowest
-              : context.colorScheme.surfaceContainerHighest,
+              ? colorScheme.surfaceContainerLowest
+              : colorScheme.surfaceContainerHighest,
           clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(26),
             side: BorderSide(
-              color: context.colorScheme.outlineVariant.withValues(
+              color: colorScheme.outlineVariant.withValues(
                 alpha: isLight ? 0.45 : 0.25,
               ),
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final item in items.asMap().entries) ...[
-                _popupMenuItem(context, item: item.value, index: item.key),
-                if (item.value != items.last) Divider(height: 0),
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final item in items.asMap().entries) ...[
+                  _popupMenuItem(context, item: item.value, index: item.key),
+                  if (item.value != items.last) const SizedBox(height: 2),
+                ],
+                if (footer case final footer?) ...[
+                  const Divider(height: 9, indent: 8, endIndent: 8),
+                  footer,
+                ],
               ],
-              if (footer case final footer?) ...[
-                const Divider(height: 0),
-                footer,
-              ],
-            ],
+            ),
           ),
         ),
       ),

@@ -303,6 +303,25 @@ class AppPackageMakerAppImage extends AppPackageMaker {
         }),
       );
 
+      for (final entry in makeConfig.extraFiles.entries) {
+        final sourceFile = File(entry.key);
+        if (!sourceFile.existsSync()) {
+          throw MakeError('extra file ${entry.key} path wasn\'t found');
+        }
+
+        final destinationPath = path.join(
+          makeConfig.packagingDirectory.path,
+          '${makeConfig.appName}.AppDir',
+          entry.value,
+        );
+        final destinationDir = Directory(path.dirname(destinationPath));
+        if (!destinationDir.existsSync()) {
+          destinationDir.createSync(recursive: true);
+        }
+        await sourceFile.copy(destinationPath);
+        await $('chmod', ['644', destinationPath]);
+      }
+
       await $(
         'appimagetool',
         [

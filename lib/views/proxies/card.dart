@@ -248,6 +248,7 @@ class ProxyCard extends StatelessWidget {
         return Stack(
           children: [
             CommonCard(
+              elevated: false,
               clipBehavior: Clip.none,
               onPressed: () {
                 _changeProxy(ref);

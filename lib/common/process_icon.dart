@@ -7,17 +7,42 @@ import 'dart:ui' as ui;
 
 import 'package:bett_box/common/system.dart';
 import 'package:ffi/ffi.dart';
+import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:win32/win32.dart';
 import 'package:window_ext/window_ext.dart';
 
 class ProcessIcon {
-  static const _size = 128;
+  static const _size = 96;
+  static const _windowsSource = 128;
 
   Future<Map<String, String>>? _linuxIndex;
+  Future<void> _tail = Future.value();
+
+  static const _safariApps = [
+    '/Applications/Safari.app',
+    '/System/Cryptexes/App/System/Applications/Safari.app',
+    '/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app',
+  ];
+
+  String keyOf(String path) {
+    if (path.isEmpty) return path;
+    if (system.isMacOS) {
+      final bundle = _macBundle(path);
+      return bundle.endsWith('.app') ? bundle : '';
+    }
+    if (system.isLinux) return p.basename(path).toLowerCase();
+    return path;
+  }
 
   Future<Uint8List?> get(String path) async {
     if (path.isEmpty) return null;
+    final task = _tail.then((_) => _load(path));
+    _tail = task.then((_) {}, onError: (_) {});
+    return task;
+  }
+
+  Future<Uint8List?> _load(String path) async {
     try {
       if (system.isMacOS) return await _getMacOS(path);
       if (system.isWindows) return await _getWindows(path);
@@ -27,9 +52,20 @@ class ProcessIcon {
   }
 
   Future<Uint8List?> _getMacOS(String path) {
+    final bundle = _macBundle(path);
+    if (!bundle.endsWith('.app')) return Future.value();
+    return windowExtManager.getFileIcon(bundle, _size);
+  }
+
+  static String _macBundle(String path) {
     final index = path.indexOf('.app/');
-    final target = index == -1 ? path : path.substring(0, index + 4);
-    return windowExtManager.getFileIcon(target, _size);
+    if (index != -1) return path.substring(0, index + 4);
+    if (p.basename(path).startsWith('com.apple.WebKit.')) {
+      for (final app in _safariApps) {
+        if (Directory(app).existsSync()) return app;
+      }
+    }
+    return path;
   }
 
   Future<Uint8List?> _getWindows(String path) async {
@@ -43,6 +79,9 @@ class ProcessIcon {
       height,
       ui.PixelFormat.bgra8888,
       completer.complete,
+      targetWidth: _size,
+      targetHeight: _size,
+      allowUpscaling: false,
     );
     final image = await completer.future;
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -57,8 +96,8 @@ class ProcessIcon {
       final count = PrivateExtractIcons(
         PCWSTR(pathPtr),
         0,
-        _size,
-        _size,
+        _windowsSource,
+        _windowsSource,
         iconPtr,
         nullptr,
         1,
@@ -152,9 +191,25 @@ class ProcessIcon {
     final name = p.basename(path).toLowerCase();
     final icon = index[name];
     if (icon == null) return null;
-    final file = await Isolate.run(() => _resolveLinuxIcon(icon));
+    return Isolate.run(() => _loadLinuxIcon(icon));
+  }
+
+  static Uint8List? _loadLinuxIcon(String icon) {
+    final file = _resolveLinuxIcon(icon);
     if (file == null) return null;
-    return File(file).readAsBytes();
+    final bytes = File(file).readAsBytesSync();
+    final image = img.decodePng(bytes);
+    if (image == null || image.width <= _size && image.height <= _size) {
+      return bytes;
+    }
+    final wide = image.width >= image.height;
+    final scaled = img.copyResize(
+      image,
+      width: wide ? _size : null,
+      height: wide ? null : _size,
+      interpolation: img.Interpolation.average,
+    );
+    return img.encodePng(scaled);
   }
 
   static List<String> get _linuxDataDirs {
@@ -219,9 +274,9 @@ class ProcessIcon {
           ? icon
           : null;
     }
-    const sizes = ['256x256', '128x128', '96x96', '64x64', '48x48'];
-    for (final dataDir in _linuxDataDirs) {
-      for (final size in sizes) {
+    const sizes = ['96x96', '128x128', '256x256', '64x64', '48x48', '32x32'];
+    for (final size in sizes) {
+      for (final dataDir in _linuxDataDirs) {
         final file = p.join(
           dataDir,
           'icons/hicolor',

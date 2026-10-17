@@ -64,7 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("關於"),
-    "accessControl": MessageLookupByLibrary.simpleMessage("存取控制"),
+    "accessControl": MessageLookupByLibrary.simpleMessage("分應用代理"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "只允許選取的應用進入 VPN",
     ),
@@ -123,7 +123,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "analyzeLogPrompt": m0,
     "app": MessageLookupByLibrary.simpleMessage("應用"),
-    "appAccessControl": MessageLookupByLibrary.simpleMessage("應用存取控制"),
+    "appAccessControl": MessageLookupByLibrary.simpleMessage("分應用代理"),
     "appDesc": MessageLookupByLibrary.simpleMessage("處理應用相關設定"),
     "application": MessageLookupByLibrary.simpleMessage("應用程式"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage("修改應用程式設定"),
@@ -247,8 +247,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "copyLink": MessageLookupByLibrary.simpleMessage("複製連結"),
     "copySuccess": MessageLookupByLibrary.simpleMessage("複製成功"),
     "core": MessageLookupByLibrary.simpleMessage("內核"),
+    "coreCapabilityNotEffective": MessageLookupByLibrary.simpleMessage(
+      "核心授權未生效：執行中的核心缺少 CAP_NET_ADMIN，TUN 可能無法運作",
+    ),
     "coreConnected": MessageLookupByLibrary.simpleMessage("已連線"),
     "coreInfo": MessageLookupByLibrary.simpleMessage("內核資訊"),
+    "coreMountNosuid": MessageLookupByLibrary.simpleMessage(
+      "核心所在檔案系統以 nosuid 掛載，檔案能力與 setuid 均無法生效",
+    ),
     "coreStatus": MessageLookupByLibrary.simpleMessage("核心負載詳情"),
     "coreSuspended": MessageLookupByLibrary.simpleMessage("已掛起"),
     "country": MessageLookupByLibrary.simpleMessage("區域"),
@@ -602,9 +608,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "指定對應網域名稱伺服器策略",
     ),
-    "navBarHapticFeedback": MessageLookupByLibrary.simpleMessage("觸覺回饋"),
+    "navBarHapticFeedback": MessageLookupByLibrary.simpleMessage("動效回饋"),
     "navBarHapticFeedbackDesc": MessageLookupByLibrary.simpleMessage(
-      "底部導覽列切換震動回饋",
+      "底部導覽列動畫觸感回饋",
     ),
     "navConnections": MessageLookupByLibrary.simpleMessage("連線"),
     "navTools": MessageLookupByLibrary.simpleMessage("更多"),
@@ -708,7 +714,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "overrideExperimentalDesc": MessageLookupByLibrary.simpleMessage(
       "開啟後將覆蓋配置中的實驗性配置",
     ),
-    "overrideInvalidTip": MessageLookupByLibrary.simpleMessage("在腳本模式下不生效"),
     "overrideNtp": MessageLookupByLibrary.simpleMessage("覆寫 NTP"),
     "overrideNtpDesc": MessageLookupByLibrary.simpleMessage(
       "開啟後將覆蓋設定中的 NTP 選項",
@@ -874,6 +879,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("規則目標"),
     "rulesCount": MessageLookupByLibrary.simpleMessage("路由規則"),
     "runTime": MessageLookupByLibrary.simpleMessage("啟動時間"),
+    "runningMode": MessageLookupByLibrary.simpleMessage("運行模式"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage("執行時配置"),
     "save": MessageLookupByLibrary.simpleMessage("儲存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("是否儲存更改？"),
@@ -890,6 +896,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectedCountTitle": m17,
     "serviceReady": MessageLookupByLibrary.simpleMessage("服務已就緒"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服務正在執行中"),
+    "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
+      "無法授予檔案能力，已回退到 setuid",
+    ),
+    "setcapNotInstalledFallback": MessageLookupByLibrary.simpleMessage(
+      "未安裝 setcap，已回退到 setuid",
+    ),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
     "sharedAddress": MessageLookupByLibrary.simpleMessage("共享位址"),
     "show": MessageLookupByLibrary.simpleMessage("顯示"),
@@ -1104,6 +1116,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名單模式"),
     "writeToSystem": MessageLookupByLibrary.simpleMessage("寫入系統"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("需要管理員權限"),
+    "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
+      "檔案系統不支援檔案能力（xattr），已回退到 setuid",
+    ),
     "years": m19,
   };
 }

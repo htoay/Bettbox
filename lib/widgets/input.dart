@@ -340,6 +340,7 @@ class ListInputPage extends StatelessWidget {
                     ReorderableDelayedDragStartListener(
                       index: index,
                       child: CommonCard(
+                        elevated: false,
                         child: ListItem(
                           leading: leadingBuilder != null
                               ? leadingBuilder!(e)
@@ -489,6 +490,7 @@ class MapInputPage extends StatelessWidget {
                     ReorderableDelayedDragStartListener(
                       index: index,
                       child: CommonCard(
+                        elevated: false,
                         child: ListItem(
                           leading: leadingBuilder != null
                               ? leadingBuilder!(e)

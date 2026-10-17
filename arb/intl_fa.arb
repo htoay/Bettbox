@@ -24,6 +24,7 @@
   "totalTraffic": "مجموع ترافیک",
   "restartApp": "راه‌اندازی مجدد برنامه",
   "outboundMode": "حالت خروجی",
+  "runningMode": "حالت اجرا",
   "networkDetection": "تست شبکه",
   "upload": "آپلود",
   "download": "دانلود",
@@ -607,8 +608,8 @@
   "saveChanges": "آیا تغییرات ذخیره شوند؟",
   "generalDesc": "تغییر تنظیمات عمومی",
   "findProcessModeDesc": "امکان جستجو و تطبیق پردازش‌ها",
-  "navBarHapticFeedback": "بازخورد لمسی",
-  "navBarHapticFeedbackDesc": "لرزش هنگام تغییر زبانه‌های نوار پایین",
+  "navBarHapticFeedback": "بازخورد حرکتی",
+  "navBarHapticFeedbackDesc": "انیمیشن و بازخورد لمسی نوار ناوبری پایین",
   "saveTip": "آیا از ذخیره تغییرات اطمینان دارید؟",
   "colorSchemes": "پالت‌های رنگی",
   "palette": "پالت",
@@ -658,7 +659,6 @@
   "rename": "تغییر نام",
   "unnamed": "بدون نام",
   "pleaseEnterScriptName": "لطفاً نام اسکریپت را وارد کنید",
-  "overrideInvalidTip": "در حالت اسکریپت اعمال نمی‌شود",
   "mixedPort": "پورت ترکیبی (Mixed)",
   "socksPort": "پورت Socks",
   "redirPort": "پورت Redir",
@@ -730,7 +730,6 @@
   "clear": "پاک کردن",
   "back": "بازگشت",
   "closeAll": "بستن همه",
-  "script": "اسکریپت",
   "moreIpInfo": "اطلاعات بیشتر IP",
   "viewDetailedIpData": "مشاهده داده‌های دقیق IP",
   "ipAddress": "آدرس IP",
@@ -769,7 +768,6 @@
   "mediaUnlockRefreshOnNodeChange": "به‌روزرسانی خودکار هنگام تغییر گره",
   "mediaUnlockColorfulIcons": "نمایش آیکون‌های رنگی به‌صورت پیش‌فرض",
   "mediaUnlockRefreshByCategory": "تازه‌سازی جزئی بر اساس دسته‌بندی فعلی",
-
   "mediaUnlockPinnedSettingsDesc": "امکان انتخاب حداکثر ۳ مورد برای پین کردن در ویجت",
   "mediaUnlockSelectLimit": "حداکثر می‌توانید ۳ مورد را انتخاب کنید",
   "categoryAll": "همه",
@@ -786,7 +784,6 @@
   "notUnlocked": "مسدود",
   "checkFailed": "Timeout",
   "testing": "در حال بررسی",
-  "other": "سایر",
   "flagged": "نشانه‌گذاری‌شده",
   "tvScanImport": "اسکن / وارد کردن از شبکه محلی",
   "tvScanImportDesc": "اسکن کد یا ارسال پروفایل به تلویزیون از شبکه محلی",
@@ -806,7 +803,6 @@
   "userAuthEmpty": "کاربری برای احراز هویت تنظیم نشده، اتصال شبکه محلی نیازی به مشخصات ندارد",
   "usernameCannotContainColon": "نام کاربری نباید شامل دونقطه (:) باشد",
   "intranetAndGateway": "شبکه محلی و گیت‌وی",
-  "networkType": "نوع شبکه",
   "defaultGateway": "گیت‌وی",
   "lanSharing": "اشتراک‌گذاری در شبکه محلی",
   "sharedAddress": "آدرس اشتراکی",
@@ -823,6 +819,11 @@
   "collapse": "جمع کردن",
   "analyzeLogPrompt": "تحلیل گزارش Bettbox (Mihomo): {log}",
   "geoBuiltInResources": "منابع داخلی GEO",
+  "setcapNotInstalledFallback": "setcap نصب نیست؛ به setuid بازگشت داده شد",
+  "xattrUnsupportedFallback": "سیستم فایل از قابلیت‌های فایل (xattr) پشتیبانی نمی‌کند؛ به setuid بازگشت داده شد",
+  "setcapFailedFallback": "اعطای قابلیت‌های فایل ممکن نشد؛ به setuid بازگشت داده شد",
+  "coreMountNosuid": "هسته روی سیستم فایلی با گزینه nosuid قرار دارد، بنابراین قابلیت‌های فایل و setuid اعمال نمی‌شوند",
+  "coreCapabilityNotEffective": "مجوز هسته اعمال نشد: هسته در حال اجرا CAP_NET_ADMIN ندارد و TUN ممکن است کار نکند",
   "descOhos": "Bettbox نسخه هارمونی‌اواس، کلاینت پروکسی بومی ساخته‌شده با Flutter-OHOS و هسته قدرتمند Mihomo (Clash.Meta) است که با VPN سیستمی و کارهای بلندمدت پس‌زمینه هارمونی‌اواس یکپارچه شده است. چشم‌انداز ما: Connecting Open Source and AI, Accelerating Innovation",
   "backgroundTask": "کار بلندمدت",
   "backgroundTaskDesc": "با کارهای بلندمدت انتقال داده و پخش صدا، برنامه را در پس‌زمینه فعال نگه دارید",
@@ -835,6 +836,3 @@
   "ohosAccessManualOnly": "محدودیت سیستم امکان فهرست‌کردن برنامه‌های نصب‌شده را نمی‌دهد. نام بسته‌ها را دستی اضافه کنید یا از «درون‌ریزی از کلیپ‌بورد» در پنل تنظیمات استفاده کنید",
   "modeTaskKeeping": "وظیفه محاسباتی"
 }
-
-
-

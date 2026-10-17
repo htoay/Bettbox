@@ -843,7 +843,16 @@ func handleSetState(params string) {
 }
 
 func handleGetConfig(params *GetConfigParams) (*config.RawConfig, error) {
-	return readProfile(params.Path, params.AgeSecretKey)
+	rawCfg, err := readProfile(params.Path, params.AgeSecretKey)
+	if err != nil || len(params.DisabledGroups) == 0 {
+		return rawCfg, err
+	}
+	disabled := make(map[string]bool, len(params.DisabledGroups))
+	for _, name := range params.DisabledGroups {
+		disabled[name] = true
+	}
+	rawCfg.ProxyGroup = disableGroups(rawCfg.ProxyGroup, disabled)
+	return rawCfg, nil
 }
 
 func handleExportConfig(params *ExportConfigParams) error {
@@ -958,15 +967,42 @@ func normalizeJsonNumbers(value any) any {
 }
 
 func handleGetRuntimeConfig(params *SetupParams) (string, error) {
-	rawCfg, _, err := loadPatchedConfig(params)
+	scripted := params.ScriptedConfig != ""
+	path := params.ProfilePath
+	if scripted {
+		path = params.ScriptedConfig
+	}
+	source, err := readFile(path)
 	if err != nil {
 		return "", err
 	}
-	bytes, err := marshalYamlKeepingSupplementary(rawCfg)
+	var before *config.RawConfig
+	if scripted {
+		before, err = decodeScriptedConfig(source)
+	} else {
+		source = patchYamlShortID(source)
+		before, err = parseProfile(source, params.AgeSecretKey)
+	}
 	if err != nil {
 		return "", err
 	}
-	return string(bytes), nil
+	after, _, err := loadPatchedConfig(params)
+	if err != nil {
+		return "", err
+	}
+	var forced map[string]json.RawMessage
+	if params.Patch != nil && hasPatchValue(params.Patch.General) {
+		_ = json.Unmarshal(params.Patch.General, &forced)
+	}
+	root, err := buildRuntimeConfigNode(source, before, after, forced)
+	if err != nil {
+		return "", err
+	}
+	out, err := marshalYamlNode(root)
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }
 
 func walkYamlScalars(node *yamlv3.Node, visit func(*yamlv3.Node)) {
@@ -978,15 +1014,24 @@ func walkYamlScalars(node *yamlv3.Node, visit func(*yamlv3.Node)) {
 	}
 }
 
-func marshalYamlKeepingSupplementary(value any) ([]byte, error) {
-	const privateUseStart, privateUseEnd = rune(0xE000), rune(0xF8FF)
-	var root yamlv3.Node
-	if err := root.Encode(value); err != nil {
+func encodeYamlNode(root *yamlv3.Node) ([]byte, error) {
+	var out strings.Builder
+	encoder := yamlv3.NewEncoder(&out)
+	encoder.SetIndent(2)
+	if err := encoder.Encode(root); err != nil {
 		return nil, err
 	}
+	if err := encoder.Close(); err != nil {
+		return nil, err
+	}
+	return []byte(out.String()), nil
+}
+
+func marshalYamlNode(root *yamlv3.Node) ([]byte, error) {
+	const privateUseStart, privateUseEnd = rune(0xE000), rune(0xF8FF)
 	used := map[rune]bool{}
 	placeholders := map[rune]rune{}
-	walkYamlScalars(&root, func(node *yamlv3.Node) {
+	walkYamlScalars(root, func(node *yamlv3.Node) {
 		for _, char := range node.Value {
 			if char >= privateUseStart && char <= privateUseEnd {
 				used[char] = true
@@ -996,7 +1041,7 @@ func marshalYamlKeepingSupplementary(value any) ([]byte, error) {
 		}
 	})
 	if len(placeholders) == 0 {
-		return yaml.Marshal(value)
+		return encodeYamlNode(root)
 	}
 	next := privateUseStart
 	restore := make([]string, 0, len(placeholders)*2)
@@ -1005,13 +1050,13 @@ func marshalYamlKeepingSupplementary(value any) ([]byte, error) {
 			next++
 		}
 		if next > privateUseEnd {
-			return yaml.Marshal(value)
+			return encodeYamlNode(root)
 		}
 		placeholders[char] = next
 		restore = append(restore, string(next), string(char))
 		next++
 	}
-	walkYamlScalars(&root, func(node *yamlv3.Node) {
+	walkYamlScalars(root, func(node *yamlv3.Node) {
 		node.Value = strings.Map(func(char rune) rune {
 			if placeholder, ok := placeholders[char]; ok {
 				return placeholder
@@ -1019,7 +1064,7 @@ func marshalYamlKeepingSupplementary(value any) ([]byte, error) {
 			return char
 		}, node.Value)
 	})
-	out, err := yamlv3.Marshal(&root)
+	out, err := encodeYamlNode(root)
 	if err != nil {
 		return nil, err
 	}

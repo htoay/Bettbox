@@ -24,12 +24,11 @@ void main() {
     expect(material, isNot(paints..drrect()));
     expect(
       material,
-      paints..rrect(
-        rrect: RRect.fromRectAndRadius(
+      paints..rsuperellipse(
+        rsuperellipse: RSuperellipse.fromRectAndRadius(
           const Rect.fromLTWH(0.5, 0.5, 199, 79),
           const Radius.circular(19.5),
         ),
-        style: PaintingStyle.stroke,
         strokeWidth: 1,
       ),
     );

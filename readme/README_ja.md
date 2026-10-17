@@ -4,14 +4,12 @@
 
 <h1 align="center">⚡ Bettbox</h1>
 <p align="center">
-  <strong>Another Better Mihomo Client, Forked from FlClash</strong>
+  <strong>Another Better Mihomo Client</strong>
 </p>
 
-**Bettbox は強力な Mihomo カーネルをベースに深く作り込まれた、マルチプラットフォーム対応のトラフィック分流・DNS デバッグツールです。プライバシー、セキュリティ、そして細部の機能や使い心地を重視し、より優れたクライアント体験の提供に尽力しています（当プロジェクトは Signpath オープンソース財団による人的セキュリティ監査とトレーサビリティ検証をいち早く通過し、Windows 版には OV デジタル署名証明書が適用されています）。**
+**Bettbox は、強力な Mihomo コアをベースに深く作り込まれた、マルチプラットフォーム対応のトラフィック分流・DNS デバッグツールです。究極のユーザー体験、厳格なプライバシーとセキュリティ、そして細部の機能性の研鑽に注力し、より軽量で軽快、低リソース消費で長期にわたり安定稼働する現代的なクライアント体験を提供します。**
 
-「Better Experience（より良い体験）」を追求し、オリジナルの洗練された UI を継承しつつ、細部のデザインや複数プラットフォーム向けの実用機能・ロジックを深層最適化。コア機能と実現目標：「フロントエンドは滑らか、バックグラウンドは省電力」。低リソースで長期にわたり安定動作する、より優れた Mihomo クライアントの実現に尽力しています。
-
-Bettbox：Better Experience, Out of the box - 優れた体験を、すぐに使える。
+**「Better Experience, Out of the box（より良い体験を、箱から出してすぐに）」** の設計思想のもと、Bettbox はシステムとハードウェアの潜在能力を徹底的に引き出し、フォアグラウンドでの高フレームレートかつ滑らかなアニメーションと、バックグラウンドでの低消費電力・低リソース消費を両立しています。当プロジェクトはいち早く SignPath オープンソース財団による人的セキュリティ監査とトレーサビリティ検証を通過しており、Windows 版には公式オーソライズの OV デジタル署名証明書が適用されています。
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 
@@ -22,117 +20,116 @@ Bettbox：Better Experience, Out of the box - 優れた体験を、すぐに使�
 ---
 ### ✈️ Telegram コミュニティ
 
-</div>
-
-<div align="left">
-
 [![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
 
 ---
 ## 🚀 主な特徴
 
-* **箱から出してすぐ使える**：安定した権限処理と快適な TUN/VPN 体験。最適化プリセット済みで即座に使用可能。
-* **洗練されたデザイン**：UI と操作感を隅々まで磨き上げ。高 FPS アニメーション、モバイル低消費電力、デスクトップ低フットプリント。
-* **セキュリティ重視**：Mihomo メインラインを追従し、各プラットフォームの最小権限の原則を遵守。さらに SignPath 公式の OV デジタル署名を取得済み。
-* **堅牢な安定性**：極端な環境下での境界処理を最適化し、二重の設定検証でエンタープライズ級の安定性を実現。
-* **パフォーマンス優先**：デスクトップネイティブ ARM64 サポート、ハードウェア階層化、および Flutter の徹底的な最適化によりハードウェア性能を最大限に引き出します。
-* **高度な機能**：マルチプラットフォーム無感スマート起動/停止、Android スリープ対応、ワンタップ QUIC 無効化、機能強化トレイメニュー。
-* **ビジュアル設定**：より豊富なパラメータを画面上で視覚的に調整可能。設定ファイルを直接変更することなく即時反映。
-* **ホームウィジェット**：洗練されたデザインのウィジェットを複数内蔵。ホーム画面でリアルタイムの通信速度と全体ステータスを一目で把握。
-* **カスタマイズ**：豊富なカラーテーマ、カスタムアイコン/タイトル、さらに 30 種類もの美しいスピードテストアニメーションを収録。
-* **優れた拡張性**：JS オーバーライドスクリプトに対応した分流 UI 設定と、便利なビジュアルトグルスイッチを初導入。
-* **プロ仕様エディタ**：全プラットフォーム対応の高速再構築 code-forge エディタを内蔵し、プロレベルのエディタ体験を実現。
-* **レガシー互換**：旧 OS や旧ハードウェア向けの Compatible バージョンを継続維持し、デバイスの寿命を延長。
-* **プライバシーリスクゼロ**：オープンソース、広告なし。完全な透明性を持つ CI/CD プロセスは全方位の監査を受け、いかなるバックグラウンドのデータ収集も排除。
-* **コミュニティ重視**：フィードバックを真摯に評価し、質の高い Issue を優先対応。ユーザーの声を大切にします。
-
-</div>
-
-###   🛩️ おすすめサービス
-#### 中継・専用線  〢  [百変小桜](https://www.bbxy01.com/v2/register?code=c09R)  〢  [白月光](https://www.sibker.com/register?invite_code=YZq6L5zd)  〢  [MESL](https://panel.meslcloud.com/#/register?code=7vy22Bv2)  〢  [Ytoo](https://y-too.net/aff.php?aff=10354)
---------------------------------
-#### 低価格・直通  〢  [良心雲](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪雲](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [賠銭機場](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
---------------------------------
-####   百変小桜限定 32%OFF クーポンコード：bettbox68
---------------------------------
-
-**簡単なレビュー** : ❚ ❚  上記のリンクは主に個人利用またはTGグループでの議論/推奨に基づくもので、アフィリエイト（AFF）としてのみ掲載しています（注：リンク経由での購入により開発者に少額の手数料が還元されます）。サービスの品質を保証・約束するものではありません。諸般の事情をご理解の上、各自で判断・選択してください。
+* **すぐに使える**：充実した権限ガイドと快適な TUN / VPN 体験。あらかじめ最適化されたプリセットにより、インストール直後から最適な状態でお使いいただけます。
+* **軽量・軽快**：システムとレンダリングパイプラインを徹底最適化。フォアグラウンドでの高 FPS かつ滑らかなアニメーション、モバイル端末での低消費電力、デスクトップでの低リソース消費を実現。
+* **高セキュリティ**：Mihomo メインラインに追従し、各プラットフォームでの最小権限の原則を遵守。SignPath 監査に合格し、Windows 向け OV デジタル署名証明書を適用。
+* **堅牢な耐障害性**：極端なマルチプラットフォーム環境での境界問題を最適化。二重の設定検証・保護メカニズムを内蔵し、エンタープライズ級の長期安定性を発揮。
+* **アーキテクチャ最適化**：デスクトップ向けネイティブ ARM64 深度サポートとハードウェア性能階層化。旧型デバイス向けの Compatible 互換バージョンも継続してメンテナンス。
+* **スマートデーモン**：マルチプラットフォームでのシームレスな自動起動/停止、モバイル端末での低電力スリープ、ワンタップでの QUIC 無効化、トレイメニューからの多彩なクイック操作に対応。
+* **ビジュアル設定**：豊富で詳細なビジュアルパラメータ調整画面を提供。設定の変更は即座に反映され、煩雑な手動テキスト編集から解放されます。
+* **ホームウィジェット**：洗練された複数の内蔵ウィジェットにより、リアルタイムの通信速度や接続状況、全体の稼働ステータスをホーム画面で直感的に把握可能。
+* **自由なカスタマイズ**：多彩なカラーテーマ、カスタムアイコンやタイトルに対応し、30 種類もの美しいスピードテストアニメーションを内蔵。
+* **エコシステムと拡張**：外部 JS オーバーライドスクリプトのビジュアル UI 適応に対応。大幅にリファクタリングされた高性能 Code-forge エディタを搭載。
+* **プライバシーリスクゼロ**：完全オープンソースかつ広告なし。包括的な監査を受ける自動化 CI/CD パイプラインを採用し、バックグラウンドでのテレメトリ収集は一切ありません。
+* **コミュニティ主導**：コミュニティからのフィードバックを真摯に受け止め、質の高い Issue に迅速に対応し、活発なユーザーコミュニティと共に進化を続けます。
 
 ---
 ## 🛠️ インストールとダウンロード
 
-ご利用のプラットフォームおよびシステムに適した最新のインストールパッケージを **[[Releases]](https://github.com/appshubcc/Bettbox/releases)** ページからダウンロードしてください。
+**[[Releases]](https://github.com/appshubcc/Bettbox/releases)** ページから、お使いのプラットフォームやシステムに適した最新のインストールパッケージをダウンロードしてください：
 
+* **デスクトップ対応**: 
+  * **Windows 8.1+:** (x64 / arm64)
+  * **Linux Kernel 5.4+:** (x64 / arm64)
+  * **macOS 12.0+:** (Intel / Apple Silicon)
+* **モバイルおよびその他**: 
+  * **Android 8.0+:** (ARMv8 / ARMv7 / x86_64 / Universal) 
+  * **Android TV:** 大画面に完全対応、ARMv7 32ビット版も選択可能
+  * **HarmonyOS NEXT:** [[卓易通]](https://harmonyos.cool/android-app) と組み合わせて安定して利用可能
 
-* **全デスクトッププラットフォーム**: 
-**Windows 8.1+:** (x64/arm64)
-**Linux Kernel 5.4+:** (x64/arm64)
-**macOS 12.0+:** (Intel/Apple Silicon)
-* **Android 8.0+ 端末**: Android (ARMv8 / ARMv7 / x86_64 / Universal)
-* **Android TV**: 完全対応、低メモリ端末向けに ARMv7 32ビット版も選択可能
-* **HarmonyOS NEXT**: [[卓易通]](https://harmonyos.cool/android-app) と組み合わせて安定して利用可能
-
-**その他のインストール方法:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin または paru -S bettbox-bin</code> ([ lyj404 ](https://github.com/lyj404/bettbox-aur) により維持)<br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin または paru -S bettbox-compatible-bin</code> ([ VillagerTom ](https://github.com/VillagerTom) により維持)
-
----
-## ❓ よくある質問
-
-1. **インストール・起動およびセキュリティ**：
-   - Android端末：**十分なバックグラウンド権限が与えられているか、最低システム要件（Android 8.0+）を満たしているか**確認してください。
-   - デスクトップ旧型端末：システムアーキテクチャに応じて**特定 CPU クラス向けの Compatible バージョンが必要か**確認してください。
-   - **セキュリティ：Bettbox は完全オープンソースかつ透明で、コードは Signpath のセキュリティ監査に合格しています。**
-
-2. **デスクトップ端末のよくある質問**：
-   - Windows管理者権限：Bettbox インストーラー版にて事前処理済みのため、**手動での再権限付与は不要です**。
-   - TUN仮想NICを有効化できない：macOS / Linux では**正しいパスワードを入力して権限を授与したか確認してください**。
-   - その他のエラー：デバッグ情報を提供し、**競合するプロキシソフトやサービスが動作していないことを確認してください**。
-   - 問題が解決しない場合は、ISSUE を提出してください。
-
-3. **macOSインストールの注意事項**：
-   - ご利用の環境（Intel / Apple Silicon）に適したファイルをダウンロードし、`Bettbox-macos-xx.dmg` をダブルクリックして開きます。
-   - Bettbox アイコンを「Applications」フォルダにドラッグ＆ドロップしてインストール完了。
-   - **インストールまたはアップデート時の Gatekeeper 回避**（[現在 Apple デベロッパー証明書を購入していないため](https://support.apple.com/en-us/102445)）：
-     - **推奨**：「Applications」フォルダ内で **Bettbox アイコンを右クリック**し、**「開く」** を選択後、確認ダイアログで再度 **「開く」** をクリックします。
-     - **代替案**：ダブルクリックで開けない場合は、Mac「システム設定」 -> 「プライバシーとセキュリティ」から Bettbox を探して **「このまま開く」** をクリックします。
-   - 初めて TUN モードを有効にする際、パスワード認証ウィンドウが表示されます。**現在ログインしているユーザーのパスワードを入力して Bettbox によるネットワーク構成を許可してください**。
-
-4. **購読リンクをインポートできない**：
-   - **まずリンクをリセットして**、正常にアクセスできることを確認してからインポートしてください。
-   - 問題が解決しない場合は、まずプロバイダーにお問い合わせください。DEBUG によりアプリ側の原因であると確認された場合は ISSUE を提出してください。
+**Linux コミュニティパッケージ:**<br>
+* **ArchLinux:** <code>yay -S bettbox-bin</code> または <code>paru -S bettbox-bin</code> ([lyj404](https://github.com/lyj404/bettbox-aur) により維持)<br>
+* **AMD64=v1 (旧ハードウェア互換):** <code>yay -S bettbox-compatible-bin</code> または <code>paru -S bettbox-compatible-bin</code> ([VillagerTom](https://github.com/VillagerTom) により維持)
 
 ---
+## 💡 よくある質問
 
-## 💻 開発とビルド
+1. **動作環境と互換バージョン**：
+   - Android 端末をご利用の場合、バックグラウンド実行権限が十分に付与されているかご確認ください。システム要件は Android 8.0 以上です。
+   - デスクトップの旧型ハードウェアでは、CPU 命令セットアーキテクチャに応じて対応する Compatible 互換バージョンを選択してください。
+   - セキュリティ：Bettbox は全工程がオープンソースかつ透明であり、コードは権威ある SignPath セキュリティ監査に合格しています。プライバシー情報の収集は一切ありません。
 
-Windows の例：
+2. **デスクトップの権限と TUN**：
+   - Windows 版の管理者権限はインストーラー側で事前処理されているため、日常的な使用で手動の再認証は不要です。
+   - macOS / Linux で TUN 仮想 NIC を有効にする際は、システムプロンプトに従って正しいシステムパスワードを入力し、認証を完了してください。
+   - その他のエラーが発生した場合は、バックグラウンドで他のプロキシツールがポートを占有していないか確認し、Debug ログを添付してフィードバックを送信してください。
 
-* Windows PC が必要です（OS ≥ Windows 10）
+3. **macOS 初回インストールガイド**：
+   - お使いの環境 (Intel / Apple Silicon) に応じた `.dmg` インストーラーをダウンロードして開き、Bettbox アイコンを Applications フォルダにドラッグしてください。
+   - **システムセキュリティブロックの回避**（[現在 Apple 商業開発者証明書は未購入です](https://support.apple.com/en-us/102445)）：
+     - **推奨**：「Finder - アプリケーション」で、**Bettbox アイコンを右クリックして「開く」を選択**し、確認ダイアログで「開く」をクリックしてください。
+     - **代替案**：ブロックされた場合、システムの「設定 -> プライバシーとセキュリティ」から Bettbox を探し、「このまま開く」をクリックしてください。
+   - 初めて TUN モードを有効にする際、システムパスワードの認証が求められます。パスワードを入力して仮想ネットワークインターフェースの作成を許可してください。
+
+4. **サブスクリプションのインポートとトラブルシューティング**：
+   - インポートに失敗した場合は、プロバイダーの管理パネルでサブスクリプションリンクをリセットしてから再度お試しください。
+   - 異常が続く場合は、プロバイダーとノード形式を確認してください。クライアント側の不具合と確認された場合は、お気軽に Issue を提出してください。
+
+---
+## 💻 開発・ビルドと UI 適応
+
+Windows プラットフォームでのビルド例：
+
+* システム要件：Windows 10 以上
 * 必要環境：Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
 ```bash
-* flutter pub get
-* dart .\setup.dart windows --arch amd64 --out core (コアのみビルド)
-* dart .\setup.dart windows --arch amd64 --out app --compatible (Compatible版オプション)
-* ビルド完了後、成果物は `dist/` ディレクトリに生成されます
+* flutter pub get (依存関係の取得)
+* dart .\setup.dart windows --arch amd64 --out core (Core コアのみビルド)
+* dart .\setup.dart windows --arch amd64 --out app --compatible (任意の互換バージョン)
+* ビルド完了後、生成物は `dist/` ディレクトリに出力されます
 ```
 
-カスタムスクリプト UI 適応：
+カスタムスクリプトの UI 適応：
 
-* v1.18.8 より、Bettbox は外部オーバーライドスクリプトの UI 適応をサポートしています。例えば AIsouler の **[スクリプト/設定リポジトリ](https://github.com/AIsouler/MyClash)** の場合、スクリプトの1行目に以下を追加するだけで、Bettbox 内蔵のトグルスイッチを直接使用できます：
+* Bettbox は、外部オーバーライドスクリプトのグラフィカル UI 適応に対応しています。AIsouler 氏の **[スクリプト/設定共有](https://github.com/AIsouler/MyClash)** を例にすると、スクリプトの先頭行に以下の宣言を追加するだけで、内蔵のビジュアルスイッチと直接連動させることができます：
 * <code>const Compatible_With_Bettbox = { ruleOptionsEnable: true };</code>
+* スクリプト内のスイッチにポリシーグループなどが含まれる場合、`policyGroupOptions` でポリシーグループのスイッチ名を宣言できます。宣言されていないスイッチは「⚙️ その他の設定」サブメニューに自動分類されます：
+
+```js
+const Compatible_With_Bettbox = {
+  ruleOptionsEnable: true,
+  // ポリシーグループに属するスイッチ名を宣言（ruleOptionsEnable のキーと完全一致させる必要があります）
+  policyGroupOptions: ['🚀 节点选择', '🛑 广告拦截'],
+};
+```
+* `policyGroupOptions` が宣言されていない、または名称が一致しない場合、すべてのスイッチはフラットに表示されます。
 
 ---
+### 🛩️ おすすめサービス
+#### IEPL 専用線  〢  [百変小桜 (BBXY)](https://www.bbxy01.com/v2/register?code=c09R)  〢  [白月光 (BaiYueGuang)](https://www.sibker.com/register?invite_code=YZq6L5zd)  〢  [Ytoo](https://y-too.net/aff.php?aff=10354)
+--------------------------------
+#### 低価格 直通  〢  [良心雲 (Liangxin Cloud)](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪雲 (Chuixue Cloud)](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分 (YiFen)](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV) 
+--------------------------------
+#### 百変小桜専用 32%OFF クーポンコード：bettbox68 、参照：[関連説明](https://t.me/appshub_channel/381)
+--------------------------------
 
-### ☕ 開発のサポート（スポンサー）
+**簡単なレビュー** : ❚ ❚ 上記のリンクは主に個人利用、または TG グループ内で議論・推奨されたものです。ここでは AFF リンクとしてのみ掲載しています（注：リンク経由での購入により、開発者に少額の手数料が還元され開発の支援となります）。これは各サービスに対する保証や約束を意味するものではありません。各自でご判断の上、適切にご選択ください。
 
-**プロジェクトがお役に立ちましたら、以下の方法で開発をサポートしていただけます：**
-
-* TRON (TRC-20):   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
-* Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 ---
+### ☕ スポンサーと支援
 
-## 🙏 謝辞
+**本プロジェクトがお役に立ちましたら、以下の方法または [おすすめリンク](../README.md#%EF%B8%8F-%E6%8E%A8%E8%8D%90%E6%9C%8D%E5%8A%A1) を通じて開発をご支援いただけます：**
+
+* TRON (TRC-20)： <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
+* Bitcoin： <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
+
+---
+## ❤️ 謝辞
 
 <table>
   <tr>
@@ -145,14 +142,14 @@ Windows の例：
   </tr>
 </table>
 
-**[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
+* **[FlClash GUI](https://github.com/chen08209/FlClash)**（本プロジェクトは優れたオープンソースプロジェクト FlClash を起源としています。原作者の先駆的な探求と貢献に心から敬意を表します）
+* **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**（強力で柔軟なコアエンジン）
 
-すべての [コントリビューター](https://github.com/appshubcc/Bettbox/graphs/contributors) および利用・参考にしたオープンソースプロジェクトに感謝いたします：
+本プロジェクトの発展に貢献してくださったすべての [コントリビューター](https://github.com/appshubcc/Bettbox/graphs/contributors)、そしてインスピレーションと参考元となった以下のオープンソースプロジェクトに感謝いたします：
 
 [Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN), [Bett-rules](https://github.com/appshubcc/bett-rules)
 
 ---
+## 📄 オープンソースライセンス
 
-## 📄 ライセンス
-
-GPL-3.0 ライセンス
+本プロジェクトは [GPL-3.0 License](../LICENSE) のもとで公開されています。

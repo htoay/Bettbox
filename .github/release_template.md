@@ -12,15 +12,15 @@
 ---
 </div>
 
-###   🛩️ 推荐服务
-#### 中转 专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)  〢  [白月光](https://www.sibker.com/register?invite_code=YZq6L5zd)  〢  [MESL](https://panel.meslcloud.com/#/register?code=7vy22Bv2)  〢  [Ytoo](https://y-too.net/aff.php?aff=10354)
+### 🛩️ 推荐服务
+#### IEPL 专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)  〢  [白月光](https://www.sibker.com/register?invite_code=YZq6L5zd)  〢  [Ytoo](https://y-too.net/aff.php?aff=10354)
 --------------------------------
-#### 低价 直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪云](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱机场](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+#### 低价 直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪云](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV) 
 --------------------------------
-####   百变小樱专享68折优惠码：bettbox68
+#### 百变小樱专享68折优惠码：bettbox68 ，参见：[相关介绍](https://t.me/appshub_channel/381)
 --------------------------------
 
-**简评** : ❚ ❚  以上链接基本为自用或TG群组群友讨论/推荐，此处仅做AFF展示(注：通过链接购买第三方服务，开发者可以获得少量的佣金支持)，这并不代表我们对其服务作出承诺或保证，鉴于一些众所周知的原因，您应该清楚明白这意味着什么，请自行甄别并合理选择。
+**简评** : ❚ ❚ 以上链接基本为自用或 TG 群组讨论推荐，此处仅做 AFF 展示（注：通过链接购买第三方服务，开发者可获得少量佣金支持），这并不代表对其服务作出承诺或保证。请自行甄别并合理选择。
 
 ---
 ### ⬇️ Download / 下载链接

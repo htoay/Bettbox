@@ -279,7 +279,12 @@ class ClashService extends ClashHandlerInterface {
       final error = utf8.decode(e);
       if (error.isNotEmpty) commonPrint.error(error);
     });
-    return _waitForCoreReady(process);
+    final ready = await _waitForCoreReady(process);
+    final pid = process?.pid;
+    if (ready && system.isLinux && pid != null) {
+      unawaited(system.verifyCoreProcessPrivileges(pid));
+    }
+    return ready;
   }
 
   Future<bool> _waitForCoreReady([Process? targetProcess]) async {

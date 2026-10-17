@@ -23,12 +23,18 @@ class OverrideProfileView extends StatefulWidget {
 class _OverrideProfileViewState extends State<OverrideProfileView> {
   final _controller = ScrollController();
   double _currentMaxWidth = 0;
+  bool _initialized = false;
 
   void _initState(WidgetRef ref) {
+    if (_initialized) return;
+    _initialized = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.afterRouteTransition(() async {
-        final rawConfig = await globalState.getProfileConfig(widget.profileId);
+        final rawConfig = await globalState.getProfileConfig(
+          widget.profileId,
+          effective: true,
+        );
         if (!mounted) return;
         final snippet = ClashConfigSnippet.fromJson(rawConfig);
         final overrideData = ref.read(
@@ -115,34 +121,6 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                 cacheExtent: 500,
                 slivers: [
                   SliverToBoxAdapter(child: SizedBox(height: 8 + rise)),
-                  SliverToBoxAdapter(
-                    child: Consumer(
-                      builder: (_, ref, child) {
-                        final scriptMode = ref.watch(
-                          scriptStateProvider.select(
-                            (state) => state.realId != null,
-                          ),
-                        );
-                        if (!scriptMode) {
-                          return SizedBox();
-                        }
-                        return child!;
-                      },
-                      child: ListItem(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 0,
-                        ),
-                        title: Row(
-                          spacing: 8,
-                          children: [
-                            Icon(Icons.info),
-                            Text(appLocalizations.overrideInvalidTip),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                   SliverToBoxAdapter(child: SizedBox(height: 8)),
                   SliverPadding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -550,6 +528,7 @@ class _RuleRowState extends State<RuleRow> {
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: CommonCard(
+            elevated: false,
             padding: EdgeInsets.zero,
             radius: 18,
             type: CommonCardType.filled,
@@ -572,53 +551,75 @@ class _RuleRowState extends State<RuleRow> {
                       child: Row(
                         spacing: 6,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.colorScheme.primary.withValues(
-                                alpha: 0.12,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              parts.type,
-                              maxLines: 1,
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: context.colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          Expanded(
+                            child: Row(
+                              spacing: 6,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: context.colorScheme.primary
+                                        .withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    parts.type,
+                                    maxLines: 1,
+                                    style: context.textTheme.labelSmall
+                                        ?.copyWith(
+                                          color: context.colorScheme.primary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ),
+                                if (parts.target.isNotEmpty) ...[
+                                  Icon(
+                                    Icons.arrow_right_alt,
+                                    size: 16,
+                                    color: context.colorScheme.outline,
+                                  ),
+                                  Flexible(
+                                    child: EmojiText(
+                                      parts.target,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textTheme.labelLarge
+                                          ?.copyWith(
+                                            color: context
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                                for (final flag in parts.flags)
+                                  Text(
+                                    flag,
+                                    maxLines: 1,
+                                    style: context.textTheme.labelSmall
+                                        ?.copyWith(
+                                          color: context.colorScheme.outline,
+                                        ),
+                                  ),
+                              ],
                             ),
                           ),
-                          if (parts.target.isNotEmpty) ...[
-                            Icon(
-                              Icons.arrow_right_alt,
-                              size: 16,
-                              color: context.colorScheme.outline,
-                            ),
-                            Flexible(
-                              child: EmojiText(
-                                parts.target,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: context.textTheme.labelLarge?.copyWith(
-                                  color: context.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ],
-                          for (final flag in parts.flags)
-                            Text(
-                              flag,
-                              maxLines: 1,
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: context.colorScheme.outline,
-                              ),
-                            ),
-                          const Spacer(),
                           if (showControls) ...[
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Checkbox(
+                                shape: const CircleBorder(),
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
+                                value: widget.isSelected,
+                                onChanged: (_) => widget.onTab(),
+                              ),
+                            ),
                             Listener(
                               behavior: HitTestBehavior.opaque,
                               onPointerDown: _handleIconPointerDown,
@@ -627,27 +628,16 @@ class _RuleRowState extends State<RuleRow> {
                                 child: InkResponse(
                                   onTap: _handleTap,
                                   mouseCursor: SystemMouseCursors.move,
-                                  radius: 20,
-                                  child: Icon(
-                                    Icons.drag_indicator,
-                                    size: 20,
-                                    color: context.colorScheme.outline,
+                                  radius: 16,
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: Icon(
+                                      Icons.drag_indicator,
+                                      size: 20,
+                                      color: context.colorScheme.outline,
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {},
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CommonCheckBox(
-                                  value: widget.isSelected,
-                                  isCircle: true,
-                                  onChanged: (_) {
-                                    widget.onTab();
-                                  },
                                 ),
                               ),
                             ),
@@ -822,7 +812,9 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
 
   void _initState() {
     _targetItems = [
-      ...widget.snippet.proxyGroups.map((item) => item.name),
+      ...widget.snippet.proxyGroups
+          .map((item) => item.name)
+          .where((name) => name != 'GLOBAL'),
       ...RuleTarget.values.map((item) => item.name),
     ];
     _ruleProviderItems = [
@@ -951,7 +943,9 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: appLocalizations.addRule,
+      title: widget.rule != null
+          ? appLocalizations.edit
+          : appLocalizations.addRule,
       actions: [
         TextButton(
           onPressed: _handleSubmit,

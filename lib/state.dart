@@ -241,10 +241,10 @@ class GlobalState {
             : 'com.appshub.bettbox',
         version: nativeInfo?.version.isNotEmpty == true
             ? nativeInfo!.version
-            : '1.19.3',
+            : '1.19.6',
         buildNumber: nativeInfo?.buildNumber.isNotEmpty == true
             ? nativeInfo!.buildNumber
-            : '2026091901',
+            : '2026101601',
       );
     }
     if (system.isAndroid) {
@@ -1060,7 +1060,7 @@ class GlobalState {
       'providers-path': await appPath.getProvidersDirPath(profile.id),
       'node-exclude-filter': config.nodeExcludeFilter,
       'health-check-timeout': config.healthCheckTimeout,
-      'override-rules': overrideData.enable && !scriptActive
+      'override-rules': overrideData.enable
           ? {
               'override': overrideData.rule.type == OverrideRuleType.override,
               'rules': overrideData.runningRule,
@@ -1090,12 +1090,49 @@ class GlobalState {
     };
   }
 
-  Future<Map<String, dynamic>> getProfileConfig(String profileId) async {
+  Future<Map<String, dynamic>?> _readScriptedConfig(Profile profile) async {
+    final path = await _writeScriptedConfig(profile);
+    if (path.isEmpty) return null;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      return await Isolate.run(
+        () => Map<String, dynamic>.from(json.decode(content) as Map),
+      );
+    } finally {
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
+  }
+
+  Future<Map<String, dynamic>> getProfileConfig(
+    String profileId, {
+    bool effective = false,
+  }) async {
     final profile = config.profiles.getProfile(profileId);
+    if (effective && profile != null) {
+      final scripted = await _readScriptedConfig(profile);
+      if (scripted != null) return scripted;
+    }
     final ageSecretKey = profile?.ageSecretKey;
+    final disabledGroups = effective && profile != null
+        ? [
+            for (final entry in profile.groupSwitches.entries)
+              if (!entry.value) entry.key,
+          ]
+        : const <String>[];
     final configMap = await switch (clashLibHandler != null) {
-      true => clashLibHandler!.getConfig(profileId, ageSecretKey: ageSecretKey),
-      false => clashCore.getConfig(profileId, ageSecretKey: ageSecretKey),
+      true => clashLibHandler!.getConfig(
+        profileId,
+        ageSecretKey: ageSecretKey,
+        disabledGroups: disabledGroups,
+      ),
+      false => clashCore.getConfig(
+        profileId,
+        ageSecretKey: ageSecretKey,
+        disabledGroups: disabledGroups,
+      ),
     };
     configMap['rules'] = configMap['rule'];
     configMap.remove('rule');
