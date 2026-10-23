@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 
 import 'constant.dart';
+import 'path.dart';
 import 'system.dart';
 
 class AutoLaunch {
@@ -16,6 +17,8 @@ class AutoLaunch {
       appPath: Platform.resolvedExecutable,
     );
   }
+
+  String get _taskName => appPath.isPortable ? '$appName Portable' : appName;
 
   factory AutoLaunch() {
     _instance ??= AutoLaunch._internal();
@@ -29,7 +32,7 @@ class AutoLaunch {
         final result = await Process.run('schtasks', [
           '/Query',
           '/TN',
-          appName,
+          _taskName,
         ]);
         return result.exitCode == 0;
       } catch (_) {
@@ -42,14 +45,14 @@ class AutoLaunch {
   Future<bool> enable() async {
     if (system.isWindows) {
       // 使用任务计划实现 Windows 开机自启动（管理员模式）
-      return await windows?.registerTask(appName) ?? false;
+      return await windows?.registerTask(_taskName) ?? false;
     }
     return await launchAtStartup.enable();
   }
 
   Future<bool> disable() async {
     if (system.isWindows) {
-      return await windows?.unregisterTask(appName) ?? false;
+      return await windows?.unregisterTask(_taskName) ?? false;
     }
     return await launchAtStartup.disable();
   }

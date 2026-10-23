@@ -11,7 +11,9 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanPage extends StatefulWidget {
-  const ScanPage({super.key});
+  final bool Function(String value)? accept;
+
+  const ScanPage({super.key, this.accept});
 
   @override
   State<ScanPage> createState() => _ScanPageState();
@@ -68,7 +70,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     final rawValue = barcodeCapture.barcodes.first.rawValue?.trim();
     if (rawValue == null || rawValue.isEmpty) return;
     _handled = true;
-    if (!rawValue.toLowerCase().isUrl) {
+    final accepted =
+        widget.accept?.call(rawValue) ?? rawValue.toLowerCase().isUrl;
+    if (!accepted) {
       Navigator.pop(context);
       return;
     }

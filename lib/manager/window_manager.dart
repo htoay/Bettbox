@@ -104,7 +104,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
       _dockVisibleSub = ref.listenManual(
         appSettingProvider.select((state) => state.keepDockIcon),
         (prev, next) {
-          if (prev == next) return;
+          if (prev == next || !next) return;
           unawaited(_updateDockIcon(next));
         },
       );

@@ -40,7 +40,7 @@ mixin ClashInterface {
     List<String> disabledGroups,
   });
 
-  Future<Map<String, String>> generateAgeKeyPair();
+  Future<Map<String, String>> generateAgeKeyPair({bool hybrid = false});
 
   Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey);
 
@@ -82,6 +82,32 @@ mixin ClashInterface {
   FutureOr<String> getMemory();
 
   FutureOr<String> getCoreStatus();
+
+  Future<String> startSpeedTest(String params);
+
+  FutureOr<bool> cancelSpeedTest();
+
+  Future<String> probeSpeedTest(String params);
+
+  Future<String> getSpeedTestServers(String params);
+
+  Future<String> startStunTest(String params);
+
+  FutureOr<bool> cancelStunTest();
+
+  Future<String> startIperfServer(String params);
+
+  FutureOr<bool> stopIperfServer();
+
+  Future<String> startIperfClient(String params, Duration timeout);
+
+  FutureOr<bool> cancelIperfClient();
+
+  Future<String> startLocalPing(String params, Duration timeout);
+
+  FutureOr<bool> cancelLocalPing();
+
+  Future<String> toolboxInvoke(ActionMethod method, {String data = ''});
 
   FutureOr<void> resetTraffic();
 
@@ -567,6 +593,106 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
+  Future<String> startSpeedTest(String params) {
+    return invoke<String>(
+      method: ActionMethod.startSpeedTest,
+      data: params,
+      timeout: const Duration(minutes: 3),
+    );
+  }
+
+  @override
+  FutureOr<bool> cancelSpeedTest() {
+    return invoke<bool>(method: ActionMethod.cancelSpeedTest);
+  }
+
+  @override
+  Future<String> probeSpeedTest(String params) {
+    return invoke<String>(
+      method: ActionMethod.probeSpeedTest,
+      data: params,
+      timeout: const Duration(seconds: 30),
+    );
+  }
+
+  @override
+  Future<String> getSpeedTestServers(String params) {
+    return invoke<String>(
+      method: ActionMethod.getSpeedTestServers,
+      data: params,
+      timeout: const Duration(seconds: 30),
+    );
+  }
+
+  @override
+  Future<String> startStunTest(String params) {
+    return invoke<String>(
+      method: ActionMethod.startStunTest,
+      data: params,
+      timeout: const Duration(seconds: 60),
+    );
+  }
+
+  @override
+  FutureOr<bool> cancelStunTest() {
+    return invoke<bool>(method: ActionMethod.cancelStunTest);
+  }
+
+  @override
+  Future<String> startIperfServer(String params) {
+    return invoke<String>(
+      method: ActionMethod.startIperfServer,
+      data: params,
+      timeout: const Duration(seconds: 15),
+    );
+  }
+
+  @override
+  FutureOr<bool> stopIperfServer() {
+    return invoke<bool>(
+      method: ActionMethod.stopIperfServer,
+      timeout: const Duration(seconds: 15),
+    );
+  }
+
+  @override
+  Future<String> startIperfClient(String params, Duration timeout) {
+    return invoke<String>(
+      method: ActionMethod.startIperfClient,
+      data: params,
+      timeout: timeout,
+    );
+  }
+
+  @override
+  FutureOr<bool> cancelIperfClient() {
+    return invoke<bool>(method: ActionMethod.cancelIperfClient);
+  }
+
+  @override
+  Future<String> startLocalPing(String params, Duration timeout) {
+    return invoke<String>(
+      method: ActionMethod.startLocalPing,
+      data: params,
+      timeout: timeout,
+    );
+  }
+
+  @override
+  FutureOr<bool> cancelLocalPing() {
+    return invoke<bool>(method: ActionMethod.cancelLocalPing);
+  }
+
+  @override
+  Future<String> toolboxInvoke(ActionMethod method, {String data = ''}) {
+    return invoke<String>(
+      method: method,
+      data: data,
+      timeout: const Duration(seconds: 90),
+    );
+  }
+
+  @override
   FutureOr<bool> flushFakeIP() {
     return invoke<bool>(method: ActionMethod.flushFakeIP);
   }
@@ -582,8 +708,11 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<Map<String, String>> generateAgeKeyPair() async {
-    final res = await invoke<Map>(method: ActionMethod.generateAgeKeyPair);
+  Future<Map<String, String>> generateAgeKeyPair({bool hybrid = false}) async {
+    final res = await invoke<Map>(
+      method: ActionMethod.generateAgeKeyPair,
+      data: hybrid ? 'mlkem768x25519' : 'x25519',
+    );
     return res.map((key, value) => MapEntry(key.toString(), value.toString()));
   }
 

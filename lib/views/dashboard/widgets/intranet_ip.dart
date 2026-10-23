@@ -1,4 +1,5 @@
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/state.dart';
@@ -8,15 +9,155 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'tile.dart';
+
 class IntranetIP extends StatelessWidget {
-  const IntranetIP({super.key});
+  final DashboardTileSize? size;
+
+  const IntranetIP({super.key, this.size});
 
   void _showMoreIpInfoDialog(BuildContext context) {
     globalState.showCommonDialog(child: const _IntranetIpInfoDialog());
   }
 
+  Widget _buildItem(BuildContext context, String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.labelSmall?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          value.isEmpty ? '—' : value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.bodyMedium?.toLight,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTile(BuildContext context, DashboardTileSize size) {
+    final isTall = size == DashboardTileSize.tall;
+    return Consumer(
+      builder: (_, ref, _) {
+        final info = ref.watch(localNetworkProvider);
+        final ip = info == null
+            ? '…'
+            : info.ip.isEmpty
+            ? appLocalizations.noNetwork
+            : info.ip;
+        final local = [
+          appLocalizations.natLocalIp,
+          if (info?.type.isNotEmpty ?? false) info?.type,
+        ].join(' · ');
+        final gateway = info?.gateway ?? '';
+        return DashboardTileCard(
+          size: size,
+          info: Info(
+            label: appLocalizations.intranetIP,
+            iconData: Icons.devices,
+          ),
+          mark: DashboardDecor.icon(context, Icons.devices, 80),
+          markBottom: isTall,
+          markAngle: isTall ? 0.3 : -0.3,
+          onPressed: () => _showMoreIpInfoDialog(context),
+          child: isTall
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 12, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final item in [
+                        _buildItem(context, local, ip),
+                        _buildItem(
+                          context,
+                          appLocalizations.defaultGateway,
+                          gateway,
+                        ),
+                        _buildItem(
+                          context,
+                          appLocalizations.systemDns,
+                          info?.dns.firstOrNull ?? '',
+                        ),
+                      ])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: item,
+                        ),
+                    ],
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 48, 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          if (info?.type.isNotEmpty ?? false) ...[
+                            Text(
+                              info?.type ?? '',
+                              maxLines: 1,
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: context.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Text(
+                                ip,
+                                maxLines: 1,
+                                style: context.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        [
+                          if (gateway.isNotEmpty)
+                            '${appLocalizations.defaultGateway} $gateway',
+                          if (info?.dns.firstOrNull case final dns?)
+                            '${appLocalizations.systemDns} $dns',
+                        ].join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = this.size;
+    if (size != null) return _buildTile(context, size);
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(

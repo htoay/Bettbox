@@ -160,6 +160,13 @@ extension ProfilesExt on List<Profile> {
     final index = indexWhere((profile) => profile.id == profileId);
     return index == -1 ? null : this[index];
   }
+
+  bool hasAddedOrChanged(List<Profile> previous) {
+    return any((profile) {
+      final old = previous.getProfile(profile.id);
+      return old == null || old.backupView != profile.backupView;
+    });
+  }
 }
 
 extension ProfileExtension on Profile {
@@ -167,6 +174,14 @@ extension ProfileExtension on Profile {
       url.isEmpty == true ? ProfileType.file : ProfileType.url;
 
   bool get realAutoUpdate => url.isEmpty == true ? false : autoUpdate;
+
+  Profile get backupView => copyWith(
+    currentGroupName: null,
+    subscriptionInfo: null,
+    selectedMap: const {},
+    unfoldSet: const {},
+    isUpdating: false,
+  );
 
   Future<void> checkAndUpdate() async {
     final isExists = await check();

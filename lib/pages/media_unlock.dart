@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
@@ -7,6 +11,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
+
+import 'speed_test.dart';
+import 'toolbox/common.dart';
 
 class MediaUnlockPage extends ConsumerStatefulWidget {
   final SheetType type;
@@ -19,6 +26,35 @@ class MediaUnlockPage extends ConsumerStatefulWidget {
 
 class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
   MediaCategory? _selectedCategory;
+  bool _isStart = false;
+
+  @override
+  void dispose() {
+    mediaUnlockState.cancelUnattended();
+    super.dispose();
+  }
+
+  Future<void> _openBatch(MediaPlatform platform) async {
+    final groups = ref.read(currentGroupsStateProvider).value;
+    final target = await showBatchOutboundPicker(groups: groups);
+    if (target == null || !mounted) return;
+    final nodes = collectBatchNodes(groups, target);
+    showSheet<void>(
+      context: context,
+      props: const SheetProps(maxWidth: 480),
+      builder: (_, type) => _MediaBatchSheet(
+        type: type,
+        platform: platform,
+        nodes: nodes,
+        scope: switch (target.scope) {
+          OutboundBatchScope.all => appLocalizations.mediaBatchAll,
+          _ => target.name,
+        },
+        icon: _buildPlatformIcon(platform, size: 22),
+        statusText: _getStatusText,
+      ),
+    );
+  }
 
   String _getCategoryLabel(MediaCategory? category) {
     if (category == null) return appLocalizations.categoryAll;
@@ -62,7 +98,11 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
               ),
               backgroundColor: context.colorScheme.surfaceContainerHigh,
               selectedColor: context.colorScheme.primary,
-              side: BorderSide.none,
+              side: toolChipSide(
+                context,
+                selected: isSelected,
+                idle: BorderSide.none,
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 4),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -610,6 +650,21 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
               ),
             ),
             const SizedBox(width: 8),
+            if (_isStart && !isChinaCategory)
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  tooltip: appLocalizations.mediaBatchTest,
+                  onPressed: () => _openBatch(platform),
+                  icon: Icon(
+                    Icons.fact_check_outlined,
+                    size: 17,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
             SizedBox(
               width: 32,
               height: 32,
@@ -678,6 +733,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
 
   @override
   Widget build(BuildContext context) {
+    _isStart = ref.watch(runTimeProvider.select((state) => state != null));
     final isChinese = Localizations.localeOf(context).languageCode == 'zh';
     final (showExtraDetails, refreshByCategory, showMoreStreaming) = ref.watch(
       appSettingProvider.select(
@@ -931,6 +987,304 @@ class _PinnedSettingsView extends ConsumerWidget {
               _handleChanged(ref, platform, checked == true),
         );
       },
+    );
+  }
+}
+
+const _batchConcurrency = 4;
+
+class _MediaBatchItem {
+  final String name;
+  final MediaUnlockResult? result;
+  final bool testing;
+
+  const _MediaBatchItem({
+    required this.name,
+    this.result,
+    this.testing = false,
+  });
+}
+
+class _MediaBatchSheet extends ConsumerStatefulWidget {
+  final SheetType type;
+  final MediaPlatform platform;
+  final List<String> nodes;
+  final String scope;
+  final Widget icon;
+  final String Function(MediaUnlockStatus status, [MediaPlatform? platform])
+  statusText;
+
+  const _MediaBatchSheet({
+    required this.type,
+    required this.platform,
+    required this.nodes,
+    required this.scope,
+    required this.icon,
+    required this.statusText,
+  });
+
+  @override
+  ConsumerState<_MediaBatchSheet> createState() => _MediaBatchSheetState();
+}
+
+class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
+  List<_MediaBatchItem> _items = [];
+  final Set<MediaUnlockChecker> _checkers = {};
+  bool _running = false;
+  int _serial = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _items = widget.nodes.map((name) => _MediaBatchItem(name: name)).toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _start());
+  }
+
+  @override
+  void dispose() {
+    _stop();
+    clashCore.stopToolProxy();
+    super.dispose();
+  }
+
+  void _stop() {
+    _serial++;
+    for (final checker in _checkers) {
+      checker.cancel();
+    }
+    _checkers.clear();
+    if (mounted && _running) {
+      setState(() {
+        _running = false;
+        _items = [
+          for (final item in _items)
+            item.testing ? _MediaBatchItem(name: item.name) : item,
+        ];
+      });
+    }
+  }
+
+  Future<void> _start() async {
+    if (_running || _items.isEmpty) return;
+    final serial = ++_serial;
+    setState(() {
+      _running = true;
+      _items = [for (final item in _items) _MediaBatchItem(name: item.name)];
+    });
+    final port = await clashCore.startToolProxy();
+    if (!mounted) {
+      clashCore.stopToolProxy();
+      return;
+    }
+    if (serial != _serial) return;
+    if (port <= 0) {
+      setState(() => _running = false);
+      return;
+    }
+    final queue = List<int>.generate(_items.length, (index) => index);
+    Future<void> worker() async {
+      while (queue.isNotEmpty && serial == _serial && mounted) {
+        final index = queue.removeAt(0);
+        final name = _items[index].name;
+        _update(serial, index, _MediaBatchItem(name: name, testing: true));
+        final user = utf8
+            .encode(name)
+            .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+            .join();
+        final checker = MediaUnlockChecker(
+          proxy: 'PROXY $user:x@127.0.0.1:$port',
+        );
+        _checkers.add(checker);
+        MediaUnlockResult result;
+        try {
+          result = await checker.checkPlatform(widget.platform);
+        } catch (_) {
+          result = MediaUnlockResult(
+            platform: widget.platform,
+            status: MediaUnlockStatus.failed,
+          );
+        }
+        _checkers.remove(checker);
+        _update(serial, index, _MediaBatchItem(name: name, result: result));
+      }
+    }
+
+    await Future.wait(List.generate(_batchConcurrency, (_) => worker()));
+    if (!mounted || serial != _serial) return;
+    setState(() => _running = false);
+  }
+
+  void _update(int serial, int index, _MediaBatchItem item) {
+    if (!mounted || serial != _serial) return;
+    setState(() => _items = [..._items]..[index] = item);
+  }
+
+  int _rank(_MediaBatchItem item) => switch (item.result?.status) {
+    MediaUnlockStatus.unlocked => 0,
+    MediaUnlockStatus.limited || MediaUnlockStatus.flagged => 1,
+    null when item.testing => 2,
+    null => 3,
+    MediaUnlockStatus.blocked => 4,
+    _ => 5,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    final done = _items.where((item) => item.result != null).length;
+    final unlocked = _items
+        .where((item) => item.result?.status == MediaUnlockStatus.unlocked)
+        .length;
+    final sorted = [..._items]
+      ..sort((a, b) {
+        final rank = _rank(a).compareTo(_rank(b));
+        if (rank != 0) return rank;
+        return (a.result?.latency ?? 1 << 30).compareTo(
+          b.result?.latency ?? 1 << 30,
+        );
+      });
+    return AdaptiveSheetScaffold(
+      type: widget.type,
+      title: appLocalizations.mediaBatchTest,
+      actions: [
+        IconButton(
+          tooltip: _running ? appLocalizations.stop : appLocalizations.retry,
+          onPressed: _running ? _stop : _start,
+          icon: Icon(_running ? Icons.stop_rounded : Icons.refresh_rounded),
+        ),
+      ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Center(child: widget.icon),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      EmojiText(
+                        '${widget.platform.defaultName} · ${widget.scope}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        appLocalizations.mediaBatchSummary(
+                          done,
+                          _items.length,
+                          unlocked,
+                        ),
+                        style: context.textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_running)
+            LinearProgressIndicator(
+              minHeight: 2,
+              value: _items.isEmpty ? null : done / _items.length,
+            )
+          else
+            const SizedBox(height: 2),
+          Expanded(
+            child: _items.isEmpty
+                ? Center(
+                    child: Text(
+                      appLocalizations.mediaBatchNoNodes,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      8,
+                      16,
+                      24 + MediaQuery.paddingOf(context).bottom,
+                    ),
+                    itemCount: sorted.length,
+                    itemBuilder: (context, index) {
+                      final item = sorted[index];
+                      final result = item.result;
+                      final status = item.testing
+                          ? MediaUnlockStatus.testing
+                          : result?.status ?? MediaUnlockStatus.unknown;
+                      final color = item.testing
+                          ? colorScheme.primary
+                          : status.statusColor(colorScheme);
+                      final region = result?.region;
+                      final normalized = region == null || region.isEmpty
+                          ? ''
+                          : utils.normalizeRegion(region);
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.onSurface.withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: EmojiText(
+                                item.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: context.textTheme.bodyMedium,
+                              ),
+                            ),
+                            if (normalized.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                normalized.length == 2
+                                    ? '${utils.countryCodeToEmoji(normalized)} $normalized'
+                                    : normalized,
+                                style: context.textTheme.labelSmall,
+                              ),
+                            ],
+                            if (result?.latency case final latency?) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                '${latency}ms',
+                                style: context.textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(width: 10),
+                            Text(
+                              widget.statusText(status, widget.platform),
+                              style: context.textTheme.labelSmall?.copyWith(
+                                color: color,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

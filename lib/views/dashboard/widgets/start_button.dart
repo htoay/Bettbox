@@ -8,9 +8,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:bett_box/views/profiles/add_profile.dart';
+import 'package:bett_box/enum/enum.dart';
+import 'package:intl/intl.dart';
+
+import 'tile.dart';
 
 class StartButton extends ConsumerStatefulWidget {
-  const StartButton({super.key});
+  final DashboardTileSize? size;
+
+  const StartButton({super.key, this.size});
 
   @override
   ConsumerState<StartButton> createState() => _StartButtonState();
@@ -87,8 +93,206 @@ class _StartButtonState extends ConsumerState<StartButton> {
     );
   }
 
+  List<Widget> _buildChips() {
+    final mode = ref.watch(patchClashConfigProvider.select((s) => s.mode));
+    final tun = ref.watch(patchClashConfigProvider.select((s) => s.tun.enable));
+    final systemProxy = ref.watch(
+      networkSettingProvider.select((s) => s.systemProxy),
+    );
+    return [
+      DashboardChip(
+        icon: switch (mode) {
+          Mode.rule => Icons.alt_route_rounded,
+          Mode.global => Icons.language_rounded,
+          Mode.direct => Icons.east_rounded,
+        },
+        label: Intl.message(mode.name),
+      ),
+      if (system.isDesktop && tun)
+        DashboardChip(icon: Icons.vpn_lock_rounded, label: appLocalizations.tun)
+      else if (system.isDesktop && systemProxy)
+        DashboardChip(
+          icon: Icons.settings_ethernet_rounded,
+          label: appLocalizations.systemProxy,
+        ),
+    ];
+  }
+
+  Widget _buildStatus(
+    BuildContext context,
+    StartButtonSelectorState state,
+    bool isStart,
+    bool isRestarting,
+    bool isSmartStopped,
+  ) {
+    final colorScheme = context.colorScheme;
+    final textStyle = context.textTheme.bodyMedium?.toLight.adjustSize(1);
+    if (isSmartStopped) {
+      return Text(
+        appLocalizations.coreSuspended,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: textStyle?.copyWith(color: colorScheme.outline),
+      );
+    }
+    if (!state.isInit || _isDisabled || isRestarting) {
+      return SpinKitThreeBounce(color: colorScheme.primary, size: 16);
+    }
+    if (!state.hasProfile) {
+      return Text(
+        appLocalizations.checkOrAddProfile,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: textStyle,
+      );
+    }
+    if (!isStart) {
+      return Text(
+        appLocalizations.serviceReady,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: textStyle,
+      );
+    }
+    return ValueListenableBuilder<int>(
+      valueListenable: dashboardRefreshManager.tick1s,
+      builder: (_, _, _) => Text(
+        _formatRunTime(ref.read(runTimeProvider)),
+        maxLines: 1,
+        style: context.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+          height: 1,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTile(BuildContext context, DashboardTileSize size) {
+    final state = ref.watch(startButtonSelectorStateProvider);
+    final isSmartStopped = ref.watch(isSmartStoppedProvider);
+    final isRestarting = ref.watch(isRestartingCoreProvider);
+    final isStart = ref.watch(runTimeProvider.select((time) => time != null));
+    final displayStart = isSmartStopped ? false : (_optimisticStart ?? isStart);
+    final canPress =
+        state.isInit && state.hasProfile && !_isDisabled && !isSmartStopped;
+    final hasNoProfile =
+        state.isInit && !state.hasProfile && !_isDisabled && !isSmartStopped;
+    final colorScheme = context.colorScheme;
+    final isTall = size == DashboardTileSize.tall;
+    final chips = isStart && !isSmartStopped ? _buildChips() : const <Widget>[];
+    final status = _buildStatus(
+      context,
+      state,
+      isStart,
+      isRestarting,
+      isSmartStopped,
+    );
+    final icon = displayStart ? Icons.pause_rounded : Icons.play_arrow_rounded;
+    final onPressed = canPress
+        ? _handleStart
+        : hasNoProfile
+        ? _handleShowAddProfile
+        : null;
+    final onLongPress = canPress ? _handleLongPress : null;
+    return DashboardTileCard(
+      size: size,
+      info: Info(
+        label: isSmartStopped
+            ? appLocalizations.coreSuspended
+            : isRestarting
+            ? appLocalizations.restartCoreTitle
+            : displayStart
+            ? appLocalizations.runTime
+            : appLocalizations.powerSwitch,
+        iconData: Icons.power_settings_new,
+      ),
+      mark: DashboardDecor.icon(context, Icons.power_settings_new, 80),
+      markBottom: !isTall,
+      markAngle: isTall ? -0.08 : 0.1,
+      onPressed: isTall ? null : onPressed,
+      onLongPress: isTall ? null : onLongPress,
+      child: isTall
+          ? Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 12, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: AnimatedContainer(
+                        duration: midDuration,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: colorScheme.primary.withValues(
+                            alpha: displayStart ? 0.14 : 0.08,
+                          ),
+                        ),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: onPressed,
+                            onLongPress: onLongPress,
+                            child: SizedBox.square(
+                              dimension: 56,
+                              child: Icon(
+                                icon,
+                                size: 30,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 28,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FittedBox(fit: BoxFit.scaleDown, child: status),
+                    ),
+                  ),
+                  if (chips.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (final (index, chip) in chips.indexed) ...[
+                          if (index > 0) const SizedBox(width: 6),
+                          Flexible(child: chip),
+                        ],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 72, 14),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Row(
+                  children: [
+                    Icon(icon, size: 22, color: colorScheme.primary),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: FittedBox(fit: BoxFit.scaleDown, child: status),
+                    ),
+                    for (final chip in chips) ...[
+                      const SizedBox(width: 8),
+                      Flexible(child: chip),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.size case final size?) return _buildTile(context, size);
     final state = ref.watch(startButtonSelectorStateProvider);
     final isSmartStopped = ref.watch(isSmartStoppedProvider);
     final canPress =

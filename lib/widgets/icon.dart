@@ -1,10 +1,8 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:bett_box/common/common.dart';
 import 'package:dio/dio.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:xml/xml.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:path/path.dart' as path;
@@ -131,13 +129,8 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
   static final Map<String, File?> _moduleFileCache = {};
   static final Map<String, bool> _moduleSvgValidCache = {};
   static final Map<String, DateTime> _moduleFailureCache = {};
-  static const _maxCacheEntries = 256;
+  static const _maxCacheEntries = 1024;
   static const _failureCooldownSeconds = 10;
-
-  String _moduleCacheKey(int cacheSize) {
-    if (widget.src.isSvg) return 'svg|${widget.src}';
-    return 'bmp|${widget.src}|$cacheSize';
-  }
 
   static void _ensureCacheLimit() {
     while (_moduleFileCache.length > _maxCacheEntries) {
@@ -148,14 +141,14 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     }
   }
 
-  bool _shouldRetry(String mKey) {
-    final failedAt = _moduleFailureCache[mKey];
+  bool _shouldRetry(String key) {
+    final failedAt = _moduleFailureCache[key];
     if (failedAt == null) return true;
     if (DateTime.now().difference(failedAt).inSeconds <
         _failureCooldownSeconds) {
       return false;
     }
-    _moduleFailureCache.remove(mKey);
+    _moduleFailureCache.remove(key);
     return true;
   }
 
@@ -186,21 +179,13 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
 
     final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cacheSize = (widget.size * devicePixelRatio).ceil();
-    final key = _moduleCacheKey(cacheSize);
 
-    final exactFile = _moduleFileCache[key];
+    final exactFile = _moduleFileCache[widget.src];
     if (exactFile != null) {
       _cachedSrc = widget.src;
       _cachedSize = cacheSize;
       _file = exactFile;
       return;
-    }
-
-    final fallbackFile = _findCachedFileForSrc(widget.src);
-    if (fallbackFile != null) {
-      _cachedSrc = widget.src;
-      _cachedSize = null;
-      _file = fallbackFile;
     }
     _init(cacheSize);
   }
@@ -217,18 +202,6 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     }
   }
 
-  static File? _findCachedFileForSrc(String src) {
-    if (src.isSvg) {
-      return _moduleFileCache['svg|$src'];
-    }
-    for (final entry in _moduleFileCache.entries) {
-      if (entry.key.startsWith('bmp|$src|') && entry.value != null) {
-        return entry.value;
-      }
-    }
-    return null;
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -237,98 +210,11 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     _syncCheckAndInit();
   }
 
-  /// Generate resized cache path
-  Future<String> _getResizedCachePath(String originalPath, int size) async {
-    final hash = md5.convert(utf8.encode('${originalPath}_$size')).toString();
-    final tempDir = await appPath.tempPath;
-    return path.join(tempDir, 'resized_icons', '$hash.png');
-  }
-
-  /// Decode, resize and cache image to disk, preserving aspect ratio
-  Future<File?> _resizeAndCacheImage(File originalFile, int targetSize) async {
-    try {
-      final cachePath = await _getResizedCachePath(
-        originalFile.path,
-        targetSize,
-      );
-      final cacheFile = File(cachePath);
-
-      // Return cached file if exists
-      if (await cacheFile.exists()) {
-        return cacheFile;
-      }
-
-      // Read original image
-      final bytes = await originalFile.readAsBytes();
-
-      // Probe original image dimensions
-      final probeCodec = await ui.instantiateImageCodec(bytes);
-      final probeFrame = await probeCodec.getNextFrame();
-      final origImage = probeFrame.image;
-      final origWidth = origImage.width;
-      final origHeight = origImage.height;
-
-      // If already small enough, no need to resize and re-encode
-      if (origWidth <= targetSize && origHeight <= targetSize) {
-        return originalFile;
-      }
-
-      // Calculate aspect-ratio-preserving dimensions bounded by targetSize
-      final int targetWidth;
-      final int targetHeight;
-      if (origWidth >= origHeight) {
-        targetWidth = targetSize;
-        targetHeight = (origHeight * targetSize / origWidth).round().clamp(
-          1,
-          targetSize,
-        );
-      } else {
-        targetHeight = targetSize;
-        targetWidth = (origWidth * targetSize / origHeight).round().clamp(
-          1,
-          targetSize,
-        );
-      }
-
-      final codec = await ui.instantiateImageCodec(
-        bytes,
-        targetWidth: targetWidth,
-        targetHeight: targetHeight,
-      );
-      final frame = await codec.getNextFrame();
-      final image = frame.image;
-
-      // Convert to PNG bytes
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) {
-        return originalFile;
-      }
-
-      // Save to disk
-      await cacheFile.parent.create(recursive: true);
-      await cacheFile.writeAsBytes(byteData.buffer.asUint8List());
-
-      return cacheFile;
-    } catch (e) {
-      // Resize failed, verify original file is decodable before falling back
-      try {
-        final bytes = await originalFile.readAsBytes();
-        final codec = await ui.instantiateImageCodec(bytes);
-        await codec.getNextFrame();
-        return originalFile;
-      } catch (_) {
-        return null;
-      }
-    }
-  }
-
-  /// Validate and sanitize SVG file
   Future<bool> _validateSvg(File file) async {
     try {
       final content = await file.readAsString();
       final trimmed = content.trim();
 
-      // Check if content starts with valid SVG/XML tags
       if (!trimmed.startsWith('<svg') &&
           !trimmed.startsWith('<?xml') &&
           !trimmed.startsWith('<!DOCTYPE svg')) {
@@ -336,7 +222,6 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         return false;
       }
 
-      // Check for HTML error pages
       if (trimmed.contains('<!DOCTYPE html>') ||
           trimmed.contains('<html>') ||
           trimmed.contains('<head>') ||
@@ -345,15 +230,20 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         return false;
       }
 
-      // Validate XML structure
-      try {
-        XmlDocument.parse(content);
-      } catch (e) {
-        commonPrint.warn('Invalid SVG: XML parse error - $e');
+      if (!trimmed.contains('<svg') &&
+          !trimmed.contains('<svg ') &&
+          !trimmed.contains('<svg\n')) {
+        commonPrint.warn('Invalid SVG: svg tag missing');
         return false;
       }
 
-      // Fix invalid font-weight values
+      if (!trimmed.endsWith('</svg>') &&
+          !trimmed.endsWith('/>') &&
+          !trimmed.contains('</svg>')) {
+        commonPrint.warn('Invalid SVG: closing tag missing');
+        return false;
+      }
+
       if (content.contains('font-weight:none') ||
           content.contains('font-weight: none')) {
         final fixed = content
@@ -369,26 +259,19 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
   }
 
   Future<void> _init(int cacheSize) async {
-    if (widget.src.isEmpty) {
-      return;
-    }
-    if (widget.src.getBase64 != null) {
+    if (widget.src.isEmpty || widget.src.getBase64 != null) {
       return;
     }
 
-    // If cached with same src and size, return directly
     if (_cachedSrc == widget.src && _cachedSize == cacheSize && _file != null) {
       return;
     }
 
-    final mKey = _moduleCacheKey(cacheSize);
+    final key = widget.src;
 
-    // Check module-level cache: another instance (or a previous
-    // expand/collapse) may have already loaded this URL at the same size.
-    // The cached File is already display-ready — no async resize needed.
-    if (_moduleFileCache.containsKey(mKey)) {
-      final cachedFile = _moduleFileCache[mKey];
-      if (cachedFile == null) return; // permanently invalid
+    if (_moduleFileCache.containsKey(key)) {
+      final cachedFile = _moduleFileCache[key];
+      if (cachedFile == null) return;
 
       if (mounted) {
         setState(() {
@@ -400,33 +283,33 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
       return;
     }
 
-    if (!_shouldRetry(mKey)) return;
+    if (!_shouldRetry(key)) return;
 
     final cachedFile = await _IconFileManager.getFileFromCache(widget.src);
     if (cachedFile != null && mounted && widget.src.isNotEmpty) {
-      await _processFile(cachedFile, cacheSize, mKey);
+      await _processFile(cachedFile, cacheSize, key);
       return;
     }
 
     try {
       final file = await _IconFileManager.downloadFile(widget.src);
       if (file != null && mounted && widget.src.isNotEmpty) {
-        await _processFile(file, cacheSize, mKey);
+        await _processFile(file, cacheSize, key);
       } else {
-        _moduleFailureCache[mKey] = DateTime.now();
+        _moduleFailureCache[key] = DateTime.now();
       }
-    } catch (e) {
-      _moduleFailureCache[mKey] = DateTime.now();
+    } catch (_) {
+      _moduleFailureCache[key] = DateTime.now();
     }
   }
 
-  Future<void> _processFile(File file, int cacheSize, String mKey) async {
+  Future<void> _processFile(File file, int cacheSize, String key) async {
     if (widget.src.isSvg) {
       final isValid = await _validateSvg(file);
       if (!isValid) {
         await _IconFileManager.removeFile(widget.src);
-        _moduleFileCache[mKey] = null;
-        _moduleFailureCache.remove(mKey);
+        _moduleFileCache[key] = null;
+        _moduleFailureCache.remove(key);
         if (mounted) {
           setState(() {
             _file = null;
@@ -436,9 +319,9 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         }
         return;
       }
-      _moduleFileCache[mKey] = file;
+      _moduleFileCache[key] = file;
       _moduleSvgValidCache[widget.src] = true;
-      _moduleFailureCache.remove(mKey);
+      _moduleFailureCache.remove(key);
       _ensureCacheLimit();
       if (mounted) {
         setState(() {
@@ -450,13 +333,12 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
       return;
     }
 
-    final displayFile = (await _resizeAndCacheImage(file, cacheSize)) ?? file;
-    _moduleFileCache[mKey] = displayFile;
-    _moduleFailureCache.remove(mKey);
+    _moduleFileCache[key] = file;
+    _moduleFailureCache.remove(key);
     _ensureCacheLimit();
     if (mounted) {
       setState(() {
-        _file = displayFile;
+        _file = file;
         _cachedSrc = widget.src;
         _cachedSize = cacheSize;
       });
@@ -480,79 +362,39 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         base64,
         gaplessPlayback: true,
         fit: BoxFit.contain,
-        errorBuilder: (_, error, _) {
+        errorBuilder: (_, _, _) {
           return _defaultIcon();
         },
       );
     }
     if (_file != null) {
+      final key = widget.src;
       if (widget.src.isSvg) {
-        final mKey = _moduleCacheKey(cacheSize);
-        if (_moduleSvgValidCache[widget.src] == true) {
-          try {
-            return SvgPicture.file(
-              _file!,
-              width: widget.size,
-              height: widget.size,
-              fit: BoxFit.contain,
-              placeholderBuilder: (_) => _defaultIcon(),
-            );
-          } catch (e) {
-            commonPrint.warn('Failed to load SVG: $e');
-            _moduleFileCache.remove(mKey);
+        return SvgPicture.file(
+          _file!,
+          width: widget.size,
+          height: widget.size,
+          fit: BoxFit.contain,
+          placeholderBuilder: (_) => _defaultIcon(),
+          errorBuilder: (_, error, _) {
+            commonPrint.warn('Failed to load SVG: $error');
+            _IconFileManager.removeFile(widget.src);
+            _moduleFileCache.remove(key);
             _moduleSvgValidCache.remove(widget.src);
-            _moduleFailureCache.remove(mKey);
+            _moduleFailureCache[key] = DateTime.now();
             return _defaultIcon();
-          }
-        }
-        return FutureBuilder<bool>(
-          future: _validateSvg(_file!),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _defaultIcon();
-            }
-            if (snapshot.hasError || snapshot.data == false) {
-              commonPrint.warn(
-                'SVG validation failed in build: ${snapshot.error}',
-              );
-              _IconFileManager.removeFile(widget.src);
-              _moduleFileCache.remove(_moduleCacheKey(cacheSize));
-              _moduleSvgValidCache.remove(widget.src);
-              _file = null;
-              _cachedSrc = null;
-              _cachedSize = null;
-              return _defaultIcon();
-            }
-            _moduleSvgValidCache[widget.src] = true;
-            try {
-              return SvgPicture.file(
-                _file!,
-                width: widget.size,
-                height: widget.size,
-                fit: BoxFit.contain,
-                placeholderBuilder: (_) => _defaultIcon(),
-              );
-            } catch (e) {
-              commonPrint.warn('Failed to load SVG: $e');
-              _IconFileManager.removeFile(widget.src);
-              _moduleFileCache.remove(_moduleCacheKey(cacheSize));
-              _moduleSvgValidCache.remove(widget.src);
-              _file = null;
-              _cachedSrc = null;
-              _cachedSize = null;
-              return _defaultIcon();
-            }
           },
         );
       }
-      final mKey = _moduleCacheKey(cacheSize);
       return Image.file(
         _file!,
         gaplessPlayback: true,
         fit: BoxFit.contain,
+        cacheWidth: cacheSize,
+        cacheHeight: cacheSize,
         errorBuilder: (_, _, _) {
-          _moduleFileCache.remove(mKey);
-          _moduleFailureCache.remove(mKey);
+          _moduleFileCache.remove(key);
+          _moduleFailureCache[key] = DateTime.now();
           return _defaultIcon();
         },
       );

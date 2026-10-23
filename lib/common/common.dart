@@ -46,3 +46,5 @@ export 'ui_manager.dart';
 export 'utils.dart';
 export 'window.dart';
 export 'media_unlock_checker.dart';
+export 'speed_test_store.dart';
+export 'tool_history_store.dart';

@@ -893,27 +893,13 @@ class BuildCommand extends Command {
           Build.getExecutable('pod install --repo-update'),
           workingDirectory: 'macos',
         );
-        final infoPlist = File('macos/Runner/Info.plist');
-        final infoPlistContent = await infoPlist.readAsString();
-        if (arch == Arch.amd64) {
-          await infoPlist.writeAsString(
-            infoPlistContent.replaceFirst(
-              '</dict>\n</plist>',
-              '\t<key>FLTEnableImpeller</key>\n\t<false/>\n</dict>\n</plist>',
-            ),
-          );
-        }
-        try {
-          await _buildDistributor(
-            target: target,
-            targets: 'dmg',
-            args: ' --description $desc',
-            env: env,
-            suffix: appAssetSuffix,
-          );
-        } finally {
-          await infoPlist.writeAsString(infoPlistContent);
-        }
+        await _buildDistributor(
+          target: target,
+          targets: 'dmg',
+          args: ' --description $desc',
+          env: env,
+          suffix: appAssetSuffix,
+        );
         return;
     }
   }

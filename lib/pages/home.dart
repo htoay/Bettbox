@@ -318,8 +318,8 @@ class _ActivePageLabelsScope extends InheritedWidget {
   });
 
   static bool isActive(BuildContext context, PageLabel label) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<_ActivePageLabelsScope>();
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<_ActivePageLabelsScope>();
     return scope?.activeLabels.contains(label) ?? true;
   }
 
@@ -392,7 +392,8 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   initState() {
     super.initState();
     _currentPageIndex = _pageIndex;
-    final currentLabel = _currentPageIndex >= 0 &&
+    final currentLabel =
+        _currentPageIndex >= 0 &&
             _currentPageIndex < widget.navigationItems.length
         ? widget.navigationItems[_currentPageIndex].label
         : ref.read(currentPageLabelProvider);

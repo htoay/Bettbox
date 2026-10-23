@@ -196,11 +196,17 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
       ),
       child: Row(
         children: [
-          _MemoryRingChart(
-            allocated: inUse.toDouble(),
-            reclaimable: reclaimable.toDouble(),
-            allocatedColor: context.colorScheme.primary,
-            reclaimableColor: context.colorScheme.tertiary,
+          RingChart(
+            segments: [
+              RingSegment(
+                value: inUse.toDouble(),
+                color: context.colorScheme.primary,
+              ),
+              RingSegment(
+                value: reclaimable.toDouble(),
+                color: context.colorScheme.tertiary,
+              ),
+            ],
             trackColor: context.colorScheme.surfaceContainerHighest.withValues(
               alpha: 0.35,
             ),
@@ -627,130 +633,4 @@ class _MetricItem {
     required this.label,
     required this.value,
   });
-}
-
-class _MemoryRingChart extends StatelessWidget {
-  final double allocated;
-  final double reclaimable;
-  final Color allocatedColor;
-  final Color reclaimableColor;
-  final Color trackColor;
-  final Widget centerChild;
-
-  const _MemoryRingChart({
-    required this.allocated,
-    required this.reclaimable,
-    required this.allocatedColor,
-    required this.reclaimableColor,
-    required this.trackColor,
-    required this.centerChild,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 76,
-      height: 76,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.easeOutCubic,
-            builder: (context, progress, _) {
-              return CustomPaint(
-                size: const Size(76, 76),
-                painter: _RingPainter(
-                  allocated: allocated,
-                  reclaimable: reclaimable,
-                  allocatedColor: allocatedColor,
-                  reclaimableColor: reclaimableColor,
-                  trackColor: trackColor,
-                  progress: progress,
-                ),
-              );
-            },
-          ),
-          centerChild,
-        ],
-      ),
-    );
-  }
-}
-
-class _RingPainter extends CustomPainter {
-  final double allocated;
-  final double reclaimable;
-  final Color allocatedColor;
-  final Color reclaimableColor;
-  final Color trackColor;
-  final double progress;
-
-  _RingPainter({
-    required this.allocated,
-    required this.reclaimable,
-    required this.allocatedColor,
-    required this.reclaimableColor,
-    required this.trackColor,
-    required this.progress,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    const strokeWidth = 5.8;
-    final radius = (size.width - strokeWidth) / 2;
-
-    final trackPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..color = trackColor;
-
-    canvas.drawCircle(center, radius, trackPaint);
-
-    final total = allocated + reclaimable;
-    if (total <= 0) return;
-
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    final hasBoth = allocated > 0 && reclaimable > 0;
-    final gap = hasBoth ? (strokeWidth + 2.5) / radius : 0.0;
-    final availableAngle = 2 * pi - (hasBoth ? gap * 2 : 0);
-
-    double startAngle = -pi / 2 + (hasBoth ? gap / 2 : 0);
-
-    if (allocated > 0) {
-      final sweepAngle = (allocated / total) * availableAngle * progress;
-      if (sweepAngle > 0) {
-        final allocPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..strokeCap = StrokeCap.round
-          ..color = allocatedColor;
-        canvas.drawArc(rect, startAngle, sweepAngle, false, allocPaint);
-        startAngle += sweepAngle + (hasBoth ? gap : 0);
-      }
-    }
-
-    if (reclaimable > 0) {
-      final sweepAngle = (reclaimable / total) * availableAngle * progress;
-      if (sweepAngle > 0) {
-        final recPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..strokeCap = StrokeCap.round
-          ..color = reclaimableColor;
-        canvas.drawArc(rect, startAngle, sweepAngle, false, recPaint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_RingPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.allocated != allocated ||
-        oldDelegate.reclaimable != reclaimable ||
-        oldDelegate.allocatedColor != allocatedColor ||
-        oldDelegate.reclaimableColor != reclaimableColor;
-  }
 }

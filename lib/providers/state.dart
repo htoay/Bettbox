@@ -1,9 +1,10 @@
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/foundation.dart';
+import 'package:material_color_utilities/material_color_utilities.dart'
+    show DynamicScheme, Variant;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -922,15 +923,20 @@ ColorScheme genColorScheme(
     ),
   );
   if (color == null && (ignoreConfig == true || vm2.a == null)) {
-    // if (globalState.corePalette != null) {
-    //   return globalState.corePalette!.toColorScheme(brightness: brightness);
-    // }
+    if (globalState.corePalette case final palette?) {
+      return DynamicScheme(
+        sourceColorHct: palette.primary.keyColor,
+        variant: Variant.tonalSpot,
+        isDark: brightness == Brightness.dark,
+        primaryPalette: palette.primary,
+        secondaryPalette: palette.secondary,
+        tertiaryPalette: palette.tertiary,
+        neutralPalette: palette.neutral,
+        neutralVariantPalette: palette.neutralVariant,
+      ).toColorScheme();
+    }
     return ColorScheme.fromSeed(
-      seedColor:
-          globalState.corePalette
-              ?.toColorScheme(brightness: brightness)
-              .primary ??
-          globalState.accentColor,
+      seedColor: globalState.accentColor,
       brightness: brightness,
       dynamicSchemeVariant: vm2.b,
     );
@@ -943,7 +949,7 @@ ColorScheme genColorScheme(
 }
 
 @riverpod
-VM5<String?, String?, Dns?, List<String>?, String?> needSetup(Ref ref) {
+VM4<String?, String?, Dns?, String?> needSetup(Ref ref) {
   final profileId = ref.watch(currentProfileIdProvider);
   final scriptDigest = ref.watch(
     scriptStateProvider.select((state) => state.currentScript?.digest),
@@ -952,26 +958,11 @@ VM5<String?, String?, Dns?, List<String>?, String?> needSetup(Ref ref) {
   final dns = overrideDns == true
       ? ref.watch(patchClashConfigProvider.select((state) => state.dns))
       : null;
-  final routeExcludeAddress = system.isLinux
-      ? ref.watch(
-          networkSettingProvider.select(
-            (state) => state.bypassPrivateRoute
-                ? state.realBypassPrivateRouteAddress
-                : const <String>[],
-          ),
-        )
-      : null;
   final loopbackPorts =
       ref.watch(vpnSettingProvider.select((state) => state.loopbackProtection))
       ? ref.watch(patchClashConfigProvider.select((state) => state.listenPorts))
       : null;
-  return VM5(
-    a: profileId,
-    b: scriptDigest,
-    c: dns,
-    d: routeExcludeAddress,
-    e: loopbackPorts,
-  );
+  return VM4(a: profileId, b: scriptDigest, c: dns, d: loopbackPorts);
 }
 
 @riverpod

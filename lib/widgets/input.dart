@@ -32,58 +32,102 @@ class OptionsDialog<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return CommonDialog(
       title: title,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 14),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final option in options)
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).pop(option);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
+            OptionItem(
+              text: textBuilder(option),
+              selected: value == option,
+              onTap: () {
+                Navigator.of(context).pop(option);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class OptionItem extends StatelessWidget {
+  final String text;
+  final String? subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const OptionItem({
+    super.key,
+    required this.text,
+    this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Material(
+        color: selected ? colorScheme.secondaryContainer : Colors.transparent,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          focusColor: colorScheme.primary.withValues(alpha: 0.18),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                  size: 21,
+                  color: selected
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        value == option
-                            ? Icons.check_circle_rounded
-                            : Icons.circle_outlined,
-                        size: 21,
-                        color: value == option
-                            ? context.colorScheme.primary
-                            : context.colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.6,
-                              ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: value == option
-                            ? SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: EmojiText(
-                                  textBuilder(option),
-                                  style: context.textTheme.bodyMedium,
-                                ),
-                              )
-                            : EmojiText(
-                                textBuilder(option),
-                                style: context.textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                      ),
+                      if (selected)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: EmojiText(
+                            text,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSecondaryContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      else
+                        EmojiText(
+                          text,
+                          style: context.textTheme.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      if (subtitle case final subtitle?)
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -153,6 +197,7 @@ class _InputDialogState extends State<InputDialog> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController textController;
+  late bool _obscure = widget.obscureText ?? false;
   FocusNode? _focusNode;
 
   String get value => widget.value;
@@ -220,7 +265,7 @@ class _InputDialogState extends State<InputDialog> {
           children: [
             TextFormField(
               focusNode: _focusNode,
-              obscureText: widget.obscureText ?? false,
+              obscureText: _obscure,
               keyboardType:
                   widget.keyboardType ??
                   (widget.obscureText == true
@@ -238,6 +283,18 @@ class _InputDialogState extends State<InputDialog> {
                 suffixText: suffixText,
                 hintText: widget.hintText,
                 labelText: widget.labelText,
+                suffixIcon: widget.obscureText == true
+                    ? IconButton(
+                        icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscure = !_obscure;
+                          });
+                        },
+                      )
+                    : null,
               ),
               validator: widget.validator,
             ),

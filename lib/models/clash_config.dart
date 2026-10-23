@@ -290,6 +290,7 @@ abstract class Tun with _$Tun {
     @JsonKey(name: 'congestion-controller')
     @Default(CongestionController.bbr3)
     CongestionController congestionController,
+    @JsonKey(name: 'dns-mode') TunDnsMode? dnsMode,
     @JsonKey(name: 'dns-hijack') @Default(['any:53']) List<String> dnsHijack,
     @JsonKey(name: 'route-address') @Default([]) List<String> routeAddress,
     @JsonKey(name: 'route-exclude-address')

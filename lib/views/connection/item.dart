@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/pages/pages.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
@@ -63,6 +64,29 @@ class TrackerInfoItem extends ConsumerWidget {
         measure.bodyLargeHeight +
         subTitleHeight +
         12 * 2;
+  }
+
+  static ThemeData? _cachedBaseTheme;
+  static ThemeData? _cachedItemTheme;
+
+  static ThemeData _getItemTheme(ThemeData baseTheme) {
+    if (identical(_cachedBaseTheme, baseTheme) && _cachedItemTheme != null) {
+      return _cachedItemTheme!;
+    }
+    _cachedBaseTheme = baseTheme;
+    _cachedItemTheme = baseTheme.copyWith(
+      visualDensity: VisualDensity.compact,
+      canvasColor: baseTheme.colorScheme.onSurfaceVariant.withValues(
+        alpha: 0.08,
+      ),
+      chipTheme: baseTheme.chipTheme.copyWith(
+        side: BorderSide.none,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+      ),
+    );
+    return _cachedItemTheme!;
   }
 
   String _getSourceText(TrackerInfo trackerInfo) {
@@ -145,18 +169,7 @@ class TrackerInfoItem extends ConsumerWidget {
               scrollDirection: Axis.horizontal,
               physics: const ClampingScrollPhysics(),
               child: Theme(
-                data: Theme.of(context).copyWith(
-                  visualDensity: VisualDensity.compact,
-                  canvasColor: context.colorScheme.onSurfaceVariant.withValues(
-                    alpha: 0.08,
-                  ),
-                  chipTheme: ChipTheme.of(context).copyWith(
-                    side: BorderSide.none,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                  ),
-                ),
+                data: _getItemTheme(Theme.of(context)),
                 child: Row(
                   spacing: 6,
                   children: [
@@ -461,6 +474,65 @@ class TrackerInfoDetailView extends ConsumerWidget {
     );
   }
 
+  Widget? _buildToolbox(BuildContext context, TrackerInfo info) {
+    final metadata = info.metadata;
+    final host = metadata.host.trim();
+    final target = host.isNotEmpty ? host : metadata.destinationIP.trim();
+    if (target.isEmpty) return null;
+    final isDomain = !_isIpAddress(target);
+    void open(Widget page) => BaseNavigator.push(context, page);
+    Widget chip(IconData icon, String label, Widget Function() page) =>
+        CommonChip(
+          avatar: Icon(icon, size: 16, color: context.colorScheme.primary),
+          label: label,
+          onPressed: () => open(page()),
+        );
+    return ListItem(
+      title: Column(
+        spacing: 12,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(appLocalizations.toolbox),
+          SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.end,
+              children: [
+                chip(
+                  Icons.route_rounded,
+                  appLocalizations.routeTrace,
+                  () => RouteTracePage(
+                    initialTarget: target,
+                    initialNetwork: metadata.network,
+                    initialPort: int.tryParse(metadata.destinationPort),
+                  ),
+                ),
+                if (isDomain)
+                  chip(
+                    Icons.dns_rounded,
+                    appLocalizations.dnsQuery,
+                    () => DnsQueryPage(initialDomain: target),
+                  ),
+                chip(
+                  Icons.manage_search_rounded,
+                  appLocalizations.mrsLookup,
+                  () => MrsLookupPage(initialQuery: target),
+                ),
+                chip(
+                  Icons.travel_explore_rounded,
+                  appLocalizations.ipLookup,
+                  () => IpLookupPage(initialQuery: target),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildIpItem(
     BuildContext context, {
     required String title,
@@ -703,6 +775,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
                 desc: info.metadata.remoteDestination,
               ),
       if (info.chains.isNotEmpty) _buildChains(info),
+      ?_buildToolbox(context, info),
     ];
     return SelectionArea(
       child: ScrollEdgeRise(

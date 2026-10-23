@@ -7,6 +7,7 @@ use fancy_regex::Regex;
 use serde_json::Value;
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
+use std::hash::{BuildHasherDefault, Hasher};
 use std::rc::Rc;
 
 const SPACE: &str = r"\t\n\x0B\x0C\r \x{a0}\x{1680}\x{2000}-\x{200a}\x{2028}\x{2029}\x{202f}\x{205f}\x{3000}\x{feff}";
@@ -16,16 +17,12 @@ const TERMINATOR: &str = r"\n\r\x{2028}\x{2029}";
 /// A JavaScript pattern without the `u` flag as a pattern of this crate's
 /// engine, where `\w`, `\d`, `\s` and `\b` would otherwise be Unicode-aware.
 fn translate(source: &str) -> Option<String> {
-    let chars: Vec<char> = source.chars().collect();
+    let mut chars = source.chars().peekable();
     let mut out = String::with_capacity(source.len() * 2);
     let mut in_class = false;
-    let mut at = 0;
-    while at < chars.len() {
-        let ch = chars[at];
-        at += 1;
+    while let Some(ch) = chars.next() {
         if ch == '\\' {
-            let escaped = *chars.get(at)?;
-            at += 1;
+            let escaped = chars.next()?;
             match (escaped, in_class) {
                 ('d', false) => out.push_str("[0-9]"),
                 ('d', true) => out.push_str("0-9"),
@@ -68,9 +65,8 @@ fn translate(source: &str) -> Option<String> {
                 '[' => {
                     in_class = true;
                     out.push('[');
-                    if chars.get(at) == Some(&'^') {
+                    if chars.next_if_eq(&'^').is_some() {
                         out.push('^');
-                        at += 1;
                     }
                 }
                 '.' => out.push_str(&format!("[^{TERMINATOR}]")),
@@ -84,16 +80,16 @@ fn translate(source: &str) -> Option<String> {
 }
 
 fn count_groups(pattern: &str) -> usize {
-    let chars: Vec<char> = pattern.chars().collect();
+    let bytes = pattern.as_bytes();
     let mut count = 0;
     let mut in_class = false;
     let mut at = 0;
-    while at < chars.len() {
-        match chars[at] {
-            '\\' => at += 1,
-            '[' if !in_class => in_class = true,
-            ']' if in_class => in_class = false,
-            '(' if !in_class && chars.get(at + 1) != Some(&'?') => count += 1,
+    while at < bytes.len() {
+        match bytes[at] {
+            b'\\' => at += 1,
+            b'[' if !in_class => in_class = true,
+            b']' if in_class => in_class = false,
+            b'(' if !in_class && bytes.get(at + 1) != Some(&b'?') => count += 1,
             _ => {}
         }
         at += 1;
@@ -326,6 +322,38 @@ fn is_js_space(ch: char) -> bool {
     super::is_space(ch)
 }
 
+fn utf16_len(text: &str) -> usize {
+    if text.is_ascii() {
+        return text.len();
+    }
+    text.bytes()
+        .map(|byte| usize::from((byte & 0xC0) != 0x80) + usize::from(byte >= 0xF0))
+        .sum()
+}
+
+#[derive(Default)]
+struct IndexHasher(u64);
+
+impl Hasher for IndexHasher {
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        for &byte in bytes {
+            self.write_u64(u64::from(byte));
+        }
+    }
+
+    fn write_u64(&mut self, value: u64) {
+        self.0 = (self.0.rotate_left(5) ^ value).wrapping_mul(0x517c_c1b7_2722_0a95);
+    }
+
+    fn write_usize(&mut self, value: usize) {
+        self.write_u64(value as u64);
+    }
+}
+
 #[derive(Clone, Copy, PartialEq)]
 enum Kind {
     Begin,
@@ -369,6 +397,8 @@ struct Multi {
 
 const END_OF_TEXT: usize = 129;
 
+type CandidateMap = HashMap<(usize, usize), Option<Rc<Multi>>, BuildHasherDefault<IndexHasher>>;
+
 struct Mode {
     scope: Option<u32>,
     has_scope: bool,
@@ -393,7 +423,7 @@ struct Mode {
     /// By the rules they hold.
     matchers: RefCell<HashMap<Vec<usize>, Rc<Multi>>>,
     /// By the first rule considered and the character searched from.
-    candidates: RefCell<HashMap<(usize, usize), Option<Rc<Multi>>>>,
+    candidates: RefCell<CandidateMap>,
     regex_index: Cell<usize>,
 }
 
@@ -524,7 +554,7 @@ impl Grammar {
                 count: mode["count"].as_u64()? as usize,
                 rules,
                 matchers: RefCell::new(HashMap::new()),
-                candidates: RefCell::new(HashMap::new()),
+                candidates: RefCell::new(CandidateMap::default()),
                 regex_index: Cell::new(0),
             });
         }
@@ -644,13 +674,18 @@ impl Grammar {
     }
 
     pub fn highlight(&self, text: &str) -> Option<Vec<u32>> {
+        let mut stack = Vec::with_capacity(8);
+        stack.push(0);
+        let mut nodes = Vec::with_capacity(8);
+        nodes.push(None);
         Run {
             grammar: self,
             text,
-            stack: vec![0],
-            buffer: String::new(),
-            nodes: vec![None],
-            runs: Vec::new(),
+            text_is_ascii: text.is_ascii(),
+            stack,
+            buffer: String::with_capacity(text.len()),
+            nodes,
+            runs: Vec::with_capacity(8),
             last: None,
             resume: false,
         }
@@ -661,6 +696,7 @@ impl Grammar {
 struct Run<'a> {
     grammar: &'a Grammar,
     text: &'a str,
+    text_is_ascii: bool,
     stack: Vec<usize>,
     buffer: String,
     nodes: Vec<Option<u32>>,
@@ -681,7 +717,11 @@ impl Run<'_> {
             return;
         }
         let scope = *self.nodes.last().expect("node stack");
-        let units = text.encode_utf16().count() as u32;
+        let units = if self.text_is_ascii {
+            text.len() as u32
+        } else {
+            utf16_len(text) as u32
+        };
         match self.runs.last_mut() {
             Some((last, length)) if *last == scope => *length += units,
             _ => self.runs.push((scope, units)),
@@ -704,44 +744,50 @@ impl Run<'_> {
     }
 
     fn process_keywords(&mut self) -> Option<()> {
-        let buffer = std::mem::take(&mut self.buffer);
+        let mut buffer = std::mem::take(&mut self.buffer);
+        let result = self.scan_keywords(&buffer);
+        buffer.clear();
+        self.buffer = buffer;
+        result
+    }
+
+    fn scan_keywords(&mut self, buffer: &str) -> Option<()> {
         let mode = *self.stack.last()?;
         let mode = &self.grammar.modes[mode];
         let (Some(keywords), Some(pattern)) = (&mode.keywords, &mode.keyword_pattern) else {
-            self.add_text(&buffer);
+            self.add_text(buffer);
             return Some(());
         };
-        let mut pending = String::new();
+        let mut pending = 0;
         let mut last = 0;
-        while let Some(found) = pattern.find_from_pos(&buffer, last).ok()? {
-            pending.push_str(&buffer[last..found.start()]);
+        while let Some(found) = pattern.find_from_pos(buffer, last).ok()? {
             match keywords.get(found.as_str()) {
                 Some(Some(scope)) => {
-                    self.add_text(&pending);
-                    pending.clear();
+                    self.add_text(&buffer[pending..found.start()]);
                     self.emit_keyword(found.as_str(), *scope);
+                    pending = found.end();
                 }
                 Some(None) => {
-                    self.add_text(&pending);
-                    pending.clear();
-                    pending.push_str(found.as_str());
+                    self.add_text(&buffer[pending..found.start()]);
+                    pending = found.start();
                 }
-                None => pending.push_str(found.as_str()),
+                None => {}
             }
             if found.end() == found.start() {
                 return None;
             }
             last = found.end();
         }
-        pending.push_str(&buffer[last..]);
-        self.add_text(&pending);
+        self.add_text(&buffer[pending..]);
         Some(())
     }
 
     fn process_buffer(&mut self) -> Option<()> {
         if self.top().sub_language {
-            let buffer = std::mem::take(&mut self.buffer);
+            let mut buffer = std::mem::take(&mut self.buffer);
             self.add_text(&buffer);
+            buffer.clear();
+            self.buffer = buffer;
             return Some(());
         }
         self.process_keywords()
@@ -757,7 +803,8 @@ impl Run<'_> {
             match scope.positions.get(&index).copied().flatten() {
                 Some(class) => self.emit_keyword(text, class),
                 None => {
-                    self.buffer = text.to_string();
+                    self.buffer.clear();
+                    self.buffer.push_str(text);
                     self.process_keywords()?;
                 }
             }
@@ -773,8 +820,10 @@ impl Run<'_> {
         }
         if let Some(scope) = &definition.begin_scope {
             if let Some(wrap) = scope.wrap {
-                let buffer = std::mem::take(&mut self.buffer);
+                let mut buffer = std::mem::take(&mut self.buffer);
                 self.emit_keyword(&buffer, wrap);
+                buffer.clear();
+                self.buffer = buffer;
             } else if scope.multi {
                 self.emit_multi(scope, found)?;
                 self.buffer.clear();
@@ -817,8 +866,10 @@ impl Run<'_> {
                 }
                 let mut ignore = false;
                 if next == '>' {
-                    let tag = format!("</{}", &text[found.start + 1..found.end]);
-                    ignore = !after.contains(&tag);
+                    let name = &text[found.start + 1..found.end];
+                    ignore = !after
+                        .match_indices("</")
+                        .any(|(at, _)| after[at + 2..].starts_with(name));
                 }
                 let trimmed = after.trim_start_matches(is_js_space);
                 if trimmed.starts_with('=') {
@@ -859,7 +910,8 @@ impl Run<'_> {
             }
             self.process_buffer()?;
             if !definition.return_begin && !definition.exclude_begin {
-                self.buffer = lexeme.to_string();
+                self.buffer.clear();
+                self.buffer.push_str(lexeme);
             }
         }
         self.start_mode(mode, found)?;
@@ -891,7 +943,8 @@ impl Run<'_> {
                 }
                 self.process_buffer()?;
                 if origin.exclude_end {
-                    self.buffer = lexeme.to_string();
+                    self.buffer.clear();
+                    self.buffer.push_str(lexeme);
                 }
             }
         }
@@ -968,10 +1021,16 @@ impl Run<'_> {
         self.buffer.push_str(&self.text[index..]);
         self.process_buffer()?;
         let total: u32 = self.runs.iter().map(|(_, length)| length).sum();
-        if total as usize != self.text.encode_utf16().count() {
+        let units = if self.text_is_ascii {
+            self.text.len()
+        } else {
+            utf16_len(self.text)
+        };
+        if total as usize != units {
             return None;
         }
-        let mut tokens = Vec::new();
+        let scoped = self.runs.iter().filter(|run| run.0.is_some()).count();
+        let mut tokens = Vec::with_capacity(scoped * 3);
         let mut at = 0;
         for (scope, length) in self.runs {
             if let Some(scope) = scope {

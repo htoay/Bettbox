@@ -685,42 +685,44 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
           icon: Icon(Icons.save),
         ),
       ],
-      body: Padding(
-        padding: EdgeInsets.only(bottom: 32, top: 16),
-        child: ReorderableListView.builder(
-          buildDefaultDragHandles: false,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          proxyDecorator: proxyDecorator,
-          // ignore: deprecated_member_use
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              if (oldIndex < newIndex) {
-                newIndex -= 1;
-              }
-              final profile = profiles.removeAt(oldIndex);
-              profiles.insert(newIndex, profile);
-            });
-          },
-          itemBuilder: (_, index) {
-            final profile = profiles[index];
-            return Container(
-              key: Key(profile.id),
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: CommonCard(
-                type: CommonCardType.filled,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.only(right: 16, left: 16),
-                  title: EmojiText(profile.label ?? profile.id),
-                  trailing: ReorderableDragStartListener(
-                    index: index,
-                    child: const Icon(Icons.drag_handle),
-                  ),
+      body: ReorderableListView.builder(
+        buildDefaultDragHandles: false,
+        padding: EdgeInsets.fromLTRB(
+          12,
+          16,
+          12,
+          32 + MediaQuery.paddingOf(context).bottom,
+        ),
+        proxyDecorator: proxyDecorator,
+        // ignore: deprecated_member_use
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (oldIndex < newIndex) {
+              newIndex -= 1;
+            }
+            final profile = profiles.removeAt(oldIndex);
+            profiles.insert(newIndex, profile);
+          });
+        },
+        itemBuilder: (_, index) {
+          final profile = profiles[index];
+          return Container(
+            key: Key(profile.id),
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: CommonCard(
+              type: CommonCardType.filled,
+              child: ListTile(
+                contentPadding: const EdgeInsets.only(right: 16, left: 16),
+                title: EmojiText(profile.label ?? profile.id),
+                trailing: ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(Icons.drag_handle),
                 ),
               ),
-            );
-          },
-          itemCount: profiles.length,
-        ),
+            ),
+          );
+        },
+        itemCount: profiles.length,
       ),
       title: appLocalizations.profilesSort,
     );

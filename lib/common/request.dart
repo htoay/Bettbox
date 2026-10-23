@@ -299,7 +299,10 @@ class Request {
     ];
   }
 
-  final List<String> _domesticIpSources = ['https://myip.ipip.net/json'];
+  final List<String> _domesticIpSources = [
+    'https://myip.ipip.net/json',
+    'https://uapis.cn/api/v1/network/myip',
+  ];
 
   final List<String> _cloudflareIpInfoSources = [
     'https://ip.sb/cdn-cgi/trace',

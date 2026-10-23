@@ -38,14 +38,6 @@ class Navigation {
             ProfilesView(key: const GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
-        icon: Icon(Icons.view_timeline_rounded),
-        label: PageLabel.requests,
-        builder: (_) =>
-            RequestsView(key: const GlobalObjectKey(PageLabel.requests)),
-        description: 'requestsDesc',
-        modes: [NavigationItemMode.desktop, NavigationItemMode.more],
-      ),
-      NavigationItem(
         icon: Icon(Icons.cable_rounded),
         label: PageLabel.connections,
         builder: (_) =>
@@ -54,7 +46,7 @@ class Navigation {
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: Icon(Icons.storage),
+        icon: const Icon(Icons.storage),
         label: PageLabel.resources,
         description: 'resourcesDesc',
         builder: (_) =>
@@ -68,6 +60,14 @@ class Navigation {
         builder: (_) =>
             ScriptsView(key: const GlobalObjectKey(PageLabel.script)),
         modes: [NavigationItemMode.more],
+      ),
+      NavigationItem(
+        icon: const Icon(Icons.handyman_outlined),
+        label: PageLabel.toolbox,
+        description: 'toolboxDesc',
+        builder: (_) =>
+            ToolboxView(key: const GlobalObjectKey(PageLabel.toolbox)),
+        modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
         icon: const Icon(Icons.adb_rounded),

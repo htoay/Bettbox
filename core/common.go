@@ -23,13 +23,10 @@ import (
 	"github.com/metacubex/mihomo/hub"
 	"github.com/metacubex/mihomo/hub/route"
 	"github.com/metacubex/mihomo/listener"
-	LC "github.com/metacubex/mihomo/listener/config"
 	"github.com/metacubex/mihomo/log"
 	rp "github.com/metacubex/mihomo/rules/provider"
 	"github.com/metacubex/mihomo/tunnel"
-	"go4.org/netipx"
 	"os"
-	"runtime"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -262,10 +259,12 @@ func updateConfig(params *UpdateParams) {
 		general.Tun.RouteAddress = *params.Tun.RouteAddress
 		if params.Tun.RouteExcludeAddress != nil {
 			general.Tun.RouteExcludeAddress = *params.Tun.RouteExcludeAddress
-			syncTunRouteExcludeSet(&general.Tun)
 		}
 		if params.Tun.StrictRoute != nil {
 			general.Tun.StrictRoute = *params.Tun.StrictRoute
+		}
+		if params.Tun.DNSMode != nil {
+			general.Tun.DNSMode = *params.Tun.DNSMode
 		}
 		general.Tun.DNSHijack = *params.Tun.DNSHijack
 		general.Tun.Stack = *params.Tun.Stack
@@ -276,38 +275,6 @@ func updateConfig(params *UpdateParams) {
 	}
 
 	updateListeners()
-}
-
-func syncTunRouteExcludeSet(tun *LC.Tun) {
-	sets := make([]string, 0, len(tun.RouteExcludeAddressSet))
-	for _, name := range tun.RouteExcludeAddressSet {
-		if name != tunRouteExcludeSet {
-			sets = append(sets, name)
-		}
-	}
-	tun.RouteExcludeAddressSet = sets
-	provider, exist := tunnel.RuleProviders()[tunRouteExcludeSet]
-	if !exist || !tun.AutoRedirect {
-		return
-	}
-	strategy, ok := provider.Strategy().(interface{ ToIpCidr() *netipx.IPSet })
-	if !ok {
-		return
-	}
-	current := strategy.ToIpCidr()
-	if current == nil {
-		return
-	}
-	var builder netipx.IPSetBuilder
-	for _, prefix := range tun.RouteExcludeAddress {
-		builder.AddPrefix(prefix)
-	}
-	next, err := builder.IPSet()
-	if err != nil || !next.Equal(current) {
-		return
-	}
-	tun.RouteExcludeAddressSet = append(sets, tunRouteExcludeSet)
-	tun.RouteExcludeAddress = nil
 }
 
 var (
@@ -542,7 +509,6 @@ func setupConfig(params *SetupParams) (string, error) {
 	patchSelectGroup(selectedMap)
 	updateListeners()
 	tryUnloadGeoData()
-	runtime.GC()
 	debug.FreeOSMemory()
 	schedulePermissionSync()
 	log.Infoln(

@@ -29,6 +29,9 @@ class AppDelegate: FlutterAppDelegate {
         guard let window = mainFlutterWindow else {
             return true
         }
+        if UserDefaults.standard.object(forKey: "flutter.keepDockIcon") as? Bool == false {
+            NSApp.setActivationPolicy(.regular)
+        }
         if window.isMiniaturized {
             window.deminiaturize(self)
         }

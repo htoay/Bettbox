@@ -2,8 +2,8 @@
   "app": {
     "bundleName": "com.appshub.bettbox",
     "vendor": "example",
-    "versionCode": 2026101601,
-    "versionName": "1.19.6",
+    "versionCode": 2026102201,
+    "versionName": "1.19.7",
     // 分层图标（前景透明 PNG + 纯色背景）：官方《应用图标》要求图标资源为分层资源、
     // 1024×1024 正方形、无需圆角（系统按场景生成遮罩）。资源由
     // `python3 scripts/gen_ohos_icon.py` 从 Android 自适应图标矢量源生成。

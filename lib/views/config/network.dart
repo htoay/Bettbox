@@ -721,7 +721,8 @@ class NetworkListView extends ConsumerWidget {
         title: appLocalizations.options,
         items: [
           if (system.isDesktop) const TUNItem(),
-          if (system.isMacOS) const AutoSetSystemDnsItem(),
+          if (system.isMacOS || system.isLinux) const AutoSetSystemDnsItem(),
+          // 鸿蒙与 iOS 同为移动端 VPN 实现，不展示桌面路由语义的 Strict Route
           if (system.isDesktop) const StrictRouteItem(),
           const IcmpForwardingItem(),
           const DnsHijackItem(),

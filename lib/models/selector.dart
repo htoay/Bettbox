@@ -151,6 +151,8 @@ abstract class PackageListSelectorState with _$PackageListSelectorState {
   }) = _PackageListSelectorState;
 }
 
+final _packageNameRegex = RegExp(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)+$');
+
 extension PackageListSelectorStateExt on PackageListSelectorState {
   List<Package> get list {
     final isFilterSystemApp = accessControl.isFilterSystemApp;
@@ -167,13 +169,12 @@ extension PackageListSelectorStateExt on PackageListSelectorState {
   List<Package> getSortList(List<String> selectedList) {
     final sort = accessControl.sort;
     final filtered = list;
-    final existingPackageNames = packages.map((e) => e.packageName).toSet();
-    final packageNameRegex = RegExp(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)+$');
+    final existingPackageNames = {for (final e in packages) e.packageName};
     final manualPackages = accessControl.manualList
         .where(
           (pkg) =>
               !existingPackageNames.contains(pkg) &&
-              packageNameRegex.hasMatch(pkg),
+              _packageNameRegex.hasMatch(pkg),
         )
         .map(
           (pkg) => Package(

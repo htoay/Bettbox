@@ -2,10 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:path/path.dart' as p;
 
-enum TransportType {
-  unixSocket,
-  tcp,
-}
+enum TransportType { unixSocket, tcp }
 
 class PlatformChecker {
   static bool? _udsSupport;

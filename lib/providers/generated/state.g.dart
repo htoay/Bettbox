@@ -2383,7 +2383,7 @@ final class GenColorSchemeProvider
   }
 }
 
-String _$genColorSchemeHash() => r'b18f15c938a8132ee4ed02cdfc02f3b9f01724e2';
+String _$genColorSchemeHash() => r'b403acf45af1aa48c94d103dde83191a7fbc1d27';
 
 final class GenColorSchemeFamily extends $Family
     with
@@ -2419,11 +2419,11 @@ final needSetupProvider = NeedSetupProvider._();
 final class NeedSetupProvider
     extends
         $FunctionalProvider<
-          VM5<String?, String?, Dns?, List<String>?, String?>,
-          VM5<String?, String?, Dns?, List<String>?, String?>,
-          VM5<String?, String?, Dns?, List<String>?, String?>
+          VM4<String?, String?, Dns?, String?>,
+          VM4<String?, String?, Dns?, String?>,
+          VM4<String?, String?, Dns?, String?>
         >
-    with $Provider<VM5<String?, String?, Dns?, List<String>?, String?>> {
+    with $Provider<VM4<String?, String?, Dns?, String?>> {
   NeedSetupProvider._()
     : super(
         from: null,
@@ -2440,29 +2440,26 @@ final class NeedSetupProvider
 
   @$internal
   @override
-  $ProviderElement<VM5<String?, String?, Dns?, List<String>?, String?>>
-  $createElement($ProviderPointer pointer) => $ProviderElement(pointer);
+  $ProviderElement<VM4<String?, String?, Dns?, String?>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  VM5<String?, String?, Dns?, List<String>?, String?> create(Ref ref) {
+  VM4<String?, String?, Dns?, String?> create(Ref ref) {
     return needSetup(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(
-    VM5<String?, String?, Dns?, List<String>?, String?> value,
-  ) {
+  Override overrideWithValue(VM4<String?, String?, Dns?, String?> value) {
     return $ProviderOverride(
       origin: this,
       providerOverride:
-          $SyncValueProvider<
-            VM5<String?, String?, Dns?, List<String>?, String?>
-          >(value),
+          $SyncValueProvider<VM4<String?, String?, Dns?, String?>>(value),
     );
   }
 }
 
-String _$needSetupHash() => r'08ab4dfcebe2b35067e4b10b868b1fa263d6dbd1';
+String _$needSetupHash() => r'9983a9f3d6bb5340e08bc56c5ef7e9285fde50c9';
 
 @ProviderFor(currentBrightness)
 final currentBrightnessProvider = CurrentBrightnessProvider._();

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"core/toolbox"
+
 	"github.com/metacubex/mihomo/component/age"
 	"github.com/metacubex/mihomo/log"
 )
@@ -139,6 +141,71 @@ func handleAction(action *Action, result ActionResult) {
 		handleAsyncTestDelay(data, func(value string) {
 			result.success(value)
 		})
+		return
+	case startSpeedTestMethod:
+		data := action.Data.(string)
+		result.success(toolbox.HandleStartSpeedTest(data))
+		return
+	case probeSpeedTestMethod:
+		data := action.Data.(string)
+		result.success(toolbox.HandleProbeSpeedTest(data))
+		return
+	case getSpeedTestServersMethod:
+		data := action.Data.(string)
+		result.success(toolbox.HandleSpeedTestServers(data))
+		return
+	case cancelSpeedTestMethod:
+		result.success(toolbox.HandleCancelSpeedTest())
+		return
+	case startStunTestMethod:
+		data := action.Data.(string)
+		result.success(toolbox.HandleStartStunTest(data))
+		return
+	case cancelStunTestMethod:
+		result.success(toolbox.HandleCancelStunTest())
+		return
+	case startIperfServerMethod:
+		result.success(toolbox.HandleStartIperfServer(action.Data.(string)))
+		return
+	case stopIperfServerMethod:
+		result.success(toolbox.HandleStopIperfServer())
+		return
+	case startIperfClientMethod:
+		result.success(toolbox.HandleStartIperfClient(action.Data.(string)))
+		return
+	case cancelIperfClientMethod:
+		result.success(toolbox.HandleCancelIperfClient())
+		return
+	case startLocalPingMethod:
+		result.success(toolbox.HandleStartLocalPing(action.Data.(string)))
+		return
+	case cancelLocalPingMethod:
+		result.success(toolbox.HandleCancelLocalPing())
+		return
+	case routeTraceMethod:
+		result.success(toolbox.HandleRouteTrace(action.Data.(string)))
+		return
+	case dnsQueryMethod:
+		result.success(toolbox.HandleDnsQuery(action.Data.(string)))
+		return
+	case mrsPrepareMethod:
+		result.success(toolbox.HandleMrsPrepare())
+		return
+	case mrsLookupMethod:
+		result.success(toolbox.HandleMrsLookup(action.Data.(string)))
+		return
+	case cancelMrsLookupMethod:
+		result.success(toolbox.HandleCancelMrsLookup())
+		return
+	case startToolProxyMethod:
+		result.success(toolbox.HandleStartToolProxy())
+		return
+	case stopToolProxyMethod:
+		toolbox.HandleStopToolProxy()
+		result.success("true")
+		return
+	case ageCryptMethod:
+		result.success(toolbox.HandleAgeCrypt(action.Data.(string)))
 		return
 	case getConnectionsMethod:
 		result.success(handleGetConnections())
@@ -298,7 +365,11 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(true)
 		return
 	case generateAgeKeyPairMethod:
-		secretKey, publicKey, err := age.GenX25519KeyPair()
+		generate := age.GenX25519KeyPair
+		if kind, _ := action.Data.(string); kind == "mlkem768x25519" {
+			generate = age.GenHybridKeyPair
+		}
+		secretKey, publicKey, err := generate()
 		if err != nil {
 			result.error(err.Error())
 			return

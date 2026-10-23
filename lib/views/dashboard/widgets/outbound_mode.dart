@@ -266,6 +266,7 @@ class _OutboundStatusChips extends ConsumerWidget {
     final isStart = ref.watch(runTimeProvider.select((value) => value != null));
     // 鸿蒙与 Android 同走 VPN 实现，VPN 开关状态以 vpnSettingProvider 为准
     final isVpn = system.isMobile;
+    final realTunEnable = ref.watch(realTunEnableProvider);
     final (tunEnable, systemProxyEnable) = isVpn
         ? ref.watch(
             vpnSettingProvider.select(
@@ -285,7 +286,7 @@ class _OutboundStatusChips extends ConsumerWidget {
       children: [
         _StatusChip(
           label: isVpn ? 'VPN' : 'TUN',
-          active: isStart && tunEnable,
+          active: isStart && tunEnable && (isVpn || realTunEnable),
           onTap: () => isVpn ? showVpnSheet(context) : showTunSheet(context),
         ),
         // 鸿蒙未开放系统 HTTP 代理能力，对应状态胶囊不展示

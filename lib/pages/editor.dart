@@ -763,6 +763,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                           borderColor:
                               _editorTheme['root']?.color ?? Colors.grey,
                           caretColor: context.colorScheme.primary,
+                          selectionColor:
+                              _selectionStyle?.selectionColor ??
+                              context.colorScheme.primary.withAlpha(77),
                         ),
                     scrollbarBuilder: (context, details, child) => RawScrollbar(
                       controller: details.controller,

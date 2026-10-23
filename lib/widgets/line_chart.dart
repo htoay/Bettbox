@@ -1,4 +1,5 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
+
 import 'package:bett_box/common/color.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -7,6 +8,25 @@ class Point {
   final double y;
 
   const Point(this.x, this.y);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other is Point && other.x == x && other.y == y);
+  }
+
+  @override
+  int get hashCode => Object.hash(x, y);
+}
+
+bool _pointsEqual(List<Point> a, List<Point> b) {
+  if (identical(a, b)) return true;
+  final length = a.length;
+  if (length != b.length) return false;
+  for (var i = 0; i < length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 class LineChart extends StatefulWidget {
@@ -30,9 +50,10 @@ class LineChart extends StatefulWidget {
 class _LineChartState extends State<LineChart>
     with SingleTickerProviderStateMixin {
   AnimationController? _controller;
-  List<Point> prevPoints = [];
-  List<Point> points = [];
-  bool get _hasAnimation => widget.duration != Duration.zero;
+  List<Point> prevPoints = const [];
+  List<Point> points = const [];
+
+  bool get _hasAnimation => widget.duration > Duration.zero;
 
   @override
   void initState() {
@@ -40,7 +61,6 @@ class _LineChartState extends State<LineChart>
     points = widget.points;
     prevPoints = points;
 
-    // Create AnimationController only if needed
     if (_hasAnimation) {
       _controller = AnimationController(vsync: this, duration: widget.duration);
     }
@@ -49,15 +69,30 @@ class _LineChartState extends State<LineChart>
   @override
   void didUpdateWidget(LineChart oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.points != points) {
+    if (widget.duration != oldWidget.duration) {
+      if (_hasAnimation) {
+        final controller = _controller;
+        if (controller == null) {
+          _controller = AnimationController(
+            vsync: this,
+            duration: widget.duration,
+          );
+        } else {
+          controller.duration = widget.duration;
+        }
+      } else {
+        _controller?.dispose();
+        _controller = null;
+      }
+    }
+
+    if (!_pointsEqual(widget.points, points)) {
       prevPoints = points;
       points = widget.points;
 
-      // Trigger animation if needed
       if (_hasAnimation) {
         _controller?.forward(from: 0);
       } else {
-        // Direct repaint without animation
         setState(() {});
       }
     }
@@ -71,52 +106,58 @@ class _LineChartState extends State<LineChart>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (_, container) {
-        // Fast path without animation
-        if (!_hasAnimation) {
+    final controller = _controller;
+    if (!_hasAnimation || controller == null) {
+      return RepaintBoundary(
+        child: CustomPaint(
+          painter: LineChartPainter(
+            prevPoints: points,
+            points: points,
+            progress: 1.0,
+            gradient: widget.gradient,
+            color: widget.color,
+            hasAnimation: false,
+          ),
+          child: const SizedBox.expand(),
+        ),
+      );
+    }
+
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: controller.view,
+        child: const SizedBox.expand(),
+        builder: (_, child) {
           return CustomPaint(
             painter: LineChartPainter(
-              prevPoints: points,
+              prevPoints: prevPoints,
               points: points,
-              progress: 1.0,
+              progress: controller.value,
               gradient: widget.gradient,
               color: widget.color,
-              hasAnimation: false,
+              hasAnimation: true,
             ),
-            child: SizedBox(
-              height: container.maxHeight,
-              width: container.maxWidth,
-            ),
+            child: child,
           );
-        }
-
-        // Use AnimatedBuilder with animation
-        return AnimatedBuilder(
-          animation: _controller!.view,
-          builder: (_, _) {
-            return CustomPaint(
-              painter: LineChartPainter(
-                prevPoints: prevPoints,
-                points: points,
-                progress: _controller!.value,
-                gradient: widget.gradient,
-                color: widget.color,
-                hasAnimation: true,
-              ),
-              child: SizedBox(
-                height: container.maxHeight,
-                width: container.maxWidth,
-              ),
-            );
-          },
-        );
-      },
+        },
+      ),
     );
   }
 }
 
 class LineChartPainter extends CustomPainter {
+  static final Path _strokePath = Path();
+  static final Path _fillPath = Path();
+  static final Paint _strokePaint = Paint()
+    ..strokeWidth = 2.0
+    ..style = PaintingStyle.stroke;
+  static final Paint _fillPaint = Paint()..style = PaintingStyle.fill;
+
+  static Color? _cachedShaderColor;
+  static double _cachedShaderWidth = -1;
+  static double _cachedShaderHeight = -1;
+  static ui.Shader? _cachedShader;
+
   final List<Point> prevPoints;
   final List<Point> points;
   final double progress;
@@ -133,27 +174,54 @@ class LineChartPainter extends CustomPainter {
     this.hasAnimation = true,
   });
 
-  List<Point> getRenderPoints(List<Point> points) {
-    if (points.isEmpty) return [];
-    double maxX = points[0].x;
-    double minX = points[0].x;
-    double maxY = points[0].y;
-    double minY = points[0].y;
+  static ui.Shader _resolveShader(Color color, double width, double height) {
+    final existing = _cachedShader;
+    if (existing != null &&
+        _cachedShaderColor == color &&
+        _cachedShaderWidth == width &&
+        _cachedShaderHeight == height) {
+      return existing;
+    }
+    final shader = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [color.opacity38, color.opacity10],
+    ).createShader(Rect.fromLTWH(0, 0, width, height));
+    _cachedShaderColor = color;
+    _cachedShaderWidth = width;
+    _cachedShaderHeight = height;
+    _cachedShader = shader;
+    return shader;
+  }
 
-    for (final point in points) {
+  List<Point> getRenderPoints(List<Point> points) {
+    final length = points.length;
+    if (length == 0) return const [];
+    double maxX = points[0].x;
+    double minX = maxX;
+    double maxY = points[0].y;
+    double minY = maxY;
+
+    for (var i = 1; i < length; i++) {
+      final point = points[i];
       if (point.x > maxX) maxX = point.x;
       if (point.x < minX) minX = point.x;
       if (point.y > maxY) maxY = point.y;
       if (point.y < minY) minY = point.y;
     }
 
-    return points.map((e) {
-      var x = (e.x - minX) / (maxX - minX);
-      if (x.isNaN) x = 0;
-      var y = (e.y - minY) / (maxY - minY);
-      if (y.isNaN) y = 0;
-      return Point(x, y);
-    }).toList();
+    final spanX = maxX - minX;
+    final spanY = maxY - minY;
+    final invSpanX = spanX > 0 ? 1.0 / spanX : 0.0;
+    final invSpanY = spanY > 0 ? 1.0 / spanY : 0.0;
+
+    return List<Point>.generate(length, (i) {
+      final e = points[i];
+      return Point(
+        spanX > 0 ? (e.x - minX) * invSpanX : 0.0,
+        spanY > 0 ? (e.y - minY) * invSpanY : 0.0,
+      );
+    }, growable: false);
   }
 
   List<Point> getInterpolatePoints(
@@ -163,36 +231,114 @@ class LineChartPainter extends CustomPainter {
   ) {
     final renderPrevPoints = getRenderPoints(prevPoints);
     final renderPoints = getRenderPoints(points);
+    final prevLen = renderPrevPoints.length;
 
-    return List.generate(renderPoints.length, (i) {
-      if (i > renderPrevPoints.length - 1) {
-        return renderPoints[i];
+    return List<Point>.generate(renderPoints.length, (i) {
+      final curr = renderPoints[i];
+      if (i >= prevLen) {
+        return curr;
       }
-      final x = lerpDouble(renderPrevPoints[i].x, renderPoints[i].x, t)!;
-      final y = lerpDouble(renderPrevPoints[i].y, renderPoints[i].y, t)!;
-      return Point(x, y);
-    });
+      final prev = renderPrevPoints[i];
+      return Point(
+        prev.x + (curr.x - prev.x) * t,
+        prev.y + (curr.y - prev.y) * t,
+      );
+    }, growable: false);
   }
 
-  Path getPath(List<Point> points, Size size) {
-    final path = Path()
-      ..moveTo(points[0].x * size.width, (1 - points[0].y) * size.height);
+  static void _writeNormalizedPointsToPath(
+    Path target,
+    List<Point> normalizedPoints,
+    Size size,
+  ) {
+    target.reset();
+    final length = normalizedPoints.length;
+    if (length == 0) return;
 
-    for (var i = 1; i < points.length - 1; i++) {
-      final nextPoint = points[i + 1];
-      final currentPoint = points[i];
-      final midX = (currentPoint.x + nextPoint.x) / 2;
-      final midY = (currentPoint.y + nextPoint.y) / 2;
+    final width = size.width;
+    final height = size.height;
+    final first = normalizedPoints[0];
+    target.moveTo(first.x * width, (1.0 - first.y) * height);
 
-      path.quadraticBezierTo(
-        currentPoint.x * size.width,
-        (1 - currentPoint.y) * size.height,
-        midX * size.width,
-        (1 - midY) * size.height,
+    for (var i = 1; i < length - 1; i++) {
+      final currentPoint = normalizedPoints[i];
+      final nextPoint = normalizedPoints[i + 1];
+      final midX = (currentPoint.x + nextPoint.x) * 0.5;
+      final midY = (currentPoint.y + nextPoint.y) * 0.5;
+
+      target.quadraticBezierTo(
+        currentPoint.x * width,
+        (1.0 - currentPoint.y) * height,
+        midX * width,
+        (1.0 - midY) * height,
       );
     }
 
-    path.lineTo(points.last.x * size.width, (1 - points.last.y) * size.height);
+    final last = normalizedPoints[length - 1];
+    target.lineTo(last.x * width, (1.0 - last.y) * height);
+  }
+
+  static void _writeDirectPointsToPath(
+    Path target,
+    List<Point> rawPoints,
+    Size size,
+  ) {
+    target.reset();
+    final length = rawPoints.length;
+    if (length == 0) return;
+
+    double maxX = rawPoints[0].x;
+    double minX = maxX;
+    double maxY = rawPoints[0].y;
+    double minY = maxY;
+
+    for (var i = 1; i < length; i++) {
+      final point = rawPoints[i];
+      if (point.x > maxX) maxX = point.x;
+      if (point.x < minX) minX = point.x;
+      if (point.y > maxY) maxY = point.y;
+      if (point.y < minY) minY = point.y;
+    }
+
+    final spanX = maxX - minX;
+    final spanY = maxY - minY;
+    final invSpanX = spanX > 0 ? 1.0 / spanX : 0.0;
+    final invSpanY = spanY > 0 ? 1.0 / spanY : 0.0;
+    final width = size.width;
+    final height = size.height;
+
+    double mapX(Point p) => (spanX > 0 ? (p.x - minX) * invSpanX : 0.0) * width;
+    double mapY(Point p) =>
+        (1.0 - (spanY > 0 ? (p.y - minY) * invSpanY : 0.0)) * height;
+
+    final first = rawPoints[0];
+    target.moveTo(mapX(first), mapY(first));
+
+    if (length > 2) {
+      var currX = mapX(rawPoints[1]);
+      var currY = mapY(rawPoints[1]);
+      for (var i = 1; i < length - 1; i++) {
+        final next = rawPoints[i + 1];
+        final nextX = mapX(next);
+        final nextY = mapY(next);
+        target.quadraticBezierTo(
+          currX,
+          currY,
+          (currX + nextX) * 0.5,
+          (currY + nextY) * 0.5,
+        );
+        currX = nextX;
+        currY = nextY;
+      }
+    }
+
+    final last = rawPoints[length - 1];
+    target.lineTo(mapX(last), mapY(last));
+  }
+
+  Path getPath(List<Point> points, Size size) {
+    final path = Path();
+    _writeNormalizedPointsToPath(path, points, size);
     return path;
   }
 
@@ -202,69 +348,58 @@ class LineChartPainter extends CustomPainter {
       points,
       progress,
     );
-    final path = getPath(interpolatedPoints, size);
-
-    // Expensive operation: only with animation
-    final metric = path.computeMetrics().first;
-    final length = metric.length;
-    return metric.extractPath(0, length);
+    return getPath(interpolatedPoints, size);
   }
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (points.isEmpty || size.isEmpty) return;
+
     const strokeWidth = 2.0;
     final chartSize = Size(size.width, size.height * 0.7);
 
-    // Fast path without animation
-    final Path path;
     if (!hasAnimation || progress >= 1.0) {
-      // Direct render without interpolation
-      final renderPoints = getRenderPoints(points);
-      path = getPath(renderPoints, chartSize);
+      _writeDirectPointsToPath(_strokePath, points, chartSize);
     } else {
-      // Animated path
-      path = getAnimatedPath(chartSize);
+      final interpolatedPoints = getInterpolatePoints(
+        prevPoints,
+        points,
+        progress,
+      );
+      _writeNormalizedPointsToPath(_strokePath, interpolatedPoints, chartSize);
     }
 
     if (gradient) {
-      final fillPath = Path.from(path);
-      fillPath.lineTo(size.width, size.height + strokeWidth * 2);
-      fillPath.lineTo(0, size.height + strokeWidth * 2);
-      fillPath.close();
+      final bottomY = size.height + strokeWidth * 2;
+      _fillPath
+        ..reset()
+        ..addPath(_strokePath, Offset.zero)
+        ..lineTo(size.width, bottomY)
+        ..lineTo(0, bottomY)
+        ..close();
 
-      final gradient = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [color.opacity38, color.opacity10],
-      );
-
-      final shader = gradient.createShader(
-        Rect.fromLTWH(0, 0, size.width, size.height + strokeWidth * 2),
-      );
-
-      canvas.drawPath(
-        fillPath,
-        Paint()
-          ..shader = shader
-          ..style = PaintingStyle.fill,
-      );
+      _fillPaint.shader = _resolveShader(color, size.width, bottomY);
+      canvas.drawPath(_fillPath, _fillPaint);
     }
 
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color
-        ..strokeWidth = strokeWidth
-        ..style = PaintingStyle.stroke,
-    );
+    _strokePaint.color = color;
+    canvas.drawPath(_strokePath, _strokePaint);
   }
 
   @override
   bool shouldRepaint(covariant LineChartPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.prevPoints != prevPoints ||
-        oldDelegate.points != points ||
+    if (oldDelegate.progress != progress ||
         oldDelegate.color != color ||
-        oldDelegate.gradient != gradient;
+        oldDelegate.gradient != gradient ||
+        oldDelegate.hasAnimation != hasAnimation) {
+      return true;
+    }
+    if (!_pointsEqual(oldDelegate.points, points)) {
+      return true;
+    }
+    if (hasAnimation && progress < 1.0) {
+      return !_pointsEqual(oldDelegate.prevPoints, prevPoints);
+    }
+    return false;
   }
 }

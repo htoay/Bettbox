@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:bett_box/common/archive.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/common/dav_client.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -47,21 +48,43 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     );
   }
 
-  Future<void> _backupOnWebDAV(DAVClient client) async {
+  void _showBackupSuccess(bool encrypted) {
+    globalState.showMessage(
+      title: appLocalizations.backup,
+      message: TextSpan(
+        text: [
+          appLocalizations.backupSuccess,
+          if (encrypted) appLocalizations.backupEncryptedTip,
+        ].join('\n'),
+      ),
+      cancelable: false,
+    );
+  }
+
+  void _showRecoverySuccess(bool decrypted) {
+    globalState.showMessage(
+      title: appLocalizations.recovery,
+      message: TextSpan(
+        text: [
+          appLocalizations.recoverySuccess,
+          if (decrypted) appLocalizations.recoveryDecryptedTip,
+        ].join('\n'),
+      ),
+      cancelable: false,
+    );
+  }
+
+  Future<void> _backupOnWebDAV(DAVClient client, DAV dav) async {
+    final encrypted = ref
+        .read(appSettingProvider.select((state) => state.backupPassword))
+        .isNotEmpty;
     final res = await globalState.appController.safeRun<bool>(
-      () async {
-        final backupData = await globalState.appController.backupData();
-        return await client.backup(Uint8List.fromList(backupData));
-      },
+      () => globalState.appController.backupToWebDAV(client, dav),
       needLoading: true,
       title: appLocalizations.backup,
     );
     if (res != true) return;
-    globalState.showMessage(
-      title: appLocalizations.backup,
-      message: TextSpan(text: appLocalizations.backupSuccess),
-      cancelable: false,
-    );
+    _showBackupSuccess(encrypted);
   }
 
   Future<void> _recoveryOnWebDAV(
@@ -70,21 +93,19 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     String targetFileName,
     RecoveryOption recoveryOption,
   ) async {
-    final res = await globalState.appController.safeRun<bool>(
+    final res = await globalState.appController.safeRun(
       () async {
         final data = await client.recovery(targetFileName);
-        await globalState.appController.recoveryData(data, recoveryOption);
-        return true;
+        return await globalState.appController.recoveryData(
+          data,
+          recoveryOption,
+        );
       },
       needLoading: true,
       title: appLocalizations.recovery,
     );
-    if (res != true) return;
-    globalState.showMessage(
-      title: appLocalizations.recovery,
-      message: TextSpan(text: appLocalizations.recoverySuccess),
-      cancelable: false,
-    );
+    if (res == null) return;
+    _showRecoverySuccess(res.decrypted);
   }
 
   Future<void> _handleRecoveryOnWebDAV(
@@ -117,8 +138,22 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
   }
 
   Future<void> _backupOnLocal(BuildContext context) async {
+    final password = await globalState.showCommonDialog<String>(
+      child: InputDialog(
+        title: appLocalizations.backupPassword,
+        value: ref.read(
+          appSettingProvider.select((state) => state.backupPassword),
+        ),
+        hintText: appLocalizations.backupPasswordTip,
+        obscureText: true,
+        validator: _validateBackupPassword,
+      ),
+    );
+    if (password == null || !context.mounted) return;
     final res = await globalState.appController.safeRun<bool>(() async {
-      final backupData = await globalState.appController.backupData();
+      final backupData = await globalState.appController.backupData(
+        password: password,
+      );
       final value = await picker.saveFile(
         utils.getBackupFileName(),
         Uint8List.fromList(backupData),
@@ -127,43 +162,32 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
       return true;
     }, title: appLocalizations.backup);
     if (res != true) return;
-    globalState.showMessage(
-      title: appLocalizations.backup,
-      message: TextSpan(text: appLocalizations.backupSuccess),
-      cancelable: false,
-    );
+    _showBackupSuccess(password.isNotEmpty);
   }
 
   Future<void> _recoveryOnLocal(RecoveryOption recoveryOption) async {
     final file = await picker.pickerFile();
     final path = file?.path;
-    final res = await globalState.appController.safeRun<bool>(
+    final res = await globalState.appController.safeRun(
       () async {
         if (path != null) {
-          await globalState.appController.recoveryDataFromFile(
+          return await globalState.appController.recoveryDataFromFile(
             path,
             recoveryOption,
           );
-        } else if (file != null) {
-          final bytes = await file.readAsBytes();
-          await globalState.appController.recoveryData(
-            List<int>.from(bytes),
-            recoveryOption,
-          );
-        } else {
-          return false;
         }
-        return true;
+        if (file == null) return null;
+        final bytes = await file.readAsBytes();
+        return await globalState.appController.recoveryData(
+          List<int>.from(bytes),
+          recoveryOption,
+        );
       },
       needLoading: true,
       title: appLocalizations.recovery,
     );
-    if (res != true) return;
-    globalState.showMessage(
-      title: appLocalizations.recovery,
-      message: TextSpan(text: appLocalizations.recoverySuccess),
-      cancelable: false,
-    );
+    if (res == null) return;
+    _showRecoverySuccess(res.decrypted);
   }
 
   Future<void> _handleRecoveryOnLocal(BuildContext context) async {
@@ -172,6 +196,39 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     );
     if (recoveryOption == null || !context.mounted) return;
     _recoveryOnLocal(recoveryOption);
+  }
+
+  String? _validateBackupPassword(String? value) {
+    if (value == null || isValidBackupPassword(value)) return null;
+    return appLocalizations.backupPasswordTip;
+  }
+
+  Future<void> _handleUpdateBackupPassword() async {
+    final password = await globalState.showCommonDialog<String>(
+      child: InputDialog(
+        title: appLocalizations.backupPassword,
+        value: ref.read(
+          appSettingProvider.select((state) => state.backupPassword),
+        ),
+        hintText: appLocalizations.backupPasswordTip,
+        resetValue: '',
+        obscureText: true,
+        validator: _validateBackupPassword,
+      ),
+    );
+    if (password == null) return;
+    ref
+        .read(appSettingProvider.notifier)
+        .updateState((state) => state.copyWith(backupPassword: password));
+  }
+
+  void _handleAutoBackupChange(bool value) {
+    ref
+        .read(appDAVSettingProvider.notifier)
+        .updateState((state) => state?.copyWith(autoBackup: value));
+    if (value) {
+      globalState.appController.autoBackupDebounce();
+    }
   }
 
   void _handleChange(String? value, WidgetRef ref) {
@@ -292,9 +349,17 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
                 },
               ),
             ),
+            ListItem.switchItem(
+              title: Text(appLocalizations.autoBackup),
+              subtitle: Text(appLocalizations.autoBackupDesc),
+              delegate: SwitchDelegate(
+                value: dav.autoBackup,
+                onChanged: _handleAutoBackupChange,
+              ),
+            ),
             ListItem(
               onTap: () {
-                _backupOnWebDAV(client);
+                _backupOnWebDAV(client, dav);
               },
               title: Text(appLocalizations.backup),
               subtitle: Text(appLocalizations.remoteBackupDesc),
@@ -333,6 +398,21 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
         items: [
           Consumer(
             builder: (_, ref, _) {
+              final hasPassword = ref.watch(
+                appSettingProvider.select(
+                  (state) => state.backupPassword.isNotEmpty,
+                ),
+              );
+              return ListItem(
+                onTap: _handleUpdateBackupPassword,
+                title: Text(appLocalizations.backupPassword),
+                subtitle: Text(appLocalizations.backupPasswordDesc),
+                trailing: Icon(hasPassword ? Icons.lock : Icons.lock_open),
+              );
+            },
+          ),
+          Consumer(
+            builder: (_, ref, _) {
               final recoveryStrategy = ref.watch(
                 appSettingProvider.select((state) => state.recoveryStrategy),
               );
@@ -341,6 +421,9 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
                   _handleUpdateRecoveryStrategy(ref);
                 },
                 title: Text(appLocalizations.recoveryStrategy),
+                subtitle: Text(
+                  Intl.message('recoveryStrategyDesc_${recoveryStrategy.name}'),
+                ),
                 trailing: FilledButton(
                   onPressed: () {
                     _handleUpdateRecoveryStrategy(ref);
@@ -376,11 +459,22 @@ class _BackupVersionsDialogState extends State<BackupVersionsDialog> {
     _selectedFile = widget.files.first;
   }
 
+  String? _subtitle(webdav.File file) {
+    final sizeText = TrafficValue(value: file.size ?? 0).show;
+    final timeText = file.mTime?.lastUpdateTimeDesc ?? '';
+    final subtitle = [
+      if (sizeText.isNotEmpty) sizeText,
+      if (timeText.isNotEmpty) timeText,
+    ].join('  ·  ');
+    return subtitle.isEmpty ? null : subtitle;
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayFiles = widget.files.take(10).toList();
     return CommonDialog(
       title: appLocalizations.selectBackupVersion,
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 14),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(_selectedFile),
@@ -393,32 +487,13 @@ class _BackupVersionsDialogState extends State<BackupVersionsDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ...displayFiles
-                  .map<Widget>((file) {
-                    final sizeText = TrafficValue(value: file.size ?? 0).show;
-                    final timeText = file.mTime?.lastUpdateTimeDesc ?? '';
-                    final subtitle = [
-                      if (sizeText.isNotEmpty) sizeText,
-                      if (timeText.isNotEmpty) timeText,
-                    ].join('  ·  ');
-
-                    return ListItem<webdav.File>.radio(
-                      title: Text(file.name ?? ''),
-                      subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
-                      delegate: RadioDelegate<webdav.File>(
-                        value: file,
-                        groupValue: _selectedFile,
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() {
-                              _selectedFile = val;
-                            });
-                          }
-                        },
-                      ),
-                    );
-                  })
-                  .separated(const Divider(height: 1)),
+              for (final file in displayFiles)
+                OptionItem(
+                  text: file.name ?? '',
+                  subtitle: _subtitle(file),
+                  selected: file == _selectedFile,
+                  onTap: () => setState(() => _selectedFile = file),
+                ),
             ],
           ),
         ),
@@ -491,11 +566,12 @@ class _WebDAVFormDialogState extends ConsumerState<WebDAVFormDialog> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    ref.read(appDAVSettingProvider.notifier).value = DAV(
-      uri: uriController.text,
-      user: userController.text,
-      password: passwordController.text,
-    );
+    final uri = uriController.text;
+    final user = userController.text;
+    final password = passwordController.text;
+    ref.read(appDAVSettingProvider.notifier).value =
+        widget.dav?.copyWith(uri: uri, user: user, password: password) ??
+        DAV(uri: uri, user: user, password: password);
     Navigator.pop(context);
   }
 

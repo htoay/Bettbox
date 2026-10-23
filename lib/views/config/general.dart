@@ -120,85 +120,29 @@ class _UaDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return CommonDialog(
       title: 'UA',
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 14),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Default option
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pop(const _UaOption(_UaOptionType.default_));
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      !isCustom
-                          ? Icons.check_circle_rounded
-                          : Icons.circle_outlined,
-                      size: 21,
-                      color: !isCustom
-                          ? context.colorScheme.primary
-                          : context.colorScheme.onSurfaceVariant.withValues(
-                              alpha: 0.6,
-                            ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      appLocalizations.defaultText,
-                      style: context.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          OptionItem(
+            text: appLocalizations.defaultText,
+            selected: !isCustom,
+            onTap: () {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pop(const _UaOption(_UaOptionType.default_));
+            },
           ),
-          // Custom option
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pop(const _UaOption(_UaOptionType.custom));
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isCustom
-                          ? Icons.check_circle_rounded
-                          : Icons.circle_outlined,
-                      size: 21,
-                      color: isCustom
-                          ? context.colorScheme.primary
-                          : context.colorScheme.onSurfaceVariant.withValues(
-                              alpha: 0.6,
-                            ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      appLocalizations.custom,
-                      style: context.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          OptionItem(
+            text: appLocalizations.custom,
+            selected: isCustom,
+            onTap: () {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pop(const _UaOption(_UaOptionType.custom));
+            },
           ),
         ],
       ),
@@ -286,13 +230,13 @@ class _TestUrlDialog extends ConsumerWidget {
 
     return CommonDialog(
       title: appLocalizations.testUrl,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 14),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Override switch
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -314,134 +258,57 @@ class _TestUrlDialog extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           // URL list
-          ...presetTestUrls.map((url) {
-            final isSelected = currentUrl == url;
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () async {
-                  ref
-                      .read(appSettingProvider.notifier)
-                      .updateState((state) => state.copyWith(testUrl: url));
-                  if (ref.read(overrideTestUrlProvider)) {
-                    globalState.appController.applyProfileDebounce(
-                      silence: true,
-                    );
-                  }
-                  if (context.mounted) {
-                    Navigator.of(context, rootNavigator: true).pop();
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        isSelected
-                            ? Icons.check_circle_rounded
-                            : Icons.circle_outlined,
-                        size: 21,
-                        color: isSelected
-                            ? context.colorScheme.primary
-                            : context.colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.6,
-                              ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: isSelected
-                            ? SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Text(
-                                  url,
-                                  style: context.textTheme.bodyMedium,
-                                ),
-                              )
-                            : Text(
-                                url,
-                                style: context.textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-          // Custom URL option
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
+          for (final url in presetTestUrls)
+            OptionItem(
+              text: url,
+              selected: currentUrl == url,
               onTap: () async {
-                final notifier = ref.read(appSettingProvider.notifier);
-                final overrideTestUrl = ref.read(overrideTestUrlProvider);
-                Navigator.of(context, rootNavigator: true).pop();
-                final customUrl = await globalState.showCommonDialog<String>(
-                  child: InputDialog(
-                    title: appLocalizations.customUrl,
-                    value: isPresetUrl ? '' : currentUrl,
-                    resetValue: defaultTestUrl,
-                    validator: (String? inputValue) {
-                      if (inputValue == null || inputValue.isEmpty) {
-                        return appLocalizations.emptyTip(
-                          appLocalizations.testUrl,
-                        );
-                      }
-                      if (!inputValue.isHttpUrl) {
-                        return appLocalizations.urlTip(
-                          appLocalizations.testUrl,
-                        );
-                      }
-                      return null;
-                    },
-                  ),
-                );
-
-                if (customUrl != null) {
-                  notifier.updateState(
-                    (state) => state.copyWith(testUrl: customUrl),
-                  );
-                  if (overrideTestUrl) {
-                    globalState.appController.applyProfileDebounce(
-                      silence: true,
-                    );
-                  }
+                ref
+                    .read(appSettingProvider.notifier)
+                    .updateState((state) => state.copyWith(testUrl: url));
+                if (ref.read(overrideTestUrlProvider)) {
+                  globalState.appController.applyProfileDebounce(silence: true);
+                }
+                if (context.mounted) {
+                  Navigator.of(context, rootNavigator: true).pop();
                 }
               },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      !isPresetUrl
-                          ? Icons.check_circle_rounded
-                          : Icons.circle_outlined,
-                      size: 21,
-                      color: !isPresetUrl
-                          ? context.colorScheme.primary
-                          : context.colorScheme.onSurfaceVariant.withValues(
-                              alpha: 0.6,
-                            ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        appLocalizations.customUrl,
-                        style: context.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
+          OptionItem(
+            text: appLocalizations.customUrl,
+            selected: !isPresetUrl,
+            onTap: () async {
+              final notifier = ref.read(appSettingProvider.notifier);
+              final overrideTestUrl = ref.read(overrideTestUrlProvider);
+              Navigator.of(context, rootNavigator: true).pop();
+              final customUrl = await globalState.showCommonDialog<String>(
+                child: InputDialog(
+                  title: appLocalizations.customUrl,
+                  value: isPresetUrl ? '' : currentUrl,
+                  resetValue: defaultTestUrl,
+                  validator: (String? inputValue) {
+                    if (inputValue == null || inputValue.isEmpty) {
+                      return appLocalizations.emptyTip(
+                        appLocalizations.testUrl,
+                      );
+                    }
+                    if (!inputValue.isHttpUrl) {
+                      return appLocalizations.urlTip(appLocalizations.testUrl);
+                    }
+                    return null;
+                  },
+                ),
+              );
+
+              if (customUrl != null) {
+                notifier.updateState(
+                  (state) => state.copyWith(testUrl: customUrl),
+                );
+                if (overrideTestUrl) {
+                  globalState.appController.applyProfileDebounce(silence: true);
+                }
+              }
+            },
           ),
         ],
       ),

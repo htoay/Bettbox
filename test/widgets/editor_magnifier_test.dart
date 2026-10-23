@@ -38,6 +38,7 @@ void main() {
               backgroundColor: Colors.white,
               borderColor: Colors.grey,
               caretColor: Colors.blue,
+              selectionColor: Colors.green,
               lineSpan: (_, text) => TextSpan(
                 children: [
                   TextSpan(text: text.substring(0, key.length)),
@@ -72,5 +73,56 @@ void main() {
       '$key$value'.substring(10, 30),
     );
     expect(pieces.every((piece) => piece.$2 == red), isTrue);
+  });
+
+  testWidgets('the magnifier shades the selection up to the dragged handle', (
+    tester,
+  ) async {
+    final controller = CodeForgeController()
+      ..text = 'DOMAIN-SUFFIX,gtzszy.com,cn'
+      ..selection = const TextSelection(baseOffset: 10, extentOffset: 21);
+    final info = ValueNotifier(
+      const MagnifierInfo(
+        globalGesturePosition: Offset(200, 200),
+        caretRect: Rect.fromLTWH(200, 190, 2, 20),
+        fieldBounds: Rect.fromLTWH(0, 0, 400, 600),
+        currentLineBoundaries: Rect.fromLTWH(0, 190, 400, 20),
+      ),
+    );
+    addTearDown(info.dispose);
+    const shade = Color(0xFF00FF00);
+
+    Future<List<Rect>> shades() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Stack(
+            children: [
+              EditorMagnifier(
+                controller: controller,
+                magnifierInfo: info,
+                textStyle: const TextStyle(fontSize: 14),
+                backgroundColor: Colors.white,
+                borderColor: Colors.grey,
+                caretColor: Colors.blue,
+                selectionColor: shade,
+              ),
+            ],
+          ),
+        ),
+      );
+      return [
+        for (final element in find.byType(ColoredBox).evaluate())
+          if ((element.widget as ColoredBox).color == shade)
+            tester.getRect(find.byWidget(element.widget)),
+      ];
+    }
+
+    final selected = await shades();
+    expect(selected, hasLength(1));
+    expect(selected.single.right, moreOrLessEquals(201, epsilon: 1));
+    expect(selected.single.width, greaterThan(100));
+
+    controller.selection = const TextSelection.collapsed(offset: 21);
+    expect(await shades(), isEmpty);
   });
 }

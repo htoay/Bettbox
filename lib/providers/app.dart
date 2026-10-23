@@ -136,38 +136,36 @@ class Requests extends _$Requests with AutoDisposeNotifierMixin {
   }
 }
 
-// Search and filter providers for requests
-final requestsSearchProvider = StateProvider<String>((ref) => '');
-final requestsKeywordsProvider = StateProvider<List<String>>((ref) => []);
+bool _matchTrackerInfo(TrackerInfo item, String query, List<String> keywords) {
+  if (query.isNotEmpty) {
+    final meta = item.metadata;
+    final matchesQuery =
+        meta.host.toLowerCase().contains(query) ||
+        meta.destinationIP.toLowerCase().contains(query) ||
+        meta.process.toLowerCase().contains(query) ||
+        meta.network.toLowerCase().contains(query) ||
+        item.chains.any((c) => c.toLowerCase().contains(query));
+    if (!matchesQuery) return false;
+  }
+  if (keywords.isNotEmpty) {
+    final process = item.metadata.process;
+    final chains = item.chains;
+    final matchesKeywords = keywords.every(
+      (kw) => process == kw || chains.contains(kw),
+    );
+    if (!matchesKeywords) return false;
+  }
+  return true;
+}
 
 final filteredRequestsProvider = Provider<List<TrackerInfo>>((ref) {
   final requests = ref.watch(requestsProvider.select((s) => s.list));
-  final query = ref.watch(requestsSearchProvider).toLowerCase().trim();
-  final keywords = ref.watch(requestsKeywordsProvider);
+  final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
+  final keywords = ref.watch(connectionsKeywordsProvider);
 
-  return requests.where((item) {
-    if (query.isNotEmpty) {
-      final networkText = item.metadata.network.toLowerCase();
-      final hostText = item.metadata.host.toLowerCase();
-      final destinationIPText = item.metadata.destinationIP.toLowerCase();
-      final processText = item.metadata.process.toLowerCase();
-      final chainsText = item.chains.join('').toLowerCase();
-      final matchesQuery =
-          networkText.contains(query) ||
-          hostText.contains(query) ||
-          destinationIPText.contains(query) ||
-          processText.contains(query) ||
-          chainsText.contains(query);
-      if (!matchesQuery) return false;
-    }
-    if (keywords.isNotEmpty) {
-      final chains = item.chains;
-      final process = item.metadata.process;
-      final matchesKeywords = {...chains, process}.containsAll(keywords);
-      if (!matchesKeywords) return false;
-    }
-    return true;
-  }).toList();
+  return requests
+      .where((item) => _matchTrackerInfo(item, query, keywords))
+      .toList();
 });
 
 @riverpod
@@ -543,55 +541,52 @@ final connectionsSortProvider = StateProvider<ConnectionsSortType>(
   (ref) => ConnectionsSortType.defaultSort,
 );
 
+int _compareTrackerInfo(
+  ConnectionsSortType sortType,
+  TrackerInfo a,
+  TrackerInfo b,
+) {
+  final primary = switch (sortType) {
+    ConnectionsSortType.realTimeSpeed =>
+      ((b.uploadSpeed ?? 0) + (b.downloadSpeed ?? 0)).compareTo(
+        (a.uploadSpeed ?? 0) + (a.downloadSpeed ?? 0),
+      ),
+    ConnectionsSortType.totalTraffic => (b.upload + b.download).compareTo(
+      a.upload + a.download,
+    ),
+    ConnectionsSortType.defaultSort || ConnectionsSortType.creationTime => 0,
+  };
+  if (primary != 0) return primary;
+  final byStart = b.start.compareTo(a.start);
+  if (byStart != 0) return byStart;
+  return b.id.compareTo(a.id);
+}
+
 final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
   final connections = ref.watch(connectionsProvider);
+  final closed = ref.watch(requestsProvider.select((state) => state.list));
   final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(connectionsKeywordsProvider);
-
-  final filtered = connections.where((item) {
-    if (query.isNotEmpty) {
-      final networkText = item.metadata.network.toLowerCase();
-      final hostText = item.metadata.host.toLowerCase();
-      final destinationIPText = item.metadata.destinationIP.toLowerCase();
-      final processText = item.metadata.process.toLowerCase();
-      final chainsText = item.chains.join('').toLowerCase();
-      final matchesQuery =
-          networkText.contains(query) ||
-          hostText.contains(query) ||
-          destinationIPText.contains(query) ||
-          processText.contains(query) ||
-          chainsText.contains(query);
-      if (!matchesQuery) return false;
-    }
-    if (keywords.isNotEmpty) {
-      final chains = item.chains;
-      final process = item.metadata.process;
-      final matchesKeywords = {...chains, process}.containsAll(keywords);
-      if (!matchesKeywords) return false;
-    }
-    return true;
-  }).toList();
-
   final sortType = ref.watch(connectionsSortProvider);
-  switch (sortType) {
-    case ConnectionsSortType.realTimeSpeed:
-      filtered.sort((a, b) {
-        final aSpeed = (a.uploadSpeed ?? 0) + (a.downloadSpeed ?? 0);
-        final bSpeed = (b.uploadSpeed ?? 0) + (b.downloadSpeed ?? 0);
-        return bSpeed.compareTo(aSpeed);
-      });
-      break;
-    case ConnectionsSortType.totalTraffic:
-      filtered.sort((a, b) {
-        final aTraffic = a.upload + a.download;
-        final bTraffic = b.upload + b.download;
-        return bTraffic.compareTo(aTraffic);
-      });
-      break;
-    case ConnectionsSortType.defaultSort:
-    case ConnectionsSortType.creationTime:
-      filtered.sort((a, b) => b.start.compareTo(a.start));
-      break;
-  }
-  return filtered;
+  final closedIds = {for (final item in closed) item.id};
+
+  return connections
+      .where(
+        (item) =>
+            !closedIds.contains(item.id) &&
+            _matchTrackerInfo(item, query, keywords),
+      )
+      .toList()
+    ..sort((a, b) => _compareTrackerInfo(sortType, a, b));
 });
+
+final filteredAllConnectionsProvider =
+    Provider<List<({TrackerInfo info, bool closed})>>((ref) {
+      final active = ref.watch(filteredConnectionsProvider);
+      final closed = ref.watch(filteredRequestsProvider);
+      final sortType = ref.watch(connectionsSortProvider);
+      return [
+        for (final info in active) (info: info, closed: false),
+        for (final info in closed) (info: info, closed: true),
+      ]..sort((a, b) => _compareTrackerInfo(sortType, a.info, b.info));
+    });

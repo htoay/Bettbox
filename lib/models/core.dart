@@ -15,6 +15,14 @@ abstract mixin class AppMessageListener {
   void onRequest(TrackerInfo connection) {}
 
   void onLoaded(String providerName) {}
+
+  void onSpeedTest(SpeedTestState state) {}
+
+  void onStunTest(StunTestState state) {}
+
+  void onIperf(IperfState state) {}
+
+  void onLocalPing(LocalPingState state) {}
 }
 
 // abstract mixin class ServiceMessageListener {

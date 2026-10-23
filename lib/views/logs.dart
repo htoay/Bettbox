@@ -1064,7 +1064,11 @@ class _LogsFilterBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filter = ref.watch(logsFilterProvider);
+    final (filterSource, filterLevels, filterModule) = ref.watch(
+      logsFilterProvider.select(
+        (state) => (state.source, state.levels, state.module),
+      ),
+    );
     final notifier = ref.read(logsFilterProvider.notifier);
     final colors = _LogColors.of(context.colorScheme, pureBlack: pureBlack);
     final debug = ref.watch(
@@ -1072,8 +1076,8 @@ class _LogsFilterBar extends ConsumerWidget {
         (state) => state.logLevel == LogLevel.debug,
       ),
     );
-    final dnsSelected = debug && filter.module == _dnsModule;
-    final module = dnsSelected ? null : filter.module;
+    final dnsSelected = debug && filterModule == _dnsModule;
+    final module = dnsSelected ? null : filterModule;
     return SizedBox(
       height: 40,
       child: Padding(
@@ -1088,16 +1092,14 @@ class _LogsFilterBar extends ConsumerWidget {
                   spacing: 6,
                   children: [
                     _SourceTabs(
-                      source: filter.source,
+                      source: filterSource,
                       showDns: debug,
                       dnsSelected: dnsSelected,
                       onChanged: (source, module) => notifier.setScope(
                         source: source,
                         module:
                             module ??
-                            (filter.module == _dnsModule
-                                ? null
-                                : filter.module),
+                            (filterModule == _dnsModule ? null : filterModule),
                       ),
                     ),
                     for (final (level, count, color) in [
@@ -1108,7 +1110,7 @@ class _LogsFilterBar extends ConsumerWidget {
                         label: compact ? '$count' : '$count ${level.label}',
                         tooltip: level.label,
                         color: color,
-                        selected: filter.levels.contains(level),
+                        selected: filterLevels.contains(level),
                         faded: count == 0,
                         leading: Container(
                           width: 7,
@@ -1149,6 +1151,29 @@ class _LogsFilterBar extends ConsumerWidget {
 class _SourceTabs extends StatelessWidget {
   static const _height = 32.0;
   static const _padding = 10.0;
+  static final _widthsCache =
+      <(TextStyle, TextScaler, TextDirection, String), double>{};
+
+  static double _measureTabWidth(
+    String label,
+    TextStyle style,
+    TextScaler textScaler,
+    TextDirection direction,
+  ) {
+    final key = (style, textScaler, direction, label);
+    final cached = _widthsCache[key];
+    if (cached != null) return cached;
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      textDirection: direction,
+      textScaler: textScaler,
+      maxLines: 1,
+    )..layout();
+    final width = painter.width.ceilToDouble();
+    painter.dispose();
+    _widthsCache[key] = width;
+    return width;
+  }
 
   final LogSource? source;
   final bool showDns;
@@ -1167,23 +1192,17 @@ class _SourceTabs extends StatelessWidget {
     final scheme = context.colorScheme;
     final style = context.textTheme.labelLarge ?? const TextStyle(fontSize: 14);
     final textScaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
     final tabs = [
       (null, null, appLocalizations.categoryAll),
       (LogSource.app, null, appLocalizations.app),
       (LogSource.core, null, appLocalizations.core),
       if (showDns) (null, _dnsModule, _dnsModule),
     ];
-    final widths = <double>[];
-    for (final (_, _, label) in tabs) {
-      final painter = TextPainter(
-        text: TextSpan(text: label, style: style),
-        textDirection: Directionality.of(context),
-        textScaler: textScaler,
-        maxLines: 1,
-      )..layout();
-      widths.add(painter.width.ceilToDouble());
-      painter.dispose();
-    }
+    final widths = [
+      for (final (_, _, label) in tabs)
+        _measureTabWidth(label, style, textScaler, direction),
+    ];
     final selected = dnsSelected
         ? tabs.length - 1
         : tabs.indexWhere((tab) => tab.$2 == null && tab.$1 == source);

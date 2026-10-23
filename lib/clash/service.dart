@@ -23,6 +23,9 @@ class ClashService extends ClashHandlerInterface {
 
   bool isStarting = false;
   bool _isDestroying = false;
+  bool _coreLost = false;
+  Socket? _socket;
+  DateTime? _lastAutoRestartAt;
 
   Process? process;
 
@@ -94,6 +97,8 @@ class ClashService extends ClashHandlerInterface {
         serverCompleter.complete(server);
         await for (final socket in server) {
           await _destroySocket();
+          _socket = socket;
+          _coreLost = false;
           socketCompleter.complete(socket);
 
           socket
@@ -109,6 +114,7 @@ class ClashService extends ClashHandlerInterface {
                 onDone: () {
                   commonPrint.log('Socket connection closed');
                   abortRequests(socket);
+                  _handleSocketClosed(socket);
                 },
               );
         }
@@ -140,6 +146,7 @@ class ClashService extends ClashHandlerInterface {
       // core after this call returns. Queued calls will run sequentially.
       await _doRestart();
     } finally {
+      isStarting = false;
       if (_restartCompleter == completer) {
         _restartCompleter = null;
       }
@@ -152,10 +159,11 @@ class ClashService extends ClashHandlerInterface {
   Future<void> _doRestart() async {
     isStarting = true;
     _isDestroying = false;
+    _coreLost = false;
 
     await _destroySocket();
 
-    if (system.isWindows && !kDebugMode) {
+    if (_usesHelper) {
       await helperClient.stopCore().catchError((_) => false);
     }
 
@@ -171,7 +179,7 @@ class ClashService extends ClashHandlerInterface {
     }
     process = null;
 
-    socketCompleter = Completer();
+    await _destroySocket();
 
     final serverSocket = await serverCompleter.future;
 
@@ -186,7 +194,7 @@ class ClashService extends ClashHandlerInterface {
     final environment = Map<String, String>.from(Platform.environment);
     environment['SAFE_PATHS'] = homeDirPath;
 
-    if (system.isWindows && !kDebugMode) {
+    if (_usesHelper) {
       final serviceOk = AppIdentity.isDev
           ? (await windows?.isHelperHealthy() ?? false)
           : (await windows?.registerService() ?? false);
@@ -243,9 +251,7 @@ class ClashService extends ClashHandlerInterface {
       await _startCoreDirectly(retryArg, environment);
     }
     isStarting = false;
-    if (system.isWindows &&
-        !kDebugMode &&
-        globalState.config.appSetting.enableHighPriority) {
+    if (_usesHelper && globalState.config.appSetting.enableHighPriority) {
       unawaited(
         helperClient
             .setProcessPriority('${AppIdentity.coreExecutableName}.exe', true)
@@ -256,6 +262,8 @@ class ClashService extends ClashHandlerInterface {
       );
     }
   }
+
+  bool get _usesHelper => windows?.usesHelper ?? false;
 
   Duration get _coreReadyTimeout {
     if (kDebugMode || AppIdentity.isDev) {
@@ -322,7 +330,7 @@ class ClashService extends ClashHandlerInterface {
 
   @override
   Future<Socket> sendMessage(String message) async {
-    if (_isDestroying || globalState.isExiting) {
+    if (_isDestroying || globalState.isExiting || _coreLost) {
       throw const CoreDisconnectedException();
     }
     final socket = await socketCompleter.future.timeout(
@@ -366,15 +374,48 @@ class ClashService extends ClashHandlerInterface {
   Future<void> _destroySocket() async {
     if (socketCompleter.isCompleted) {
       final lastSocket = await socketCompleter.future;
+      _socket = null;
       await lastSocket.close();
       socketCompleter = Completer();
     }
   }
 
+  void _handleSocketClosed(Socket socket) {
+    if (!identical(_socket, socket)) return;
+    _socket = null;
+    socketCompleter = Completer();
+    socket.destroy();
+    if (_isDestroying || isStarting || globalState.isExiting) return;
+    _coreLost = true;
+    commonPrint.error('Core disconnected unexpectedly');
+    final now = DateTime.now();
+    final last = _lastAutoRestartAt;
+    if (!globalState.isInit ||
+        (last != null && now.difference(last) < const Duration(minutes: 1))) {
+      return;
+    }
+    _lastAutoRestartAt = now;
+    unawaited(_autoRestart());
+  }
+
+  bool get _canAutoRestart =>
+      _coreLost && !_isDestroying && !globalState.isExiting;
+
+  Future<void> _autoRestart() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (!_canAutoRestart) return;
+    if (_usesHelper && !(await windows?.isHelperHealthy() ?? false)) {
+      return;
+    }
+    if (!_canAutoRestart) return;
+    commonPrint.warn('Restarting core after unexpected disconnect');
+    await globalState.appController.restartCore().catchError((_) {});
+  }
+
   @override
   shutdown() async {
     _isDestroying = true;
-    if (system.isWindows && !kDebugMode) {
+    if (_usesHelper) {
       await helperClient.stopCore();
     }
     await _destroySocket();

@@ -272,6 +272,7 @@ abstract class DAV with _$DAV {
     required String user,
     required String password,
     @Default(defaultDavFileName) String fileName,
+    @Default(false) bool autoBackup,
   }) = _DAV;
 
   factory DAV.fromJson(Map<String, Object?> json) => _$DAVFromJson(json);
@@ -544,7 +545,7 @@ class IpInfo {
 
   IpInfo({
     required this.ip,
-    required this.countryCode,
+    required String countryCode,
     String? country,
     this.province,
     this.city,
@@ -554,16 +555,163 @@ class IpInfo {
     this.asDomain,
     this.continent,
     this.continentCode,
-  }) : country = _normalizeCountry(country);
+  }) : countryCode = _normalizeCountryCode(countryCode, country, province),
+       country = _normalizeCountry(
+         country,
+         _normalizeCountryCode(countryCode, country, province),
+         province,
+       );
 
-  static String? _normalizeCountry(String? country) {
-    if (country == null) return null;
+  static bool _isTaiwan(String? text) {
+    if (text == null || text.isEmpty) return false;
+    final trimmed = text.trim();
+    final lower = trimmed.toLowerCase();
+    if (lower == 'tw' ||
+        lower == 'twn' ||
+        lower == 'taiwan' ||
+        lower == 'taiwan (china)' ||
+        lower == 'taiwan, china' ||
+        lower == 'taiwan, province of china' ||
+        lower == 'republic of china' ||
+        lower == 'republic of china (taiwan)' ||
+        lower == 'taiwan (roc)' ||
+        lower == 'taiwan, roc' ||
+        lower == 'roc') {
+      return true;
+    }
+    if (trimmed == '台湾' ||
+        trimmed == '台灣' ||
+        trimmed == '臺灣' ||
+        trimmed == '台湾省' ||
+        trimmed == '臺灣省' ||
+        trimmed == '台湾 (中国)' ||
+        trimmed == '台灣 (中国)' ||
+        trimmed == '臺灣 (中国)' ||
+        trimmed == '中国台湾' ||
+        trimmed == '中國台灣' ||
+        trimmed == '中國臺灣' ||
+        trimmed == '中华民国' ||
+        trimmed == '中華民國') {
+      return true;
+    }
+    if (trimmed.contains('中华民国') ||
+        trimmed.contains('中華民國') ||
+        trimmed.contains('台湾') ||
+        trimmed.contains('台灣') ||
+        trimmed.contains('臺灣')) {
+      return true;
+    }
+    return false;
+  }
+
+  static String _normalizeCountryCode(
+    String countryCode,
+    String? country,
+    String? province,
+  ) {
+    final clean = countryCode.trim().toUpperCase();
+    if (clean.length == 2 && RegExp(r'^[A-Z]{2}$').hasMatch(clean)) {
+      if (clean == 'CN') {
+        if (_isTaiwan(province) || _isTaiwan(country)) {
+          return 'TW';
+        }
+        if (province == '香港' || country == '香港') return 'HK';
+        if (province == '澳门' ||
+            province == '澳門' ||
+            country == '澳门' ||
+            country == '澳門') {
+          return 'MO';
+        }
+      }
+      return clean;
+    }
+    if (_isTaiwan(clean) || _isTaiwan(country) || _isTaiwan(province)) {
+      return 'TW';
+    }
+    if (clean == 'HK' ||
+        clean == 'HKG' ||
+        country == '香港' ||
+        province == '香港') {
+      return 'HK';
+    }
+    if (clean == 'MO' ||
+        clean == 'MAC' ||
+        clean == 'MFM' ||
+        country == '澳门' ||
+        country == '澳門' ||
+        province == '澳门' ||
+        province == '澳門') {
+      return 'MO';
+    }
+    return clean;
+  }
+
+  static String? _normalizeCountry(
+    String? country, [
+    String? countryCode,
+    String? province,
+  ]) {
+    final effectiveCode = countryCode?.trim().toUpperCase();
+    if (country == null || country.trim().isEmpty) {
+      if (effectiveCode == 'TW' || _isTaiwan(province)) {
+        return '台湾 (中国)';
+      }
+      return null;
+    }
     final trimmed = country.trim();
-    if (trimmed.toLowerCase() == 'taiwan') {
+    if (trimmed == '台湾 (中国)' ||
+        trimmed == '台灣 (中国)' ||
+        trimmed == '臺灣 (中国)' ||
+        trimmed == 'Taiwan (China)' ||
+        trimmed == '中国台湾' ||
+        trimmed == '中國台灣' ||
+        trimmed == '中國臺灣') {
+      return trimmed;
+    }
+    if (trimmed.endsWith('(中国)') ||
+        trimmed.endsWith('（中国）') ||
+        trimmed.endsWith('(China)') ||
+        trimmed.endsWith('（China）') ||
+        trimmed.endsWith('(中國)') ||
+        trimmed.endsWith('（中國）')) {
+      return trimmed;
+    }
+    final lower = trimmed.toLowerCase();
+    if (lower == 'taiwan' ||
+        lower == 'republic of china' ||
+        lower == 'republic of china (taiwan)' ||
+        lower == 'taiwan (roc)' ||
+        lower == 'taiwan, roc' ||
+        lower == 'roc' ||
+        lower == 'taiwan, province of china' ||
+        lower == 'taiwan, china') {
       return 'Taiwan (China)';
     }
-    if (trimmed == '台湾' || trimmed == '台灣') {
-      return '$trimmed (中国)';
+    if (trimmed == '中華民國' ||
+        trimmed.contains('中華民國') ||
+        trimmed == '台灣' ||
+        trimmed == '臺灣') {
+      return '台灣 (中国)';
+    }
+    if (trimmed == '中华民国' || trimmed.contains('中华民国') || trimmed == '台湾') {
+      return '台湾 (中国)';
+    }
+    if (trimmed == '台湾省') {
+      return '台湾省 (中国)';
+    }
+    if (trimmed == '台灣省' || trimmed == '臺灣省') {
+      return '台灣省 (中国)';
+    }
+    if (effectiveCode == 'TW' || _isTaiwan(province)) {
+      if (trimmed == '中国' || trimmed == '中國') {
+        if (province != null &&
+            (province.contains('中華民國') ||
+                province.contains('台灣') ||
+                province.contains('臺灣'))) {
+          return '台灣 (中国)';
+        }
+        return '台湾 (中国)';
+      }
     }
     return country;
   }
@@ -616,6 +764,35 @@ class IpInfo {
     }
 
     final ip = json['ip']?.toString() ?? '';
+    if (json['region'] is String && json.containsKey('llc')) {
+      final region = (json['region'] as String)
+          .split(RegExp(r'\s+'))
+          .where((item) => item.isNotEmpty)
+          .toList();
+      final country = region.firstOrNull;
+      final llc = json['llc']?.toString() ?? '';
+      final isp = llc.isNotEmpty ? llc : json['isp']?.toString();
+      final rawAsn = json['asn']?.toString().trim().toUpperCase() ?? '';
+      if (ip.isNotEmpty) {
+        return IpInfo(
+          ip: ip,
+          countryCode: country == '中国'
+              ? switch (region.elementAtOrNull(1)) {
+                  '台湾' => 'TW',
+                  '香港' => 'HK',
+                  '澳门' => 'MO',
+                  _ => 'CN',
+                }
+              : '',
+          country: country,
+          province: region.elementAtOrNull(1),
+          city: region.elementAtOrNull(2),
+          isp: isp,
+          asName: isp,
+          asn: rawAsn.isEmpty ? null : rawAsn,
+        );
+      }
+    }
     if (json['location'] is Map) {
       final loc = json['location'] as Map;
       final countryCode = loc['country_code']?.toString() ?? '';

@@ -165,10 +165,27 @@ Future<void> delayTest(
       };
     }).toList();
 
-    // Execute tasks in batches
-    final batchedTasks = delayTasks.batch(concurrencyLimit);
-    for (final batchTasks in batchedTasks) {
-      await Future.wait(batchTasks.map((task) => task()));
+    if (concurrencyLimit <= 1 || delayTasks.length <= 1) {
+      for (final task in delayTasks) {
+        await task();
+      }
+    } else {
+      var nextIndex = 0;
+      final running = <Future<void>>{};
+      while (nextIndex < delayTasks.length || running.isNotEmpty) {
+        while (nextIndex < delayTasks.length &&
+            running.length < concurrencyLimit) {
+          final task = delayTasks[nextIndex++];
+          late final Future<void> future;
+          future = task().whenComplete(() {
+            running.remove(future);
+          });
+          running.add(future);
+        }
+        if (running.isNotEmpty) {
+          await Future.any(running);
+        }
+      }
     }
     appController.addSortNum();
   }

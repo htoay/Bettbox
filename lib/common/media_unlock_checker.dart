@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
@@ -26,6 +27,10 @@ class _BatchTokenInterceptor extends Interceptor {
 
 class MediaUnlockChecker {
   static const _timeout = Duration(seconds: 5);
+
+  final String? proxy;
+
+  MediaUnlockChecker({this.proxy});
 
   bool get _useUnifiedDelay => globalState.config.patchClashConfig.unifiedDelay;
 
@@ -79,32 +84,96 @@ class MediaUnlockChecker {
         connectTimeout: _timeout,
         receiveTimeout: _timeout,
         sendTimeout: _timeout,
-        headers: {
-          'User-Agent': browserUa,
-          'Accept-Language': 'en-US,en;q=0.9',
-        },
+        headers: {'User-Agent': browserUa, 'Accept-Language': 'en-US,en;q=0.9'},
         followRedirects: followRedirects,
         validateStatus: (status) => true,
       ),
     );
+    final proxy = this.proxy;
+    if (proxy != null) {
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () => HttpClient()..findProxy = (_) => proxy,
+      );
+    }
     dio.interceptors.add(_BatchTokenInterceptor(_batchToken));
     return dio;
   }
 
   static const _openaiUnsupportedRegions = {
-    'CN', 'HK', 'MO', 'RU', 'IR', 'KP', 'SY', 'CU', 'VE', 'BY',
-    'AF', 'SS', 'YE', 'ZW', 'MM', 'SD', 'SO', 'CF',
+    'CN',
+    'HK',
+    'MO',
+    'RU',
+    'IR',
+    'KP',
+    'SY',
+    'CU',
+    'VE',
+    'BY',
+    'AF',
+    'SS',
+    'YE',
+    'ZW',
+    'MM',
+    'SD',
+    'SO',
+    'CF',
   };
 
   static const _claudeUnsupportedRegions = {
-    'CN', 'HK', 'MO', 'RU', 'IR', 'KP', 'SY', 'CU', 'BY', 'VN',
-    'TR', 'AF', 'SS', 'YE', 'ZW', 'MM', 'SD', 'SO', 'CF', 'VE',
+    'CN',
+    'HK',
+    'MO',
+    'RU',
+    'IR',
+    'KP',
+    'SY',
+    'CU',
+    'BY',
+    'VN',
+    'TR',
+    'AF',
+    'SS',
+    'YE',
+    'ZW',
+    'MM',
+    'SD',
+    'SO',
+    'CF',
+    'VE',
   };
 
   static const _geminiUnsupportedRegions = {
-    'CN', 'CHN', 'MO', 'MAC', 'RU', 'RUS', 'BY', 'BLR', 'IR', 'IRN',
-    'KP', 'PRK', 'SY', 'SYR', 'CU', 'CUB', 'VE', 'VEN', 'MM', 'MMR',
-    'SD', 'SDN', 'AF', 'AFG', 'SS', 'SSD', 'YE', 'YEM', 'ZW', 'ZWE',
+    'CN',
+    'CHN',
+    'MO',
+    'MAC',
+    'RU',
+    'RUS',
+    'BY',
+    'BLR',
+    'IR',
+    'IRN',
+    'KP',
+    'PRK',
+    'SY',
+    'SYR',
+    'CU',
+    'CUB',
+    'VE',
+    'VEN',
+    'MM',
+    'MMR',
+    'SD',
+    'SDN',
+    'AF',
+    'AFG',
+    'SS',
+    'SSD',
+    'YE',
+    'YEM',
+    'ZW',
+    'ZWE',
   };
 
   String? _extractColoFromRay(String? ray) {
@@ -191,7 +260,8 @@ class MediaUnlockChecker {
           final region = loc?.toUpperCase();
 
           if (ip != null && ip.isNotEmpty) {
-            final isBlocked = unsupportedRegions != null &&
+            final isBlocked =
+                unsupportedRegions != null &&
                 region != null &&
                 unsupportedRegions.contains(region);
             detectedStatus = isBlocked
@@ -289,8 +359,11 @@ class MediaUnlockChecker {
           if (country == '中国' || country == 'CN') {
             region = 'CN';
           }
-          final parts =
-              [province, city, isp].where((s) => s.isNotEmpty).toList();
+          final parts = [
+            province,
+            city,
+            isp,
+          ].where((s) => s.isNotEmpty).toList();
           desc = parts.isNotEmpty ? parts.join(' ') : country;
         }
       }
@@ -320,8 +393,7 @@ class MediaUnlockChecker {
     final dio = _createDio(followRedirects: true);
     try {
       final ts = DateTime.now().millisecondsSinceEpoch;
-      final rand =
-          List.generate(16, (_) => (ts % 16).toRadixString(16)).join();
+      final rand = List.generate(16, (_) => (ts % 16).toRadixString(16)).join();
       final res = await dio.get<String>(
         'https://$ts-$rand.dns-detect.alicdn.com/api/detect/DescribeDNSLookup?cb=cb',
       );
@@ -401,7 +473,8 @@ class MediaUnlockChecker {
       final res = await dio.head<void>(
         'https://perfops.byte-test.com/500b-bench.jpg',
       );
-      final ip = res.headers.value('x-request-ip') ??
+      final ip =
+          res.headers.value('x-request-ip') ??
           res.headers.value('x-response-cinfo');
       final latency = sw.elapsedMilliseconds;
       return MediaUnlockResult(
@@ -445,6 +518,7 @@ class MediaUnlockChecker {
   }
 
   Future<int?> _tcpConnectRtt(String host, int port) async {
+    if (proxy != null) return null;
     final sw = Stopwatch()..start();
     Socket? socket;
     try {
@@ -494,11 +568,14 @@ class MediaUnlockChecker {
         ),
       );
       final loc1 = res1.headers.value('location') ?? '';
-      final regionMatch = RegExp(r'netflix\.com/([a-z]{2})(?:-[a-z]{2})?/title/').firstMatch(loc1);
+      final regionMatch = RegExp(
+        r'netflix\.com/([a-z]{2})(?:-[a-z]{2})?/title/',
+      ).firstMatch(loc1);
       final MediaUnlockStatus status;
       String? region = regionMatch?.group(1)?.toUpperCase();
 
-      if ((res1.statusCode == 301 || res1.statusCode == 302) && loc1.contains('/title/70143836')) {
+      if ((res1.statusCode == 301 || res1.statusCode == 302) &&
+          loc1.contains('/title/70143836')) {
         status = MediaUnlockStatus.unlocked;
       } else if (res1.statusCode == 200) {
         status = MediaUnlockStatus.unlocked;
@@ -512,9 +589,12 @@ class MediaUnlockChecker {
           ),
         );
         final loc2 = res2.headers.value('location') ?? '';
-        final regionMatch2 = RegExp(r'netflix\.com/([a-z]{2})(?:-[a-z]{2})?/title/').firstMatch(loc2);
+        final regionMatch2 = RegExp(
+          r'netflix\.com/([a-z]{2})(?:-[a-z]{2})?/title/',
+        ).firstMatch(loc2);
         region = regionMatch2?.group(1)?.toUpperCase() ?? region;
-        if ((res2.statusCode == 301 || res2.statusCode == 302) && loc2.contains('/title/81280792')) {
+        if ((res2.statusCode == 301 || res2.statusCode == 302) &&
+            loc2.contains('/title/81280792')) {
           status = MediaUnlockStatus.limited;
         } else {
           status = MediaUnlockStatus.blocked;
@@ -548,7 +628,8 @@ class MediaUnlockChecker {
           sendTimeout: const Duration(seconds: 4),
         ),
       );
-      final loc = res.headers.value('physical-location') ?? res.headers.value('region');
+      final loc =
+          res.headers.value('physical-location') ?? res.headers.value('region');
       final region = (loc != null && loc.isNotEmpty) ? loc.toUpperCase() : null;
       final MediaUnlockStatus status;
 
@@ -619,10 +700,19 @@ class MediaUnlockChecker {
       String? region;
       if (res.statusCode == 200) {
         final body = utf8.decode(chunks, allowMalformed: true);
-        final glMatch = RegExp(r'"INNERTUBE_CONTEXT_GL"\s*:\s*"([A-Z]{2})"').firstMatch(body);
-        final ccMatch = RegExp(r'"countryCode"\s*:\s*"([A-Z]{2})"').firstMatch(body);
-        final reqDomainMatch = RegExp(r'"REQUEST_DOMAIN"\s*:\s*"([a-zA-Z]{2})"').firstMatch(body);
-        region = glMatch?.group(1) ?? ccMatch?.group(1) ?? reqDomainMatch?.group(1)?.toUpperCase();
+        final glMatch = RegExp(
+          r'"INNERTUBE_CONTEXT_GL"\s*:\s*"([A-Z]{2})"',
+        ).firstMatch(body);
+        final ccMatch = RegExp(
+          r'"countryCode"\s*:\s*"([A-Z]{2})"',
+        ).firstMatch(body);
+        final reqDomainMatch = RegExp(
+          r'"REQUEST_DOMAIN"\s*:\s*"([a-zA-Z]{2})"',
+        ).firstMatch(body);
+        region =
+            glMatch?.group(1) ??
+            ccMatch?.group(1) ??
+            reqDomainMatch?.group(1)?.toUpperCase();
 
         if (body.contains('Premium is not available in your country') ||
             body.contains('unavailable in your country')) {
@@ -747,7 +837,9 @@ class MediaUnlockChecker {
       final timing = res.headers.value('server-timing') ?? '';
       final popMatch = RegExp(r'p=([A-Z]{3})').firstMatch(timing);
       final rawRegion = popMatch?.group(1);
-      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
+      final region = rawRegion != null
+          ? utils.normalizeRegion(rawRegion)
+          : null;
       final MediaUnlockStatus status;
 
       if (res.statusCode == 200) {
@@ -790,7 +882,9 @@ class MediaUnlockChecker {
         ),
       );
       final finalUrl = res.realUri.toString();
-      final pathMatch = RegExp(r'spotify\.com/([a-z]{2})(?:-[a-z]{2})?/').firstMatch(finalUrl);
+      final pathMatch = RegExp(
+        r'spotify\.com/([a-z]{2})(?:-[a-z]{2})?/',
+      ).firstMatch(finalUrl);
       String? rawRegion = pathMatch?.group(1)?.toUpperCase();
 
       if (rawRegion == null) {
@@ -807,15 +901,20 @@ class MediaUnlockChecker {
           } catch (_) {}
         }
         final body = utf8.decode(chunks, allowMalformed: true);
-        final geoMatch = RegExp(r'geoCountry"?\s*:\s*"([A-Z]{2})"').firstMatch(body);
+        final geoMatch = RegExp(
+          r'geoCountry"?\s*:\s*"([A-Z]{2})"',
+        ).firstMatch(body);
         rawRegion = geoMatch?.group(1);
       }
 
-      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
+      final region = rawRegion != null
+          ? utils.normalizeRegion(rawRegion)
+          : null;
       final MediaUnlockStatus status;
       if (finalUrl.contains('why-not-available')) {
         status = MediaUnlockStatus.blocked;
-      } else if (finalUrl.contains('signup') && (res.statusCode == 200 || (res.statusCode ?? 0) < 400)) {
+      } else if (finalUrl.contains('signup') &&
+          (res.statusCode == 200 || (res.statusCode ?? 0) < 400)) {
         status = MediaUnlockStatus.unlocked;
       } else if (res.statusCode == 403 || res.statusCode == 429) {
         status = MediaUnlockStatus.blocked;
@@ -866,7 +965,8 @@ class MediaUnlockChecker {
 
       final statusCode = res.statusCode ?? 0;
       final via = res.headers.value('via') ?? '';
-      final cinfo = res.headers.value('x-response-cinfo') ??
+      final cinfo =
+          res.headers.value('x-response-cinfo') ??
           res.headers.value('x-request-ip') ??
           '';
       final viaMatch = RegExp(
@@ -877,12 +977,15 @@ class MediaUnlockChecker {
         r'\b([A-Z]{2})\b',
       ).firstMatch(cinfo.replaceAll(RegExp(r'\d+\.\d+\.\d+\.\d+'), ''));
       final rawRegion = viaMatch?.group(1) ?? cinfoMatch?.group(1);
-      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
+      final region = rawRegion != null
+          ? utils.normalizeRegion(rawRegion)
+          : null;
       final isSuccess = statusCode >= 200 && statusCode < 400;
       return MediaUnlockResult(
         platform: MediaPlatform.tiktok,
-        status:
-            isSuccess ? MediaUnlockStatus.unlocked : MediaUnlockStatus.blocked,
+        status: isSuccess
+            ? MediaUnlockStatus.unlocked
+            : MediaUnlockStatus.blocked,
         region: region,
         latency: sw.elapsedMilliseconds,
       );
@@ -1052,11 +1155,16 @@ class MediaUnlockChecker {
 
       final body = res.data ?? '';
       final regMatch = RegExp(r',2,1,200,"([A-Z]{3})"').firstMatch(body);
-      final altMatch = RegExp(r'\[1,null,null,\d+,\d+,"([A-Z]{3})"').firstMatch(body);
+      final altMatch = RegExp(
+        r'\[1,null,null,\d+,\d+,"([A-Z]{3})"',
+      ).firstMatch(body);
       final rawRegion = regMatch?.group(1) ?? altMatch?.group(1);
-      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
+      final region = rawRegion != null
+          ? utils.normalizeRegion(rawRegion)
+          : null;
 
-      final isUnavailable = realUrl.contains('unavailable') ||
+      final isUnavailable =
+          realUrl.contains('unavailable') ||
           body.contains('is not supported in your country') ||
           body.contains("isn't supported in your country") ||
           body.contains('not available in your country') ||
@@ -1067,8 +1175,10 @@ class MediaUnlockChecker {
       final MediaUnlockStatus status;
       if (res.statusCode != 200 || isUnavailable) {
         status = MediaUnlockStatus.blocked;
-      } else if ((region != null && _geminiUnsupportedRegions.contains(region)) ||
-          (rawRegion != null && _geminiUnsupportedRegions.contains(rawRegion))) {
+      } else if ((region != null &&
+              _geminiUnsupportedRegions.contains(region)) ||
+          (rawRegion != null &&
+              _geminiUnsupportedRegions.contains(rawRegion))) {
         status = MediaUnlockStatus.blocked;
       } else {
         status = MediaUnlockStatus.unlocked;
@@ -1095,7 +1205,9 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>('https://gspe1-ssl.ls.apple.com/pep/gcc');
+      final res = await dio.get<String>(
+        'https://gspe1-ssl.ls.apple.com/pep/gcc',
+      );
       final text = (res.data ?? '').trim().toUpperCase();
       final region = text.length == 2 ? text : null;
       final status = (res.statusCode == 200 && region != null)
@@ -1126,8 +1238,9 @@ class MediaUnlockChecker {
         'https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location',
       );
       final body = res.data ?? '';
-      final countryMatch =
-          RegExp(r'"country":\s*"([A-Z]{2})"').firstMatch(body);
+      final countryMatch = RegExp(
+        r'"country":\s*"([A-Z]{2})"',
+      ).firstMatch(body);
       final region = countryMatch?.group(1);
       final status = (res.statusCode == 200 && region != null)
           ? MediaUnlockStatus.unlocked
@@ -1162,8 +1275,9 @@ class MediaUnlockChecker {
       );
       final cookies = res.headers['set-cookie']?.join('; ') ?? '';
       final customIp = res.headers.value('x-custom-client-ip') ?? '';
-      final modMatch =
-          RegExp(r'mod=([a-zA-Z]+)').firstMatch('$cookies $customIp');
+      final modMatch = RegExp(
+        r'mod=([a-zA-Z]+)',
+      ).firstMatch('$cookies $customIp');
       final rawMod = modMatch?.group(1)?.toUpperCase();
       final region = rawMod != null ? utils.normalizeRegion(rawMod) : null;
       final status = res.statusCode == 200
@@ -1204,7 +1318,11 @@ class MediaUnlockChecker {
           final country = data['country']?.toString() ?? '';
           if (code == '86' || country.contains('中国')) {
             region = 'CN';
-          } else if (code == '886' || country.contains('台湾')) {
+          } else if (code == '886' ||
+              country.contains('台湾') ||
+              country.contains('台灣') ||
+              country.contains('中華民國') ||
+              country.contains('中华民国')) {
             region = 'TW';
           } else if (code == '852' || country.contains('香港')) {
             region = 'HK';
@@ -1323,8 +1441,9 @@ class MediaUnlockChecker {
         final countryCode = json['country_code']?.toString().toUpperCase();
         return MediaUnlockResult(
           platform: MediaPlatform.mytvsuper,
-          status:
-              supported ? MediaUnlockStatus.unlocked : MediaUnlockStatus.blocked,
+          status: supported
+              ? MediaUnlockStatus.unlocked
+              : MediaUnlockStatus.blocked,
           region: countryCode,
           latency: latency,
         );
@@ -1364,9 +1483,7 @@ class MediaUnlockChecker {
           responseType: ResponseType.json,
           receiveTimeout: const Duration(seconds: 4),
           sendTimeout: const Duration(seconds: 4),
-          headers: const {
-            'Content-Type': 'application/json',
-          },
+          headers: const {'Content-Type': 'application/json'},
         ),
       );
       final latency = sw.elapsedMilliseconds;
@@ -1503,18 +1620,27 @@ class MediaUnlockChecker {
         unsupportedRegions: _claudeUnsupportedRegions,
       ),
       MediaPlatform.gemini => checkGemini(),
-      MediaPlatform.grok =>
-        _checkCloudflareTrace(MediaPlatform.grok, 'api.x.ai'),
-      MediaPlatform.openrouter =>
-        _checkCloudflareTrace(MediaPlatform.openrouter, 'openrouter.ai'),
-      MediaPlatform.poe =>
-        _checkCloudflareTrace(MediaPlatform.poe, 'poe.com'),
-      MediaPlatform.suno =>
-        _checkCloudflareTrace(MediaPlatform.suno, 'suno.com'),
-      MediaPlatform.cloudflare =>
-        _checkCloudflareTrace(MediaPlatform.cloudflare, 'api.cloudflare.com'),
-      MediaPlatform.perplexity =>
-        _checkCloudflareTrace(MediaPlatform.perplexity, 'www.perplexity.ai'),
+      MediaPlatform.grok => _checkCloudflareTrace(
+        MediaPlatform.grok,
+        'api.x.ai',
+      ),
+      MediaPlatform.openrouter => _checkCloudflareTrace(
+        MediaPlatform.openrouter,
+        'openrouter.ai',
+      ),
+      MediaPlatform.poe => _checkCloudflareTrace(MediaPlatform.poe, 'poe.com'),
+      MediaPlatform.suno => _checkCloudflareTrace(
+        MediaPlatform.suno,
+        'suno.com',
+      ),
+      MediaPlatform.cloudflare => _checkCloudflareTrace(
+        MediaPlatform.cloudflare,
+        'api.cloudflare.com',
+      ),
+      MediaPlatform.perplexity => _checkCloudflareTrace(
+        MediaPlatform.perplexity,
+        'www.perplexity.ai',
+      ),
       MediaPlatform.netflix => checkNetflix(),
       MediaPlatform.disney => checkDisney(),
       MediaPlatform.youtube => checkYouTube(),
@@ -1523,15 +1649,19 @@ class MediaUnlockChecker {
       MediaPlatform.tiktok => checkTikTok(),
       MediaPlatform.bilibili => checkBilibili(),
       MediaPlatform.iqiyi => checkIqiyi(),
-      MediaPlatform.crunchyroll =>
-_checkCloudflareTrace(MediaPlatform.crunchyroll, 'crunchyroll.com'),
+      MediaPlatform.crunchyroll => _checkCloudflareTrace(
+        MediaPlatform.crunchyroll,
+        'crunchyroll.com',
+      ),
       MediaPlatform.missav => _checkCloudflareTrace(
         MediaPlatform.missav,
         'missav.ws',
         fallbackDomains: const ['missav.ai'],
       ),
-      MediaPlatform.ehentai =>
-_checkCloudflareTrace(MediaPlatform.ehentai, 'e-hentai.org'),
+      MediaPlatform.ehentai => _checkCloudflareTrace(
+        MediaPlatform.ehentai,
+        'e-hentai.org',
+      ),
       MediaPlatform.tencent => checkTencent(),
       MediaPlatform.alibaba => checkAlibaba(),
       MediaPlatform.netease => checkNetease(),
@@ -1546,52 +1676,84 @@ _checkCloudflareTrace(MediaPlatform.ehentai, 'e-hentai.org'),
         'x.com',
         fallbackUrl: 'https://x.com/',
       ),
-      MediaPlatform.discord =>
-        _checkCloudflareTrace(MediaPlatform.discord, 'gateway.discord.gg'),
-      MediaPlatform.v2ex =>
-        _checkCloudflareTrace(MediaPlatform.v2ex, 'v2ex.com'),
-      MediaPlatform.medium =>
-        _checkCloudflareTrace(MediaPlatform.medium, 'medium.com'),
+      MediaPlatform.discord => _checkCloudflareTrace(
+        MediaPlatform.discord,
+        'gateway.discord.gg',
+      ),
+      MediaPlatform.v2ex => _checkCloudflareTrace(
+        MediaPlatform.v2ex,
+        'v2ex.com',
+      ),
+      MediaPlatform.medium => _checkCloudflareTrace(
+        MediaPlatform.medium,
+        'medium.com',
+      ),
       MediaPlatform.stackoverflow => _checkCloudflareTrace(
         MediaPlatform.stackoverflow,
         'stackoverflow.com',
       ),
-      MediaPlatform.quora =>
-        _checkCloudflareTrace(MediaPlatform.quora, 'www.quora.com'),
+      MediaPlatform.quora => _checkCloudflareTrace(
+        MediaPlatform.quora,
+        'www.quora.com',
+      ),
       MediaPlatform.telegram => checkTelegram(),
       MediaPlatform.github => checkGitHub(),
       MediaPlatform.wikipedia => checkWikipedia(),
       MediaPlatform.apple => checkApple(),
       MediaPlatform.onetrust => checkOneTrust(),
-      MediaPlatform.gitlab =>
-        _checkCloudflareTrace(MediaPlatform.gitlab, 'gitlab.com'),
-      MediaPlatform.npm =>
-        _checkCloudflareTrace(MediaPlatform.npm, 'registry.npmjs.org'),
+      MediaPlatform.gitlab => _checkCloudflareTrace(
+        MediaPlatform.gitlab,
+        'gitlab.com',
+      ),
+      MediaPlatform.npm => _checkCloudflareTrace(
+        MediaPlatform.npm,
+        'registry.npmjs.org',
+      ),
       MediaPlatform.cdnjs => _checkCloudflareTrace(
         MediaPlatform.cdnjs,
         'cdnjs.cloudflare.com',
       ),
-      MediaPlatform.unpkg =>
-        _checkCloudflareTrace(MediaPlatform.unpkg, 'unpkg.com'),
-      MediaPlatform.nodejs =>
-        _checkCloudflareTrace(MediaPlatform.nodejs, 'nodejs.org'),
+      MediaPlatform.unpkg => _checkCloudflareTrace(
+        MediaPlatform.unpkg,
+        'unpkg.com',
+      ),
+      MediaPlatform.nodejs => _checkCloudflareTrace(
+        MediaPlatform.nodejs,
+        'nodejs.org',
+      ),
       MediaPlatform.steam => checkSteam(),
-      MediaPlatform.epic =>
-        _checkCloudflareTrace(MediaPlatform.epic, 'store.epicgames.com'),
-      MediaPlatform.ubisoft =>
-        _checkCloudflareTrace(MediaPlatform.ubisoft, 'store.ubisoft.com'),
-      MediaPlatform.humblebundle =>
-        _checkCloudflareTrace(MediaPlatform.humblebundle, 'humblebundle.com'),
-      MediaPlatform.coinbase =>
-        _checkCloudflareTrace(MediaPlatform.coinbase, 'www.coinbase.com'),
-      MediaPlatform.okx =>
-        _checkCloudflareTrace(MediaPlatform.okx, 'www.okx.com'),
-      MediaPlatform.kraken =>
-        _checkCloudflareTrace(MediaPlatform.kraken, 'www.kraken.com'),
-      MediaPlatform.cryptocom =>
-        _checkCloudflareTrace(MediaPlatform.cryptocom, 'crypto.com'),
-      MediaPlatform.phantom =>
-        _checkCloudflareTrace(MediaPlatform.phantom, 'phantom.com'),
+      MediaPlatform.epic => _checkCloudflareTrace(
+        MediaPlatform.epic,
+        'store.epicgames.com',
+      ),
+      MediaPlatform.ubisoft => _checkCloudflareTrace(
+        MediaPlatform.ubisoft,
+        'store.ubisoft.com',
+      ),
+      MediaPlatform.humblebundle => _checkCloudflareTrace(
+        MediaPlatform.humblebundle,
+        'humblebundle.com',
+      ),
+      MediaPlatform.coinbase => _checkCloudflareTrace(
+        MediaPlatform.coinbase,
+        'www.coinbase.com',
+      ),
+      MediaPlatform.okx => _checkCloudflareTrace(
+        MediaPlatform.okx,
+        'www.okx.com',
+      ),
+      MediaPlatform.kraken => _checkCloudflareTrace(
+        MediaPlatform.kraken,
+        'www.kraken.com',
+      ),
+      MediaPlatform.cryptocom => _checkCloudflareTrace(
+        MediaPlatform.cryptocom,
+        'crypto.com',
+      ),
+      MediaPlatform.phantom => _checkCloudflareTrace(
+        MediaPlatform.phantom,
+        'phantom.com',
+      ),
       MediaPlatform.paypal => checkPayPal(),
       MediaPlatform.mytvsuper => checkMyTvSuper(),
       MediaPlatform.viutv => checkViuTv(),

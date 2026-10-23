@@ -74,6 +74,10 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
         globalState.appController.savePreferencesDebounce();
       }
     });
+    ref.listenManual(profilesProvider, (prev, next) {
+      if (prev == null || !next.hasAddedOrChanged(prev)) return;
+      globalState.appController.autoBackupDebounce();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateDashboardRefreshState();
       detectionState.tryStartCheck();
@@ -88,7 +92,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
         return;
       }
       final shouldSet = next.a == true && next.b == true;
-      await macOS?.updateDns(!shouldSet);
+      await system.updateDns(!shouldSet);
     });
     ref.listenManual(currentBrightnessProvider, (prev, next) {
       if (prev == next) {
@@ -190,6 +194,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       await globalState.resumeForegroundUpdates();
       await globalState.appController.syncWakelockIfNeeded();
       _scheduleMissedUpdateCheck();
+      unawaited(globalState.appController.flushAutoBackup());
       try {
         final isInit = await clashCore.isInit;
         if (isInit) {
@@ -468,7 +473,7 @@ class AppSidebarContainer extends ConsumerWidget {
     List<NavigationItem> items,
   ) {
     if (items.isEmpty) return _sidebarExpandedWidth;
-    final labels = items.map((item) => item.label.localizedName).join('\n');
+    final labels = items.map((item) => _sidebarLabelOf(item.label)).join('\n');
     final scaler =
         MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
     final fontFamily = context.textTheme.labelLarge?.fontFamily;
@@ -500,7 +505,7 @@ class AppSidebarContainer extends ConsumerWidget {
     double maxTextWidth = 0.0;
     for (final item in items) {
       final painter = TextPainter(
-        text: TextSpan(text: item.label.localizedName, style: textStyle),
+        text: TextSpan(text: _sidebarLabelOf(item.label), style: textStyle),
         textDirection: direction,
         textScaler: textScaler,
         maxLines: 1,
@@ -690,6 +695,43 @@ class AppSidebarContainer extends ConsumerWidget {
         .updateState(
           (state) => state.copyWith(sidebarCollapsed: !state.sidebarCollapsed),
         );
+    final hasBottomItem =
+        navigationItems.isNotEmpty &&
+        navigationItems.last.label == PageLabel.tools;
+    Widget buildItem(int index) {
+      final item = navigationItems[index];
+      final isTools = item.label == PageLabel.tools;
+      final isSelected = currentIndex == index;
+      final hasFlyout =
+          sidebarFlyout &&
+          isTools &&
+          !(sidebarFlyoutOutsideTools && isSelected);
+      final sidebarItem = _SidebarItem(
+        icon: isTools ? const Icon(Icons.settings) : item.icon,
+        label: _sidebarLabelOf(item.label),
+        isSelected: isSelected,
+        isCollapsed: isCollapsed,
+        hasTooltip: !hasFlyout && !isSelected,
+        expandedWidth: expandedWidth,
+        onTap: () {
+          if (currentIndex == index) {
+            final pageContext = GlobalObjectKey(item.label).currentContext;
+            if (pageContext != null) {
+              Navigator.of(pageContext).popUntil((route) => route.isFirst);
+            }
+          }
+          globalState.appController.toPage(item.label);
+        },
+      );
+      if (!hasFlyout) {
+        return sidebarItem;
+      }
+      return _SidebarFlyout(
+        title: _sidebarLabelOf(item.label),
+        child: sidebarItem,
+      );
+    }
+
     final isLight = context.colorScheme.brightness == Brightness.light;
     final pureBlack = ref.watch(
       themeSettingProvider.select((s) => s.pureBlack),
@@ -775,57 +817,28 @@ class AppSidebarContainer extends ConsumerWidget {
                                             horizontal: 9,
                                             vertical: 4,
                                           ),
-                                          itemCount: navigationItems.length,
+                                          itemCount: hasBottomItem
+                                              ? navigationItems.length - 1
+                                              : navigationItems.length,
                                           separatorBuilder: (_, _) =>
                                               const SizedBox(height: 3.5),
-                                          itemBuilder: (context, index) {
-                                            final item = navigationItems[index];
-                                            final isSelected =
-                                                currentIndex == index;
-                                            final hasFlyout =
-                                                sidebarFlyout &&
-                                                item.label == PageLabel.tools &&
-                                                !(sidebarFlyoutOutsideTools &&
-                                                    isSelected);
-                                            final sidebarItem = _SidebarItem(
-                                              icon: item.icon,
-                                              label: item.label.localizedName,
-                                              isSelected: isSelected,
-                                              isCollapsed: isCollapsed,
-                                              hasTooltip:
-                                                  !hasFlyout && !isSelected,
-                                              expandedWidth: expandedWidth,
-                                              onTap: () {
-                                                if (currentIndex == index) {
-                                                  final pageContext =
-                                                      GlobalObjectKey(
-                                                        item.label,
-                                                      ).currentContext;
-                                                  if (pageContext != null) {
-                                                    Navigator.of(
-                                                      pageContext,
-                                                    ).popUntil(
-                                                      (route) => route.isFirst,
-                                                    );
-                                                  }
-                                                }
-                                                globalState.appController
-                                                    .toPage(item.label);
-                                              },
-                                            );
-                                            if (!hasFlyout) {
-                                              return sidebarItem;
-                                            }
-                                            return _SidebarFlyout(
-                                              title: item.label.localizedName,
-                                              child: sidebarItem,
-                                            );
-                                          },
+                                          itemBuilder: (_, index) =>
+                                              buildItem(index),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
+                                if (hasBottomItem)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 9,
+                                      vertical: 4,
+                                    ),
+                                    child: buildItem(
+                                      navigationItems.length - 1,
+                                    ),
+                                  ),
                                 const SizedBox(height: 8),
                               ],
                             ),
@@ -881,6 +894,9 @@ class AppSidebarContainer extends ConsumerWidget {
     );
   }
 }
+
+String _sidebarLabelOf(PageLabel label) =>
+    label == PageLabel.tools ? appLocalizations.settings : label.localizedName;
 
 class _SidebarItem extends StatefulWidget {
   final Widget icon;

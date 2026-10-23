@@ -351,9 +351,9 @@ class CodeForgeController implements DeltaTextInputClient {
   }
 
   /// Lines break at LF alone, and a line's text leaves out the CR of a CRLF
-  /// pair that its offsets still count, so CRLF text comes in as LF.
+  /// pair that its offsets still count, so CRLF and lone CR text comes in as LF.
   static String normalizeLineBreaks(String text) =>
-      text.replaceAll('\r\n', '\n');
+      text.replaceAll(RegExp(r'\r\n?'), '\n');
 
   /// Keeps the undo history; a caller loading another file clears it.
   set text(String newText) {

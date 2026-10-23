@@ -1388,8 +1388,14 @@ void _editing() {
     });
   });
 
+  test('a lone CR comes in as LF', () {
+    final controller = CodeForgeController()..text = 'a: 1\rb: 2\r\rc: 3';
+    expect(controller.text, 'a: 1\nb: 2\n\nc: 3');
+    expect(controller.lineCount, 4);
+  });
+
   test('only a line feed breaks a line, as in Dart', () {
-    for (final text in ['a\rb\n', 'a\u2028b\n', 'a\u0085b\n']) {
+    for (final text in ['a\u2028b\n', 'a\u0085b\n']) {
       final controller = CodeForgeController()..text = text;
       final lines = text.split('\n');
       expect(controller.lineCount, lines.length, reason: text);
@@ -2217,29 +2223,25 @@ void _keyboard() {
     expect(controller.getLineText(1), '  -  a');
   });
 
-  testWidgets(
-    'Apple platforms use Cmd and Option',
-    (tester) async {
-      final (controller, finder, _) = await pump(tester);
+  testWidgets('Apple platforms use Cmd and Option', (tester) async {
+    final (controller, finder, _) = await pump(tester);
 
-      await _chord(tester, LogicalKeyboardKey.keyF, meta: true, alt: true);
-      expect(finder.isReplaceMode, isTrue);
-      await _chord(tester, LogicalKeyboardKey.escape);
+    await _chord(tester, LogicalKeyboardKey.keyF, meta: true, alt: true);
+    expect(finder.isReplaceMode, isTrue);
+    await _chord(tester, LogicalKeyboardKey.escape);
 
-      controller.selection = TextSelection.collapsed(
-        offset: controller.getLineStartOffset(1) + '  - name'.length,
-      );
-      await _chord(tester, LogicalKeyboardKey.backspace, alt: true);
-      expect(controller.getLineText(1), '  - : a');
-      await _chord(tester, LogicalKeyboardKey.keyZ, meta: true);
-      expect(controller.text, _document);
-      await _chord(tester, LogicalKeyboardKey.keyZ, meta: true, shift: true);
-      expect(controller.getLineText(1), '  - : a');
-      await _chord(tester, LogicalKeyboardKey.backspace, meta: true);
-      expect(controller.getLineText(1), ': a');
-    },
-    variant: TargetPlatformVariant.only(TargetPlatform.macOS),
-  );
+    controller.selection = TextSelection.collapsed(
+      offset: controller.getLineStartOffset(1) + '  - name'.length,
+    );
+    await _chord(tester, LogicalKeyboardKey.backspace, alt: true);
+    expect(controller.getLineText(1), '  - : a');
+    await _chord(tester, LogicalKeyboardKey.keyZ, meta: true);
+    expect(controller.text, _document);
+    await _chord(tester, LogicalKeyboardKey.keyZ, meta: true, shift: true);
+    expect(controller.getLineText(1), '  - : a');
+    await _chord(tester, LogicalKeyboardKey.backspace, meta: true);
+    expect(controller.getLineText(1), ': a');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
 }
 
 Future<CodeForgeController> _pump(WidgetTester tester) async {
@@ -3083,10 +3085,7 @@ void _find() {
   testWidgets('matches are counted in scalars and CJK words are whole words', (
     tester,
   ) async {
-    final (controller, finder) = await pumpFind(
-      tester,
-      text: '😀 节点 a节点\n节点',
-    );
+    final (controller, finder) = await pumpFind(tester, text: '😀 节点 a节点\n节点');
 
     finder.find('节点');
     expect(finder.matchCount, 3);

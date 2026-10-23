@@ -7,3 +7,8 @@ export 'profile.dart';
 export 'selector.dart';
 export 'widget.dart';
 export 'media_unlock.dart';
+export 'speed_test.dart';
+export 'stun_test.dart';
+export 'iperf.dart';
+export 'local_ping.dart';
+export 'toolbox.dart';

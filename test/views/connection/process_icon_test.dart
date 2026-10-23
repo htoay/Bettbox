@@ -73,6 +73,6 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.byIcon(Icons.terminal), findsOneWidget);
+    expect(find.byIcon(Icons.settings_suggest_outlined), findsOneWidget);
   }, skip: !system.isDesktop);
 }

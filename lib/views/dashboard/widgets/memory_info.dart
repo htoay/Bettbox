@@ -2,15 +2,19 @@ import 'dart:async';
 
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/common.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'core_status_dialog.dart';
+import 'tile.dart';
 
 class MemoryInfo extends StatefulWidget {
-  const MemoryInfo({super.key});
+  final DashboardTileSize? size;
+
+  const MemoryInfo({super.key, this.size});
 
   @override
   State<MemoryInfo> createState() => _MemoryInfoState();
@@ -20,6 +24,9 @@ class _MemoryInfoState extends State<MemoryInfo> {
   late final VoidCallback _tickListener;
   // Cache last memory value to avoid showing 0 on rebuild
   static TrafficValue _lastMemoryValue = TrafficValue(value: 0);
+  static final List<double> _history = [];
+  static const _averageWindow = Duration(minutes: 10);
+  static final List<(DateTime, int)> _samples = [];
   TrafficValue _memoryValue = _lastMemoryValue;
   Timer? _initTimer;
   bool _isUpdating = false;
@@ -67,6 +74,8 @@ class _MemoryInfoState extends State<MemoryInfo> {
         final adjustedValue = memoryValue;
 
         if (mounted) {
+          pushDashboardSample(_history, adjustedValue.toDouble(), max: 30);
+          _recordSample(adjustedValue);
           setState(() {
             _memoryValue = TrafficValue(value: adjustedValue);
             _lastMemoryValue = _memoryValue; // Cache latest valid value
@@ -79,6 +88,23 @@ class _MemoryInfoState extends State<MemoryInfo> {
     } finally {
       _isUpdating = false;
     }
+  }
+
+  static void _recordSample(int value) {
+    final now = DateTime.now();
+    _samples
+      ..add((now, value))
+      ..removeWhere((sample) => now.difference(sample.$1) > _averageWindow);
+  }
+
+  int get _average {
+    final now = DateTime.now();
+    final recent = [
+      for (final (time, value) in _samples)
+        if (now.difference(time) <= _averageWindow) value,
+    ];
+    if (recent.isEmpty) return _memoryValue.value;
+    return recent.reduce((a, b) => a + b) ~/ recent.length;
   }
 
   Future<void> _showMemoryInfoDialog(BuildContext context) async {
@@ -98,8 +124,132 @@ class _MemoryInfoState extends State<MemoryInfo> {
     );
   }
 
+  Future<void> _handleForceGc() async {
+    final result = await globalState.showCommonDialog<bool>(
+      child: CommonDialog(
+        title: appLocalizations.forceGCTitle,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop(false);
+            },
+            child: Text(appLocalizations.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop(true);
+            },
+            child: Text(appLocalizations.confirm),
+          ),
+        ],
+        child: Text(appLocalizations.forceGCDesc),
+      ),
+    );
+    if (result == true) {
+      await clashCore.requestGc(forceFreeOSMemory: true);
+      globalState.showNotifier(appLocalizations.success);
+    }
+  }
+
+  Widget _buildTile(BuildContext context, DashboardTileSize size) {
+    final isTall = size == DashboardTileSize.tall;
+    final colorScheme = context.colorScheme;
+    final value = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(
+          _memoryValue.showValue,
+          style: context.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            height: 1,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          _memoryValue.showUnit,
+          style: context.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+    final peak = Text(
+      appLocalizations.dashboardAverage(TrafficValue(value: _average).show),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: context.textTheme.labelSmall?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+      ),
+    );
+    return DashboardTileCard(
+      size: size,
+      info: Info(label: appLocalizations.memoryInfo, iconData: Icons.memory),
+      mark: DashboardDecor.icon(context, Icons.memory, 80),
+      markAngle: 0.28,
+      onPressed: () => showCoreStatusDialog(context),
+      onLongPress: _handleForceGc,
+      actions: [
+        SizedBox.square(
+          dimension: 24,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => _showMemoryInfoDialog(context),
+            icon: Icon(
+              size: 16.ap,
+              Icons.info_outline,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
+      child: isTall
+          ? Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  value,
+                  const SizedBox(height: 4),
+                  peak,
+                  const SizedBox(height: 12),
+                  Expanded(child: DashboardTrendLine(values: _history)),
+                ],
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 72, 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        value,
+                        const SizedBox(width: 10),
+                        Flexible(child: peak),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 96,
+                    height: 28,
+                    child: DashboardTrendLine(values: _history),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.size case final size?) return _buildTile(context, size);
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(

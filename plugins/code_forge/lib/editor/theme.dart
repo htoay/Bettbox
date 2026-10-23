@@ -48,6 +48,8 @@ class GutterStyle {
   });
 }
 
+typedef _UiStyleKey = (ui.Color, ui.FontWeight?, ui.FontStyle?);
+
 /// Highlights each line on its own, so a line's spans follow from its text
 /// alone and are cached by it.
 class SyntaxHighlighter {
@@ -58,6 +60,7 @@ class SyntaxHighlighter {
       lineText.length > maxHighlightedLineLength;
 
   static const _maxCachedLines = 8000;
+  static const _evictedLines = _maxCachedLines ~/ 4;
   static const _maxInlineBatchChars = 2000;
 
   final Mode language;
@@ -69,6 +72,12 @@ class SyntaxHighlighter {
     _resolveTheme(editorTheme),
     baseTextStyle,
   );
+  final Map<_UiStyleKey, ui.TextStyle> _uiStyles = {};
+  late final TextStyle? _baseStyle = baseTextStyle ?? editorTheme['root'];
+  late final ui.Color _fallbackColor =
+      editorTheme['root']?.color ?? Colors.black;
+  double? _uiStyleSize;
+  String? _uiStyleFamily;
   Future<void>? _pending;
 
   SyntaxHighlighter({
@@ -82,12 +91,17 @@ class SyntaxHighlighter {
 
   TextSpan? lineSpan(String lineText) {
     if (isPlain(lineText)) return null;
-    if (_spans.containsKey(lineText)) return _spans[lineText];
+    final cached = _spans[lineText];
+    if (cached != null || _spans.containsKey(lineText)) return cached;
     return _remember(lineText, _grammar.highlight(lineText));
   }
 
   TextSpan? _remember(String lineText, TextSpan? span) {
-    if (_spans.length >= _maxCachedLines) _spans.clear();
+    if (_spans.length >= _maxCachedLines) {
+      for (final key in _spans.keys.take(_evictedLines).toList()) {
+        _spans.remove(key);
+      }
+    }
     return _spans[lineText] = span;
   }
 
@@ -183,12 +197,8 @@ class SyntaxHighlighter {
     String? fontFamily, {
     TextStyle? inheritedStyle,
   }) {
-    final effectiveStyle =
-        (inheritedStyle ??
-                baseTextStyle ??
-                editorTheme['root'] ??
-                const TextStyle())
-            .merge(span.style);
+    final effectiveStyle = (inheritedStyle ?? _baseStyle ?? const TextStyle())
+        .merge(span.style);
     final style = _textStyleToUiStyle(effectiveStyle, fontSize, fontFamily);
     builder.pushStyle(style);
 
@@ -218,28 +228,26 @@ class SyntaxHighlighter {
     double fontSize,
     String? fontFamily,
   ) {
-    return ui.TextStyle(
-      color: style?.color ?? editorTheme['root']?.color ?? Colors.black,
+    if (fontSize != _uiStyleSize || fontFamily != _uiStyleFamily) {
+      _uiStyles.clear();
+      _uiStyleSize = fontSize;
+      _uiStyleFamily = fontFamily;
+    }
+    final color = style?.color ?? _fallbackColor;
+    final fontWeight = style?.fontWeight;
+    final fontStyle = style?.fontStyle;
+    return _uiStyles[(color, fontWeight, fontStyle)] ??= ui.TextStyle(
+      color: color,
       fontSize: fontSize,
       fontFamily: fontFamily,
       fontFamilyFallback: baseTextStyle?.fontFamilyFallback,
-      fontWeight: style?.fontWeight,
-      fontStyle: style?.fontStyle,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
     );
   }
 
-  ui.TextStyle _getUiTextStyle(double fontSize, String? fontFamily) {
-    final baseStyle = baseTextStyle ?? editorTheme['root'];
-
-    return ui.TextStyle(
-      color: baseStyle?.color ?? editorTheme['root']?.color ?? Colors.black,
-      fontSize: fontSize,
-      fontFamily: fontFamily,
-      fontFamilyFallback: baseTextStyle?.fontFamilyFallback,
-      fontWeight: baseStyle?.fontWeight,
-      fontStyle: baseStyle?.fontStyle,
-    );
-  }
+  ui.TextStyle _getUiTextStyle(double fontSize, String? fontFamily) =>
+      _textStyleToUiStyle(_baseStyle, fontSize, fontFamily);
 
   /// A call while one runs joins it, leaving its own lines to the next paint.
   Future<void> preHighlightLines(
@@ -258,6 +266,7 @@ class SyntaxHighlighter {
       for (final line in lines)
         if (getLineText(line) case final text when !hasLineSpan(text)) text,
     }.toList();
+    if (pending.isEmpty) return;
     final chars = pending.fold(0, (sum, text) => sum + text.length);
     if (_grammar.isNative || chars < _maxInlineBatchChars) {
       for (final text in pending) {
@@ -311,35 +320,60 @@ class _Grammar {
     'template-variable',
   ];
 
+  late final List<TextStyle?> _scopeStyles = [
+    for (final scope in _isYaml ? _yamlScopes : _javascriptScopes)
+      theme[scope] ?? base,
+  ];
+
   /// Null for a line the native engine leaves to re_highlight.
   TextSpan? _nativeSpan(String lineText) {
     final tokens = _isYaml
         ? highlightYamlLine(text: lineText)
         : highlightJavascriptLine(text: lineText);
     if (tokens == null) return null;
-    final scopes = _isYaml ? _yamlScopes : _javascriptScopes;
-    final spans = <TextSpan>[];
-    var at = 0;
-    for (var i = 0; i < tokens.length; i += 3) {
-      final start = tokens[i];
-      final end = tokens[i + 1];
-      if (start > at) {
-        spans.add(TextSpan(text: lineText.substring(at, start), style: base));
+    if (tokens.isEmpty) return TextSpan(text: lineText, style: base);
+    final styles = _scopeStyles;
+    final length = lineText.length;
+    final spans = List<TextSpan>.filled(
+      tokens.length ~/ 3 * 2 + 1,
+      const TextSpan(),
+      growable: true,
+    );
+    var count = 0;
+    var index = 0;
+    var from = 0;
+    var to = 0;
+    var current = base;
+    while (to < length) {
+      final TextStyle? style;
+      final int end;
+      if (index < tokens.length && tokens[index] <= to) {
+        end = tokens[index + 1];
+        style = styles[tokens[index + 2]];
+        index += 3;
+      } else {
+        end = index < tokens.length ? tokens[index] : length;
+        style = base;
       }
-      spans.add(
-        TextSpan(
-          text: lineText.substring(start, end),
-          style: theme[scopes[tokens[i + 2]]] ?? base,
-        ),
-      );
-      at = end;
+      if (!identical(style, current)) {
+        if (to > from) {
+          spans[count++] = TextSpan(
+            text: lineText.substring(from, to),
+            style: current,
+          );
+        }
+        from = to;
+        current = style;
+      }
+      to = end;
     }
-    if (at < lineText.length) {
-      spans.add(TextSpan(text: lineText.substring(at), style: base));
-    }
-    return spans.length == 1
-        ? spans.first
-        : TextSpan(children: spans, style: base);
+    spans[count++] = TextSpan(
+      text: lineText.substring(from, to),
+      style: current,
+    );
+    if (count == 1) return spans.first;
+    spans.length = count;
+    return TextSpan(children: spans, style: base);
   }
 
   TextSpan? highlight(String lineText) {

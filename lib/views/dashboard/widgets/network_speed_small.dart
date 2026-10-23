@@ -2,6 +2,7 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/pages/speed_test.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,21 +15,12 @@ class NetworkSpeedSmall extends ConsumerWidget {
 
   static List<Point> _getPoints(List<Traffic> traffics) {
     if (traffics.isEmpty) return _initPoints;
-
-    // Pre-allocate array capacity
-    final totalLength = traffics.length + _initPoints.length;
-    final result = List<Point>.filled(totalLength, Point(0, 0));
-
-    // Assign init points
-    result[0] = _initPoints[0];
-    result[1] = _initPoints[1];
-
-    // Assign traffic points
-    for (int i = 0; i < traffics.length; i++) {
-      result[i + 2] = Point((i + 2).toDouble(), traffics[i].speed.toDouble());
-    }
-
-    return result;
+    final count = traffics.length;
+    return List<Point>.generate(count + 2, (index) {
+      if (index == 0) return _initPoints[0];
+      if (index == 1) return _initPoints[1];
+      return Point(index.toDouble(), traffics[index - 2].speed.toDouble());
+    }, growable: false);
   }
 
   static Traffic _getLastTraffic(List<Traffic> traffics) {
@@ -77,9 +69,8 @@ class NetworkSpeedSmall extends ConsumerWidget {
               isMobile,
             );
             return CommonCard(
-              onPressed: () {
-                globalState.openUrl('https://ptclspeed.speedtestcustom.com');
-              },
+              onPressed: () =>
+                  BaseNavigator.push(context, const SpeedTestPage()),
               info: Info(
                 label: speedText,
                 iconData: Icons.speed_sharp,

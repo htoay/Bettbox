@@ -19,9 +19,10 @@ import 'package:bett_box/views/config/ntp.dart';
 import 'package:bett_box/views/config/sniffer.dart';
 import 'package:bett_box/views/config/tunnel.dart';
 import 'package:bett_box/views/connection/connections.dart';
-import 'package:bett_box/views/connection/requests.dart';
 import 'package:bett_box/views/hotkey.dart';
 import 'package:bett_box/views/other_setting.dart';
+import 'package:bett_box/views/profiles/scripts.dart';
+import 'package:bett_box/views/resources.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -109,11 +110,22 @@ List<ToolsShortcut> getToolsShortcuts(
     for (final entry in SidebarFlyoutEntry.supportedValues)
       if (entries.contains(entry))
         ?switch (entry) {
-          SidebarFlyoutEntry.resources => buildNavigationShortcut(
-            PageLabel.resources,
+          SidebarFlyoutEntry.resources => ToolsShortcut(
+            icon: const Icon(Icons.storage),
+            title: appLocalizations.resources,
+            subtitle: appLocalizations.resourcesDesc,
+            builder: (_) => const ResourcesView(),
+            wrap: false,
           ),
-          SidebarFlyoutEntry.script => buildNavigationShortcut(
-            PageLabel.script,
+          SidebarFlyoutEntry.script => ToolsShortcut(
+            icon: const Icon(Icons.terminal_outlined),
+            title: appLocalizations.script,
+            subtitle: appLocalizations.scriptDesc,
+            builder: (_) => const ScriptsView(),
+            wrap: false,
+          ),
+          SidebarFlyoutEntry.toolbox => buildNavigationShortcut(
+            PageLabel.toolbox,
           ),
           SidebarFlyoutEntry.theme => ToolsShortcut(
             icon: const Icon(Icons.style),
@@ -192,9 +204,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
   Widget _buildNavigationPage(NavigationItem navigationItem) {
     if (navigationItem.label == PageLabel.connections) {
       return const ConnectionsView(respectCurrentPage: false);
-    }
-    if (navigationItem.label == PageLabel.requests) {
-      return const RequestsView();
     }
     return navigationItem.builder(context);
   }
@@ -1501,6 +1510,9 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     final moreItems = ref.watch(
       moreToolsSelectorStateProvider.select((state) => state.navigationItems),
     );
+    final logsItem = isMobileView && !globalState.isAndroidTV
+        ? moreItems.where((item) => item.label == PageLabel.logs).firstOrNull
+        : null;
     final searchItems = _getSearchItems(moreItems);
     final searchResults = _query.isEmpty
         ? const <Widget>[]
@@ -1510,14 +1522,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       Consumer(
         builder: (_, ref, _) {
           final state = ref.watch(moreToolsSelectorStateProvider);
-          if (state.navigationItems.isEmpty) {
+          final navigationItems = state.navigationItems
+              .where((item) => logsItem == null || item.label != logsItem.label)
+              .toList();
+          if (navigationItems.isEmpty) {
             return Container();
           }
           return _buildModernSection(
             context,
             title: appLocalizations.more,
             isFirst: true,
-            items: state.navigationItems
+            items: navigationItems
                 .map((item) => _buildNavigationMenuItem(item))
                 .toList(),
           );
@@ -1546,8 +1561,20 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     ];
 
     return CommonScaffold(
-      title: appLocalizations.tools,
+      title: isMobileView ? appLocalizations.tools : appLocalizations.settings,
       searchState: AppBarSearchState(onSearch: _onSearchChanged),
+      actions: [
+        if (logsItem != null)
+          IconButton(
+            onPressed: () => showExtend(
+              context,
+              props: const ExtendProps(forceFull: true),
+              builder: (_, _) => _buildNavigationPage(logsItem),
+            ),
+            icon: logsItem.icon,
+            tooltip: Intl.message(logsItem.label.name),
+          ),
+      ],
       body: ScrollEdgeRise(
         builder: (context, rise) => ListView.builder(
           key: _query.isEmpty ? toolsStoreKey : null,

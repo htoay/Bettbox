@@ -109,6 +109,22 @@ class _ScrollToEndBoxState<T> extends State<ScrollToEndBox<T>> {
     return completer.future;
   }
 
+  bool _isDataChanged(List<T> oldList, List<T> newList) {
+    if (identical(oldList, newList)) return false;
+    final length = oldList.length;
+    if (length != newList.length) return true;
+    if (length == 0) return false;
+    if (!identical(oldList.last, newList.last) &&
+        oldList.last != newList.last) {
+      return true;
+    }
+    if (!identical(oldList.first, newList.first) &&
+        oldList.first != newList.first) {
+      return true;
+    }
+    return !_equals.equals(oldList, newList);
+  }
+
   @override
   void didUpdateWidget(ScrollToEndBox<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -118,7 +134,7 @@ class _ScrollToEndBoxState<T> extends State<ScrollToEndBox<T>> {
       return;
     }
     if (widget.enable &&
-        !_equals.equals(oldWidget.dataSource, widget.dataSource)) {
+        _isDataChanged(oldWidget.dataSource, widget.dataSource)) {
       _handleTryToEnd();
     }
   }

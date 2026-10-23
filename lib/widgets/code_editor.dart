@@ -520,6 +520,7 @@ class EditorMagnifier extends StatelessWidget {
   final Color backgroundColor;
   final Color borderColor;
   final Color caretColor;
+  final Color selectionColor;
 
   const EditorMagnifier({
     super.key,
@@ -529,30 +530,54 @@ class EditorMagnifier extends StatelessWidget {
     required this.backgroundColor,
     required this.borderColor,
     required this.caretColor,
+    required this.selectionColor,
     this.lineSpan,
   });
 
   static const _context = 10;
   static const _scale = 1.5;
 
-  ({int line, String text, int start, int end, int caret}) _preview() {
-    final offset = controller.selection.extentOffset.clamp(
-      0,
-      controller.length,
-    );
+  static int _unitsBefore(String text, int columns) {
+    var units = 0;
+    for (final rune in text.runes) {
+      if (columns-- <= 0) break;
+      units += rune > 0xFFFF ? 2 : 1;
+    }
+    return units;
+  }
+
+  ({
+    int line,
+    String text,
+    int start,
+    int end,
+    int caret,
+    int selectionStart,
+    int selectionEnd,
+  })
+  _preview() {
+    final selection = controller.selection;
+    final length = controller.length;
+    final offset = selection.extentOffset.clamp(0, length);
     final line = controller.getLineAtOffset(offset);
     final text = controller.getLineText(line);
-    var column = offset - controller.getLineStartOffset(line);
-    var caret = 0;
-    for (final rune in text.runes) {
-      if (column-- <= 0) break;
-      caret += rune > 0xFFFF ? 2 : 1;
-    }
+    final lineStart = controller.getLineStartOffset(line);
+    final caret = _unitsBefore(text, offset - lineStart);
     var start = math.max(0, caret - _context);
     var end = math.min(text.length, caret + _context);
     if (start > 0 && text.codeUnitAt(start) & 0xFC00 == 0xDC00) start--;
     if (end < text.length && text.codeUnitAt(end) & 0xFC00 == 0xDC00) end++;
-    return (line: line, text: text, start: start, end: end, caret: caret);
+    int unitsAt(int position) =>
+        _unitsBefore(text, position.clamp(0, length) - lineStart);
+    return (
+      line: line,
+      text: text,
+      start: start,
+      end: end,
+      caret: caret,
+      selectionStart: unitsAt(selection.start).clamp(start, end),
+      selectionEnd: unitsAt(selection.end).clamp(start, end),
+    );
   }
 
   List<InlineSpan> _slice(TextSpan span, int start, int end) {
@@ -613,6 +638,14 @@ class EditorMagnifier extends StatelessWidget {
               Rect.zero,
             )
             .dx;
+        final selectionBoxes = preview.selectionEnd > preview.selectionStart
+            ? painter.getBoxesForSelection(
+                TextSelection(
+                  baseOffset: preview.selectionStart - preview.start,
+                  extentOffset: preview.selectionEnd - preview.start,
+                ),
+              )
+            : const <TextBox>[];
         final textHeight = painter.height;
         final textWidth = painter.width;
         painter.dispose();
@@ -645,6 +678,14 @@ class EditorMagnifier extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.hardEdge,
                   children: [
+                    for (final box in selectionBoxes)
+                      Positioned(
+                        left: textLeft - left + box.left,
+                        top: 6 + box.top,
+                        width: box.right - box.left,
+                        height: box.bottom - box.top,
+                        child: ColoredBox(color: selectionColor),
+                      ),
                     Positioned(
                       left: textLeft - left,
                       top: 6,
@@ -672,4 +713,3 @@ class EditorMagnifier extends StatelessWidget {
     );
   }
 }
-

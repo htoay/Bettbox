@@ -15,6 +15,7 @@ const _cryptProtectUiForbidden = 0x1;
 
 class HelperAuthManager {
   static String? _authKey;
+  static Future<bool>? _ensuringAuthKey;
 
   static String? getAuthKey() => _authKey;
 
@@ -22,7 +23,12 @@ class HelperAuthManager {
     if (_authKey != null) {
       return false;
     }
+    return _ensuringAuthKey ??= _loadAuthKey().whenComplete(
+      () => _ensuringAuthKey = null,
+    );
+  }
 
+  static Future<bool> _loadAuthKey() async {
     if (Platform.isWindows) {
       commonPrint.log(
         '[HelperAuth] Trying to sync auth key from registry for service: $appHelperService',

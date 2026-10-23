@@ -7,8 +7,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import 'tile.dart';
+
 class NetworkDetection extends ConsumerStatefulWidget {
-  const NetworkDetection({super.key});
+  final DashboardTileSize? size;
+
+  const NetworkDetection({super.key, this.size});
 
   @override
   ConsumerState<NetworkDetection> createState() => _NetworkDetectionState();
@@ -281,8 +285,208 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
     );
   }
 
+  Widget _buildHeader(BuildContext context, IpInfo? ipInfo) {
+    return Container(
+      height: globalState.measure.titleMediumHeight + 16,
+      padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+      child: Row(
+        children: [
+          ipInfo != null
+              ? Text(
+                  _countryCodeToEmoji(ipInfo.countryCode),
+                  style: Theme.of(context).textTheme.titleMedium?.toLight
+                      .copyWith(
+                        fontFamily: FontFamily.twEmoji.value,
+                        fontFamilyFallback: [FontFamily.twEmoji.value],
+                      ),
+                )
+              : Icon(
+                  Icons.network_check,
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: TooltipText(
+              text: Text(
+                appLocalizations.networkDetection,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.titleSmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          AspectRatio(
+            aspectRatio: 1,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: _showIpClickBehaviorSettings,
+              icon: Icon(
+                size: 16.ap,
+                Icons.settings_outlined,
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetail(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: context.textTheme.labelSmall?.copyWith(
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyMedium?.toLight,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTile(BuildContext context, DashboardTileSize size) {
+    final isTall = size == DashboardTileSize.tall;
+    return SizedBox(
+      height: getWidgetHeight(context, size.rows),
+      child: ValueListenableBuilder<NetworkDetectionState>(
+        valueListenable: detectionState.state,
+        builder: (_, state, _) {
+          final ipInfo = state.ipInfo;
+          final masked = detectionState.isIpMasked;
+          final location = ipInfo == null
+              ? ''
+              : [
+                  ipInfo.country,
+                  if (ipInfo.city != ipInfo.country) ipInfo.city,
+                ].where((item) => item?.isNotEmpty ?? false).join(' · ');
+          final operator = ipInfo == null
+              ? ''
+              : [
+                  ipInfo.asn,
+                  ipInfo.asName ?? ipInfo.isp,
+                ].where((item) => item?.isNotEmpty ?? false).join(' ');
+          final countryCode = ipInfo?.countryCode ?? '';
+          final ipText = ipInfo != null
+              ? Text(
+                  ipInfo.ip,
+                  style: context.textTheme.bodyMedium?.toLight.adjustSize(1),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )
+              : state.isLoading == false
+              ? Text(
+                  state.errorMessage ?? 'timeout',
+                  style: context.textTheme.bodyMedium
+                      ?.copyWith(color: Colors.red)
+                      .adjustSize(1),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )
+              : Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  widthFactor: 1,
+                  child: SpinKitThreeBounce(
+                    color: context.colorScheme.primary,
+                    size: 16,
+                  ),
+                );
+          return CommonCard(
+            onPressed: ipInfo != null ? _showMoreIpInfoDialog : () {},
+            child: DashboardDecor(
+              mark: countryCode.length == 2
+                  ? DashboardDecor.flag(countryCode, 80)
+                  : DashboardDecor.icon(context, Icons.public, 80),
+              angle: isTall ? 0.18 : -0.18,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: isTall
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildHeader(context, ipInfo),
+                  if (isTall)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 12, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: globalState.measure.bodyMediumHeight + 2,
+                            child: Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: ipText,
+                            ),
+                          ),
+                          if (!masked && location.isNotEmpty)
+                            _buildDetail(
+                              context,
+                              appLocalizations.countryOrRegion,
+                              location,
+                            ),
+                          if (!masked && operator.isNotEmpty)
+                            _buildDetail(
+                              context,
+                              appLocalizations.operatorOrAsn,
+                              operator,
+                            ),
+                        ],
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: baseInfoEdgeInsets.copyWith(top: 0),
+                      child: SizedBox(
+                        height: globalState.measure.bodyMediumHeight + 2,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Flexible(child: ipText),
+                            if (!masked && ipInfo != null) ...[
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  [location, operator]
+                                      .where((item) => item.isNotEmpty)
+                                      .join(' · '),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textTheme.bodySmall?.copyWith(
+                                    color: context.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.size case final size?) return _buildTile(context, size);
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: ValueListenableBuilder<NetworkDetectionState>(

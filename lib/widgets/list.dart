@@ -606,6 +606,27 @@ class SectionContainer extends StatelessWidget {
     final cleanItems = items.where((widget) => widget is! Divider).toList();
     if (cleanItems.isEmpty) return const SizedBox.shrink();
 
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < cleanItems.length; i++) ...[
+          cleanItems[i],
+          if (i != cleanItems.length - 1)
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: context.colorScheme.outlineVariant.withValues(
+                alpha: context.colorScheme.brightness == Brightness.light
+                    ? 0.45
+                    : 0.25,
+              ),
+              indent: 16,
+              endIndent: 16,
+            ),
+        ],
+      ],
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -614,30 +635,7 @@ class SectionContainer extends StatelessWidget {
           ListHeader(title: title!, actions: actions, padding: headerPadding),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: CommonCard(
-            type: CommonCardType.filled,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < cleanItems.length; i++) ...[
-                  cleanItems[i],
-                  if (i != cleanItems.length - 1)
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: context.colorScheme.outlineVariant.withValues(
-                        alpha:
-                            context.colorScheme.brightness == Brightness.light
-                            ? 0.45
-                            : 0.25,
-                      ),
-                      indent: 16,
-                      endIndent: 16,
-                    ),
-                ],
-              ],
-            ),
-          ),
+          child: CommonCard(type: CommonCardType.filled, child: content),
         ),
       ],
     );

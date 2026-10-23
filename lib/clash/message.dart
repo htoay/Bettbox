@@ -21,6 +21,14 @@ class ClashMessage {
             listener.onRequest(TrackerInfo.fromJson(m.data));
           case AppMessageType.loaded:
             listener.onLoaded(m.data);
+          case AppMessageType.speedTest:
+            listener.onSpeedTest(SpeedTestState.fromJson(m.data));
+          case AppMessageType.stunTest:
+            listener.onStunTest(StunTestState.fromJson(m.data));
+          case AppMessageType.iperf:
+            listener.onIperf(IperfState.fromJson(m.data));
+          case AppMessageType.localPing:
+            listener.onLocalPing(LocalPingState.fromJson(m.data));
         }
       }
     });

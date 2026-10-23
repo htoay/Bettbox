@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"net/netip"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -12,7 +11,6 @@ import (
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/log"
 	"github.com/metacubex/mihomo/tunnel"
-	"go4.org/netipx"
 )
 
 func parsePatchProfile(t *testing.T, content string) *config.RawConfig {
@@ -85,6 +83,22 @@ func TestApplyPatchGeneral(t *testing.T) {
 	}
 	if !rawCfg.Tun.Enable || rawCfg.Tun.Device != "utun9" || rawCfg.Tun.MTU != 1400 || len(rawCfg.Tun.RouteAddress) != 1 {
 		t.Errorf("tun should be merged: %+v", rawCfg.Tun)
+	}
+}
+
+func TestApplyPatchTunDNSMode(t *testing.T) {
+	rawCfg := parsePatchProfile(t, "tun:\n  dns-mode: native\n")
+	if _, err := applyPatch(rawCfg, patchParams(t, `{"general":{"tun":{"enable":true,"stack":"system"}}}`)); err != nil {
+		t.Fatal(err)
+	}
+	if rawCfg.Tun.DNSMode != "native" {
+		t.Errorf("profile dns-mode should be kept, got %q", rawCfg.Tun.DNSMode)
+	}
+	if _, err := applyPatch(rawCfg, patchParams(t, `{"general":{"tun":{"enable":true,"stack":"system","dns-mode":"hijack"}}}`)); err != nil {
+		t.Fatal(err)
+	}
+	if rawCfg.Tun.DNSMode != "hijack" {
+		t.Errorf("patched dns-mode should override, got %q", rawCfg.Tun.DNSMode)
 	}
 }
 
@@ -173,61 +187,6 @@ func TestApplyPatchAndroidDns(t *testing.T) {
 	}
 }
 
-func TestApplyPatchLinuxRouteExclude(t *testing.T) {
-	previous := patchForLinux
-	defer func() { patchForLinux = previous }()
-
-	general := `{"general":{"tun":{"enable":true,"auto-route":true,"auto-redirect":true,"route-exclude-address":["192.168.0.0/16","fd00::/8"]}}}`
-	cases := []struct {
-		linux   bool
-		profile string
-		general string
-		useSet  bool
-	}{
-		{true, "mode: rule\n", general, true},
-		{false, "mode: rule\n", general, false},
-		{true, "routing-mark: 6666\n", general, false},
-		{true, "mode: rule\n", `{"general":{"tun":{"enable":true,"auto-redirect":true,"route-exclude-address":[]}}}`, false},
-		{true, "mode: rule\n", `{"general":{"tun":{"enable":true,"auto-redirect":false,"route-exclude-address":["192.168.0.0/16"]}}}`, false},
-	}
-	for index, item := range cases {
-		patchForLinux = item.linux
-		rawCfg := parsePatchProfile(t, item.profile)
-		if _, err := applyPatch(rawCfg, patchParams(t, item.general)); err != nil {
-			t.Fatal(err)
-		}
-		_, hasProvider := rawCfg.RuleProvider[tunRouteExcludeSet]
-		hasSet := len(rawCfg.Tun.RouteExcludeAddressSet) == 1 && rawCfg.Tun.RouteExcludeAddressSet[0] == tunRouteExcludeSet
-		if hasProvider != item.useSet || hasSet != item.useSet {
-			t.Errorf("case %d: provider = %v, set = %v, want %v", index, hasProvider, hasSet, item.useSet)
-		}
-		if item.useSet && len(rawCfg.Tun.RouteExcludeAddress) != 0 {
-			t.Errorf("case %d: route-exclude-address should move into the rule set", index)
-		}
-	}
-
-	patchForLinux = true
-	rawCfg := parsePatchProfile(t, "mode: rule\n")
-	if _, err := applyPatch(rawCfg, patchParams(t, general)); err != nil {
-		t.Fatal(err)
-	}
-	cfg, err := config.ParseRawConfig(rawCfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	provider, exist := cfg.RuleProviders[tunRouteExcludeSet]
-	if !exist {
-		t.Fatal("route exclude rule set should be parsed")
-	}
-	strategy, ok := provider.Strategy().(interface{ ToIpCidr() *netipx.IPSet })
-	if !ok || strategy.ToIpCidr() == nil {
-		t.Fatal("route exclude rule set should expose ip cidr")
-	}
-	if !strategy.ToIpCidr().Contains(netip.MustParseAddr("192.168.1.1")) {
-		t.Errorf("route exclude rule set should contain the private range")
-	}
-}
-
 func TestApplyPatchDnsInjection(t *testing.T) {
 	rawCfg := parsePatchProfile(t, "dns: {enable: false, nameserver: ['10.0.0.1']}\n")
 	dns, _ := json.Marshal(map[string]any{
@@ -237,15 +196,14 @@ func TestApplyPatchDnsInjection(t *testing.T) {
 	})
 	params := patchParams(t, `{}`)
 	params.Dns = dns
-	params.DnsNodeOverride = true
 	if _, err := applyPatch(rawCfg, params); err != nil {
 		t.Fatal(err)
 	}
 	if !rawCfg.DNS.Enable || !reflect.DeepEqual(rawCfg.DNS.NameServer, []string{"1.1.1.1", "system://"}) {
 		t.Errorf("dns = %+v", rawCfg.DNS.NameServer)
 	}
-	if !reflect.DeepEqual(rawCfg.DNS.ProxyServerNameserver, []string{"10.0.0.1"}) {
-		t.Errorf("private dns should become proxy-server-nameserver: %v", rawCfg.DNS.ProxyServerNameserver)
+	if len(rawCfg.DNS.ProxyServerNameserver) != 0 {
+		t.Errorf("original dns should not leak into proxy-server-nameserver: %v", rawCfg.DNS.ProxyServerNameserver)
 	}
 
 	enabled := parsePatchProfile(t, "dns: {enable: true, nameserver: ['10.0.0.1']}\n")

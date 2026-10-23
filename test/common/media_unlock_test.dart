@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/state.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -156,5 +158,39 @@ void main() {
       expect(utils.normalizeRegion('USD'), 'US');
       expect(utils.normalizeRegion('HKD'), 'HK');
     });
+  });
+
+  test('退出页面时停止无人查看的解锁检测', () {
+    final results = {
+      MediaPlatform.claude: MediaUnlockResult(
+        platform: MediaPlatform.claude,
+        status: MediaUnlockStatus.unlocked,
+      ),
+    };
+    mediaUnlockState.state.value = MediaUnlockState(
+      isLoading: true,
+      results: results,
+      testingPlatforms: const {MediaPlatform.openai},
+    );
+    final original = globalState.config;
+    globalState.config = original.copyWith(
+      appSetting: original.appSetting.copyWith(
+        desktopDashboardWidgets: const [DashboardWidget.mediaUnlock],
+        mobileDashboardWidgets: const [DashboardWidget.mediaUnlock],
+      ),
+    );
+    mediaUnlockState.cancelUnattended();
+    expect(mediaUnlockState.state.value.isLoading, isTrue);
+    globalState.config = original.copyWith(
+      appSetting: original.appSetting.copyWith(
+        desktopDashboardWidgets: const [],
+        mobileDashboardWidgets: const [],
+      ),
+    );
+    mediaUnlockState.cancelUnattended();
+    expect(mediaUnlockState.state.value.isLoading, isFalse);
+    expect(mediaUnlockState.state.value.results, results);
+    globalState.config = original;
+    mediaUnlockState.state.value = const MediaUnlockState();
   });
 }

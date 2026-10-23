@@ -12,18 +12,22 @@ class AppPath {
   Completer<Directory> downloadDir = Completer();
   Completer<Directory> tempDir = Completer();
   late String appDirPath;
+  late final bool isPortable;
 
   String? _resolvedDataDirPath;
 
   AppPath._internal() {
     appDirPath = join(dirname(Platform.resolvedExecutable));
     final portableDir = Directory(join(appDirPath, 'portable'));
-    if (system.isWindows && portableDir.existsSync()) {
+    isPortable = system.isWindows && portableDir.existsSync();
+    if (isPortable) {
       _resolvedDataDirPath = portableDir.path;
       dataDir.complete(portableDir);
-      final portableTempDir = Directory(join(portableDir.path, 'temp'));
-      if (!portableTempDir.existsSync()) {
+      var portableTempDir = Directory(join(portableDir.path, 'temp'));
+      try {
         portableTempDir.createSync(recursive: true);
+      } catch (_) {
+        portableTempDir = Directory.systemTemp;
       }
       tempDir.complete(portableTempDir);
     } else {
@@ -56,9 +60,6 @@ class AppPath {
       downloadDir.complete(Directory.systemTemp);
     });
   }
-
-  bool get isPortable =>
-      system.isWindows && Directory(join(appDirPath, 'portable')).existsSync();
 
   factory AppPath() {
     _instance ??= AppPath._internal();
@@ -233,6 +234,16 @@ class AppPath {
   Future<String> get ipCacheFilePath async {
     final tempDirectory = await tempPath;
     return join(tempDirectory, 'ip_cache.json');
+  }
+
+  Future<String> get speedTestPath async {
+    final directory = await dataDir.future;
+    return join(directory.path, 'speed_test.json');
+  }
+
+  Future<String> get toolHistoryPath async {
+    final directory = await dataDir.future;
+    return join(directory.path, 'toolbox_history.json');
   }
 
   Future<String> get helperAuthKeyPath async {

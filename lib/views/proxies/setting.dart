@@ -252,7 +252,10 @@ class ProxiesSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScrollEdgeRise(
       builder: (_, rise) => SingleChildScrollView(
-        padding: EdgeInsets.only(top: 8 + rise, bottom: 32),
+        padding: EdgeInsets.only(
+          top: 8 + rise,
+          bottom: 32 + MediaQuery.paddingOf(context).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -6,7 +6,11 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-void showIpDetailDialog(BuildContext context, String rawIp) {
+void showIpDetailDialog(
+  BuildContext context,
+  String rawIp, {
+  IpInfo? preloaded,
+}) {
   var cleanIp = rawIp.trim();
   if (cleanIp.startsWith('[') && cleanIp.contains(']')) {
     cleanIp = cleanIp.substring(1, cleanIp.indexOf(']'));
@@ -20,14 +24,15 @@ void showIpDetailDialog(BuildContext context, String rawIp) {
   if (cleanIp.isEmpty) return;
 
   globalState.showCommonDialog(
-    child: _IpDetailDialog(ip: cleanIp),
+    child: _IpDetailDialog(ip: cleanIp, preloaded: preloaded),
   );
 }
 
 class _IpDetailDialog extends StatefulWidget {
   final String ip;
+  final IpInfo? preloaded;
 
-  const _IpDetailDialog({required this.ip});
+  const _IpDetailDialog({required this.ip, this.preloaded});
 
   @override
   State<_IpDetailDialog> createState() => _IpDetailDialogState();
@@ -42,6 +47,12 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
   @override
   void initState() {
     super.initState();
+    final preloaded = widget.preloaded;
+    if (preloaded != null) {
+      _ipInfo = preloaded;
+      _isLoading = false;
+      return;
+    }
     _fetchIpDetail();
   }
 
@@ -132,18 +143,15 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
                     ],
                   )
                 : (customValue ??
-                    SelectableText(
-                      value,
-                      style: context.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                    )),
+                      SelectableText(
+                        value,
+                        style: context.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      )),
           ),
-          if (action != null) ...[
-            const SizedBox(width: 4),
-            action,
-          ],
+          if (action != null) ...[const SizedBox(width: 4), action],
         ],
       ),
     );
@@ -176,8 +184,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
         ? [
             if (ipInfo.country != null && ipInfo.country!.isNotEmpty)
               ipInfo.country,
-            if (ipInfo.countryCode.isNotEmpty)
-              ipInfo.countryCode,
+            if (ipInfo.countryCode.isNotEmpty) ipInfo.countryCode,
           ].join(' · ')
         : '';
 
@@ -203,13 +210,12 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
                 ipInfo.asName != ipInfo.isp &&
                 ipInfo.asName != ipInfo.asDomain)
               ipInfo.asName,
-            if (ipInfo.asn != null && ipInfo.asn!.isNotEmpty)
-              ipInfo.asn,
+            if (ipInfo.asn != null && ipInfo.asn!.isNotEmpty) ipInfo.asn,
           ].join(' · ')
         : '';
 
-    final domainText = (ipInfo?.asDomain != null &&
-            (ipInfo?.asDomain?.isNotEmpty ?? false))
+    final domainText =
+        (ipInfo?.asDomain != null && (ipInfo?.asDomain?.isNotEmpty ?? false))
         ? (ipInfo?.asDomain ?? '')
         : '';
 
@@ -218,10 +224,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
       content = Container(
         height: 120,
         alignment: Alignment.center,
-        child: SpinKitThreeBounce(
-          color: context.colorScheme.primary,
-          size: 24,
-        ),
+        child: SpinKitThreeBounce(color: context.colorScheme.primary, size: 24),
       );
     } else if (_category == IpCategory.tun) {
       content = Column(
@@ -324,9 +327,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
                     flagEmoji,
                     style: TextStyle(
                       fontFamily: FontFamily.twEmoji.value,
-                      fontFamilyFallback: [
-                        FontFamily.twEmoji.value,
-                      ],
+                      fontFamilyFallback: [FontFamily.twEmoji.value],
                       fontSize: 14,
                     ),
                   ),
@@ -397,9 +398,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
           child: Text(appLocalizations.confirm),
         ),
       ],
-      child: SingleChildScrollView(
-        child: content,
-      ),
+      child: SingleChildScrollView(child: content),
     );
   }
 }

@@ -9,7 +9,10 @@ extension ArchiveExt on Archive {
     final dir = Directory(dirPath);
     final entities = await dir.list(recursive: false).toList();
     for (final entity in entities) {
-      final relativePath = relative(entity.path, from: parentPath).replaceAll('\\', '/');
+      final relativePath = relative(
+        entity.path,
+        from: parentPath,
+      ).replaceAll('\\', '/');
       if (entity is File) {
         final data = await entity.readAsBytes();
         final archiveFile = ArchiveFile(relativePath, data.length, data);
@@ -42,3 +45,37 @@ Future<void> restoreBackupFiles(
   }
 }
 
+class BackupPasswordException implements Exception {
+  final bool wrong;
+
+  const BackupPasswordException({required this.wrong});
+}
+
+bool isValidBackupPassword(String password) {
+  return password.codeUnits.every((unit) => unit >= 0x20 && unit <= 0x7e);
+}
+
+({Archive archive, bool encrypted}) decodeBackupArchive(
+  InputStream input,
+  String? password,
+) {
+  final decoder = ZipDecoder();
+  final archive = decoder.decodeStream(input, password: password);
+  final encrypted = decoder.directory.fileHeaders.any(
+    (header) => header.generalPurposeBitFlag & 0x1 != 0,
+  );
+  if (encrypted && password == null) {
+    throw const BackupPasswordException(wrong: false);
+  }
+  final result = Archive();
+  for (final file in archive.files) {
+    if (!file.isFile) continue;
+    try {
+      result.addFile(ArchiveFile.bytes(file.name, file.content));
+    } catch (_) {
+      if (encrypted) throw const BackupPasswordException(wrong: true);
+      rethrow;
+    }
+  }
+  return (archive: result, encrypted: encrypted);
+}

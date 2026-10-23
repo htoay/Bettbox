@@ -1,4 +1,4 @@
-use ropey::Rope;
+use ropey::{Rope, RopeSlice};
 use std::sync::{RwLock, RwLockReadGuard};
 
 pub struct Buffer {
@@ -16,7 +16,6 @@ impl Buffer {
         self.rope.read().unwrap()
     }
 
-    /// Shares the tree instead of copying it, so a long scan need not hold the lock.
     pub fn snapshot(&self) -> Rope {
         self.rope().clone()
     }
@@ -30,23 +29,39 @@ impl Buffer {
     }
 
     pub fn insert(&self, char_idx: usize, text: &str) {
+        if text.is_empty() {
+            return;
+        }
         let mut rope = self.rope.write().unwrap();
         let idx = char_idx.min(rope.len_chars());
         rope.insert(idx, text);
     }
 
     pub fn remove(&self, start: usize, end: usize) {
+        if start >= end {
+            return;
+        }
         let mut rope = self.rope.write().unwrap();
         let len = rope.len_chars();
-        let start = start.min(len);
-        rope.remove(start..end.clamp(start, len));
+        if start >= len {
+            return;
+        }
+        rope.remove(start..end.min(len));
     }
 
     pub fn slice(&self, start: usize, end: usize) -> String {
         let rope = self.rope();
-        let valid_start = start.min(rope.len_chars());
-        let valid_end = end.max(valid_start).min(rope.len_chars());
-        rope.slice(valid_start..valid_end).to_string()
+        let len = rope.len_chars();
+        let valid_start = start.min(len);
+        let valid_end = end.max(valid_start).min(len);
+        if valid_start == valid_end {
+            return String::new();
+        }
+        let slice = rope.slice(valid_start..valid_end);
+        match slice.as_str() {
+            Some(s) => s.to_owned(),
+            None => slice.to_string(),
+        }
     }
 
     pub fn char_to_line(&self, char_idx: usize) -> usize {
@@ -74,20 +89,36 @@ impl Buffer {
         let total = rope.len_lines();
         let start = start_line.min(total);
         let end = end_line.min(total).max(start);
-        (start..end)
-            .map(|line_idx| line_without_break(&rope, line_idx))
-            .collect()
+        let count = end - start;
+        let mut result = Vec::with_capacity(count);
+        result.extend(rope.lines_at(start).take(count).map(trim_line_break));
+        result
     }
 }
 
 pub(super) fn line_without_break(rope: &Rope, line_idx: usize) -> String {
-    let mut line = rope.line(line_idx).to_string();
-    if line.ends_with("\r\n") {
-        line.truncate(line.len() - 2);
-    } else if line.ends_with('\n') {
-        line.truncate(line.len() - 1);
+    trim_line_break(rope.line(line_idx))
+}
+
+fn trim_line_break(line: RopeSlice<'_>) -> String {
+    if let Some(s) = line.as_str() {
+        return s
+            .strip_suffix("\r\n")
+            .or_else(|| s.strip_suffix('\n'))
+            .unwrap_or(s)
+            .to_owned();
     }
-    line
+    let len = line.len_chars();
+    let trim = if len > 0 && line.char(len - 1) == '\n' {
+        if len > 1 && line.char(len - 2) == '\r' {
+            2
+        } else {
+            1
+        }
+    } else {
+        0
+    };
+    line.slice(..len - trim).to_string()
 }
 
 #[cfg(test)]
@@ -101,5 +132,24 @@ mod tests {
         buffer.remove(2, 10);
         buffer.remove(3, 1);
         assert_eq!(buffer.text(), "ab");
+    }
+
+    #[test]
+    fn test_lines_and_slices_crlf_and_lf() {
+        let text = "line 1\r\nline 2\nline 3\r\n\r\nlast line";
+        let buffer = Buffer::new(text);
+        assert_eq!(buffer.len_lines(), 5);
+        assert_eq!(
+            buffer.lines(0, 5),
+            vec!["line 1", "line 2", "line 3", "", "last line"]
+        );
+        assert_eq!(buffer.lines(1, 3), vec!["line 2", "line 3"]);
+        assert_eq!(buffer.lines(4, 10), vec!["last line"]);
+        assert_eq!(buffer.lines(5, 10), Vec::<String>::new());
+        assert_eq!(buffer.lines(3, 3), Vec::<String>::new());
+
+        assert_eq!(buffer.slice(0, 6), "line 1");
+        assert_eq!(buffer.slice(0, 0), "");
+        assert_eq!(buffer.slice(100, 200), "");
     }
 }

@@ -56,18 +56,40 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
 
   double? _posTarget;
   bool _motion = true;
+  int? _jumpFromIndex;
+  int? _jumpToIndex;
 
   void _glideTo(int index, int milliseconds) {
     _posTarget = index.toDouble();
+    final fromIndex = _posController.value.round().clamp(
+      0,
+      widget.navigationItems.length - 1,
+    );
+    if ((fromIndex - index).abs() > 1 && !_isDragging) {
+      _jumpFromIndex = fromIndex;
+      _jumpToIndex = index;
+    } else {
+      _jumpFromIndex = null;
+      _jumpToIndex = null;
+    }
     if (milliseconds <= 0) {
       _posController.value = index.toDouble();
+      _jumpFromIndex = null;
+      _jumpToIndex = null;
       return;
     }
-    _posController.animateTo(
-      index.toDouble(),
-      duration: Duration(milliseconds: milliseconds),
-      curve: Curves.easeOutCubic,
-    );
+    _posController
+        .animateTo(
+          index.toDouble(),
+          duration: Duration(milliseconds: milliseconds),
+          curve: Curves.easeOutCubic,
+        )
+        .whenComplete(() {
+          if (mounted && _posTarget == index.toDouble()) {
+            _jumpFromIndex = null;
+            _jumpToIndex = null;
+          }
+        });
   }
 
   void _liftTo(double value, int milliseconds) {
@@ -189,6 +211,9 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
     );
 
     final count = widget.navigationItems.length;
+    final localizedLabels = [
+      for (final item in widget.navigationItems) item.label.localizedName,
+    ];
 
     return SafeArea(
       top: false,
@@ -231,10 +256,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             if (_activePointerId != event.pointer || _dragCancel) return;
             final downPos = _downPosition;
             if (downPos == null) return;
-            _velocityTracker?.addPosition(
-              event.timeStamp,
-              event.localPosition,
-            );
+            _velocityTracker?.addPosition(event.timeStamp, event.localPosition);
             final delta = event.localPosition - downPos;
             if (delta.dy < -50 || delta.dy > 80) {
               _dragCancel = true;
@@ -251,6 +273,8 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             final slotWidth = _slotWidth;
             if (!_isDragging && delta.dx.abs() > 4) {
               _isDragging = true;
+              _jumpFromIndex = null;
+              _jumpToIndex = null;
             }
             if (!_isDragging || slotWidth <= 0) return;
 
@@ -408,23 +432,85 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                               final pressedIdx = _pressedIndex.value;
                               final liftValue = _liftController.value;
 
+                              final jumpFrom = _jumpFromIndex;
+                              final jumpTo = _jumpToIndex;
+                              final isNonAdjacentJump =
+                                  jumpFrom != null &&
+                                  jumpTo != null &&
+                                  (jumpFrom - jumpTo).abs() > 1;
+                              final minJump = isNonAdjacentJump
+                                  ? math.min(jumpFrom, jumpTo)
+                                  : -1;
+                              final maxJump = isNonAdjacentJump
+                                  ? math.max(jumpFrom, jumpTo)
+                                  : -1;
+
                               return Row(
                                 children: List.generate(count, (index) {
                                   final item = widget.navigationItems[index];
-                                  final dist =
-                                      (currentPos - index).abs().clamp(0.0, 1.0);
-                                  final selectFactor =
-                                      1.0 - Curves.easeOut.transform(dist);
                                   final isPressed = index == pressedIdx;
+                                  final double itemScale;
+                                  final Color itemColor;
+                                  if (isNonAdjacentJump &&
+                                      index > minJump &&
+                                      index < maxJump) {
+                                    itemScale = 1.0;
+                                    itemColor = onSurfaceVariantColor;
+                                  } else {
+                                    final double selectFactor;
+                                    if (isNonAdjacentJump) {
+                                      if (index == jumpFrom) {
+                                        final distFromOrigin =
+                                            (currentPos - jumpFrom).abs().clamp(
+                                              0.0,
+                                              1.0,
+                                            );
+                                        selectFactor =
+                                            1.0 -
+                                            Curves.easeOut.transform(
+                                              distFromOrigin,
+                                            );
+                                      } else if (index == jumpTo) {
+                                        final distToTarget =
+                                            (currentPos - jumpTo).abs().clamp(
+                                              0.0,
+                                              1.0,
+                                            );
+                                        selectFactor =
+                                            1.0 -
+                                            Curves.easeOut.transform(
+                                              distToTarget,
+                                            );
+                                      } else {
+                                        selectFactor = 0.0;
+                                      }
+                                    } else {
+                                      final rawDist = (currentPos - index)
+                                          .abs();
+                                      if (rawDist >= 1.0) {
+                                        selectFactor = 0.0;
+                                      } else {
+                                        final dist = rawDist.clamp(0.0, 1.0);
+                                        selectFactor =
+                                            1.0 -
+                                            Curves.easeOut.transform(dist);
+                                      }
+                                    }
 
-                                  final itemScale = isPressed
-                                      ? (1.0 - 0.05 * liftValue)
-                                      : (1.0 + 0.04 * selectFactor);
-                                  final itemColor = Color.lerp(
-                                    onSurfaceVariantColor,
-                                    primaryColor,
-                                    selectFactor,
-                                  )!;
+                                    if (selectFactor <= 0.0 && !isPressed) {
+                                      itemScale = 1.0;
+                                      itemColor = onSurfaceVariantColor;
+                                    } else {
+                                      itemScale = isPressed
+                                          ? (1.0 - 0.05 * liftValue)
+                                          : (1.0 + 0.04 * selectFactor);
+                                      itemColor = Color.lerp(
+                                        onSurfaceVariantColor,
+                                        primaryColor,
+                                        selectFactor,
+                                      )!;
+                                    }
+                                  }
 
                                   return Expanded(
                                     child: Center(
@@ -443,7 +529,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              item.label.localizedName,
+                                              localizedLabels[index],
                                               style: itemTextStyle.copyWith(
                                                 color: itemColor,
                                               ),

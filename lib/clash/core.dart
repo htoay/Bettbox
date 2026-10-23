@@ -9,6 +9,7 @@ import 'package:bett_box/clash/ohos.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:intl/intl.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -312,18 +313,21 @@ class ClashCore {
     );
   }
 
-  /// 只取连接数。
+  /// 轻量统计连接数与 TCP/UDP 分类，返回 (总数, UDP, TCP)。
   ///
-  /// 仪表盘的「活跃连接」每 2s 轮询一次，而 `getConnections()` 会为「数个数」这件事
+  /// 仪表盘的「活跃连接」每 2s 轮询一次，而 `getConnections()` 会为「计数与分类」
   /// 新建一个 isolate、反序列化整份连接列表（含全部 metadata）—— 秒级 isolate 起停
-  /// 纯属浪费。核心返回的是 `{"connections":[...]}`，直接数 `"id"` 键出现次数即可；
-  /// 字符串值里的 `"id":` 在 JSON 里是 `\"id\":`（带反斜杠），不会被误匹配。
-  Future<int> getConnectionsCount() async {
+  /// 纯属浪费。核心返回的是 `{"connections":[...]}`，直接数 `"id":` 与
+  /// `"network":"udp"` 出现次数即可；字符串值里的这些键在 JSON 里是 `\"...\"`
+  /// （带反斜杠），不会被误匹配。
+  Future<(int, int, int)> getConnectionsStats() async {
     final res = await clashInterface.getConnections();
     if (res.isEmpty) {
-      return 0;
+      return (0, 0, 0);
     }
-    return RegExp(r'"id"\s*:').allMatches(res).length;
+    final total = RegExp(r'"id"\s*:').allMatches(res).length;
+    final udp = RegExp(r'"network"\s*:\s*"udp"').allMatches(res).length;
+    return (total, udp, total - udp);
   }
 
   Future<List<TrackerInfo>> getConnections() async {
@@ -521,6 +525,227 @@ class ClashCore {
     return CoreStatus.fromJson(Map<String, dynamic>.from(decoded));
   }
 
+  SpeedTestState? _decodeSpeedTestState(String value) {
+    if (value.isEmpty) {
+      return null;
+    }
+    final decoded = json.decode(value);
+    if (decoded is! Map) {
+      return null;
+    }
+    return SpeedTestState.fromJson(Map<String, dynamic>.from(decoded));
+  }
+
+  Future<SpeedTestState?> startSpeedTest({
+    required SpeedTestSettings settings,
+    required String proxy,
+  }) async {
+    final value = await clashInterface.startSpeedTest(
+      json.encode(settings.toParams(proxy)),
+    );
+    return _decodeSpeedTestState(value);
+  }
+
+  Future<SpeedTestState?> probeSpeedTest({
+    required SpeedTestSettings settings,
+    required String proxy,
+  }) async {
+    final isZh = Intl.getCurrentLocale().toLowerCase().startsWith('zh');
+    final value = await clashInterface.probeSpeedTest(
+      json.encode({...settings.toParams(proxy), 'lang': isZh ? 'zh-CN' : ''}),
+    );
+    return _decodeSpeedTestState(value);
+  }
+
+  Future<List<SpeedTestNode>> getSpeedTestServers({
+    required String proxy,
+    String search = '',
+  }) async {
+    final value = await clashInterface.getSpeedTestServers(
+      json.encode({'proxy': proxy, 'search': search}),
+    );
+    if (value.isEmpty) return const [];
+    final decoded = json.decode(value);
+    if (decoded is! List) return const [];
+    return [
+      for (final item in decoded)
+        if (item is Map)
+          SpeedTestNode.fromJson(Map<String, Object?>.from(item)),
+    ];
+  }
+
+  Future<void> cancelSpeedTest() async {
+    await clashInterface.cancelSpeedTest();
+  }
+
+  Future<StunTestState?> startStunTest({
+    required String server,
+    required String proxy,
+  }) async {
+    final value = await clashInterface.startStunTest(
+      json.encode({'server': server, 'proxy': proxy}),
+    );
+    if (value.isEmpty) {
+      return null;
+    }
+    final decoded = json.decode(value);
+    if (decoded is! Map) {
+      return null;
+    }
+    return StunTestState.fromJson(Map<String, dynamic>.from(decoded));
+  }
+
+  Future<void> cancelStunTest() async {
+    await clashInterface.cancelStunTest();
+  }
+
+  Future<IperfServerInfo> startIperfServer(int port) async {
+    final value = await clashInterface.startIperfServer(
+      json.encode({'port': port}),
+    );
+    final decoded = value.isEmpty ? null : json.decode(value);
+    if (decoded is! Map) return const IperfServerInfo(error: 'listen');
+    return IperfServerInfo.fromJson(Map<String, dynamic>.from(decoded));
+  }
+
+  Future<void> stopIperfServer() async {
+    await clashInterface.stopIperfServer();
+  }
+
+  Future<IperfState?> startIperfClient({
+    required List<String> hosts,
+    required int port,
+    required IperfOptions options,
+  }) async {
+    final value = await clashInterface.startIperfClient(
+      json.encode({
+        'hosts': hosts,
+        'port': port,
+        'protocol': options.protocol.name,
+        'direction': options.direction.name,
+        'parallel': options.parallel,
+        'duration': options.duration,
+        'bandwidth': options.protocol == IperfProtocol.udp
+            ? options.bandwidth * 1e6
+            : 0,
+      }),
+      Duration(seconds: options.duration + 45),
+    );
+    final decoded = value.isEmpty ? null : json.decode(value);
+    if (decoded is! Map) return null;
+    return IperfState.fromJson(Map<String, dynamic>.from(decoded));
+  }
+
+  Future<void> cancelIperfClient() async {
+    await clashInterface.cancelIperfClient();
+  }
+
+  Future<LocalPingState?> startLocalPing({
+    required String target,
+    required LocalPingOptions options,
+  }) async {
+    final value = await clashInterface.startLocalPing(
+      json.encode({
+        'target': target,
+        'protocol': options.protocol.name,
+        'port': options.port,
+        'count': options.count,
+        'interval': options.interval,
+        'size': options.size,
+      }),
+      Duration(milliseconds: options.count * options.interval) +
+          const Duration(seconds: 30),
+    );
+    final decoded = value.isEmpty ? null : json.decode(value);
+    if (decoded is! Map) return null;
+    return LocalPingState.fromJson(Map<String, dynamic>.from(decoded));
+  }
+
+  Future<void> cancelLocalPing() async {
+    await clashInterface.cancelLocalPing();
+  }
+
+  Future<Map<String, Object?>> _toolboxJson(
+    ActionMethod method, {
+    String data = '',
+  }) async {
+    final value = await clashInterface.toolboxInvoke(method, data: data);
+    if (value.isEmpty) return {};
+    final decoded = json.decode(value);
+    return decoded is Map ? Map<String, Object?>.from(decoded) : {};
+  }
+
+  Future<RouteTraceResult> routeTrace({
+    required String target,
+    required String network,
+    required int port,
+  }) async => RouteTraceResult.fromJson(
+    await _toolboxJson(
+      ActionMethod.routeTrace,
+      data: json.encode({'target': target, 'network': network, 'port': port}),
+    ),
+  );
+
+  Future<DnsQueryResult> dnsQuery({
+    required String domain,
+    required String type,
+    required String mode,
+    String server = '',
+  }) async => DnsQueryResult.fromJson(
+    await _toolboxJson(
+      ActionMethod.dnsQuery,
+      data: json.encode({
+        'domain': domain,
+        'type': type,
+        'mode': mode,
+        'server': server,
+      }),
+    ),
+  );
+
+  Future<MrsPrepareResult> mrsPrepare() async =>
+      MrsPrepareResult.fromJson(await _toolboxJson(ActionMethod.mrsPrepare));
+
+  Future<MrsLookupResult> mrsLookup(
+    String target, {
+    bool resolve = true,
+  }) async => MrsLookupResult.fromJson(
+    await _toolboxJson(
+      ActionMethod.mrsLookup,
+      data: json.encode({'target': target, 'resolve': resolve}),
+    ),
+  );
+
+  Future<void> cancelMrsLookup() async {
+    await clashInterface.toolboxInvoke(ActionMethod.cancelMrsLookup);
+  }
+
+  Future<int> startToolProxy() async {
+    final value = await clashInterface.toolboxInvoke(
+      ActionMethod.startToolProxy,
+    );
+    return int.tryParse(value) ?? 0;
+  }
+
+  Future<void> stopToolProxy() async {
+    await clashInterface.toolboxInvoke(ActionMethod.stopToolProxy);
+  }
+
+  Future<AgeCryptResult> ageCrypt({
+    required bool encrypt,
+    required String data,
+    required List<String> keys,
+  }) async => AgeCryptResult.fromJson(
+    await _toolboxJson(
+      ActionMethod.ageCrypt,
+      data: json.encode({
+        'mode': encrypt ? 'encrypt' : 'decrypt',
+        'data': data,
+        'keys': keys,
+      }),
+    ),
+  );
+
   void resetTraffic() {
     clashInterface.resetTraffic();
   }
@@ -593,8 +818,8 @@ class ClashCore {
     await clashInterface.flushDnsCache();
   }
 
-  Future<Map<String, String>> generateAgeKeyPair() {
-    return clashInterface.generateAgeKeyPair();
+  Future<Map<String, String>> generateAgeKeyPair({bool hybrid = false}) {
+    return clashInterface.generateAgeKeyPair(hybrid: hybrid);
   }
 
   Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey) {

@@ -37,10 +37,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     );
     final (scriptOn, compatible) = ref.watch(
       scriptStateProvider.select(
-        (s) => (
-          s.currentId != null,
-          s.currentScript?.compatible ?? false,
-        ),
+        (s) => (s.currentId != null, s.currentScript?.compatible ?? false),
       ),
     );
     final profileOverride = ref.watch(

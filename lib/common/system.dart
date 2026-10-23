@@ -56,6 +56,26 @@ class System {
     }
   }
 
+  Future<String> get deviceName async {
+    try {
+      if (isAndroid) {
+        final info = await DeviceInfoPlugin().androidInfo;
+        return info.model.isNotEmpty ? info.model : info.device;
+      }
+      final host = Platform.localHostname;
+      return host.endsWith('.local')
+          ? host.substring(0, host.length - '.local'.length)
+          : host;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<void> updateDns(bool restore) async {
+    await macOS?.updateDns(restore);
+    await linux?.updateDns(restore);
+  }
+
   static String _shellEscape(String value) {
     return "'${value.replaceAll("'", "'\\''")}'";
   }
@@ -95,7 +115,9 @@ class System {
 
   Future<bool> checkIsAdmin() async {
     if (system.isWindows) {
-      if (kDebugMode) return windows?.isUserAnAdmin ?? false;
+      if (!(windows?.usesHelper ?? false)) {
+        return windows?.isUserAnAdmin ?? false;
+      }
       final result = await windows?.checkService();
       return result == WindowsHelperServiceStatus.running;
     }
@@ -123,7 +145,7 @@ class System {
     if (await checkIsAdmin()) return AuthorizeCode.none;
 
     if (system.isWindows) {
-      if (kDebugMode) return AuthorizeCode.error;
+      if (!(windows?.usesHelper ?? false)) return AuthorizeCode.error;
       if (await windows?.isHelperHealthy() ?? false) return AuthorizeCode.none;
       final result = await windows?.registerService();
       return result == true ? AuthorizeCode.success : AuthorizeCode.error;
@@ -460,23 +482,27 @@ class System {
     await window?.close();
   }
 
+  Future<void> restartAsAdmin() async {
+    final executable = Platform.resolvedExecutable.replaceAll("'", "''");
+    final command =
+        '-NoProfile -WindowStyle Hidden -Command "Wait-Process -Id $pid -ErrorAction SilentlyContinue; Start-Process -FilePath \'$executable\'"';
+    if (!(windows?.runas('powershell.exe', command) ?? false)) return;
+    await globalState.appController.handleExit();
+  }
+
   Future<void> restartApp() async {
     if (Platform.isLinux) {
       final appImage = Platform.environment['APPIMAGE'];
       final executable = (appImage != null && appImage.isNotEmpty)
           ? appImage
           : Platform.resolvedExecutable;
-      await Process.start(
-        'sh',
-        [
-          '-c',
-          'while kill -0 \$1 2>/dev/null; do sleep 0.1; done; exec "\$2"',
-          '--',
-          '$pid',
-          executable,
-        ],
-        mode: ProcessStartMode.detached,
-      );
+      await Process.start('sh', [
+        '-c',
+        'while kill -0 \$1 2>/dev/null; do sleep 0.1; done; exec "\$2"',
+        '--',
+        '$pid',
+        executable,
+      ], mode: ProcessStartMode.detached);
       await globalState.appController.handleExit();
       return;
     }
@@ -507,6 +533,24 @@ class System {
     if (result.exitCode != 0) {
       throw Exception('Failed to set process priority: ${result.stderr}');
     }
+  }
+
+  void purgeMemory() {
+    if (!isLinux && !isMacOS) return;
+    try {
+      final process = DynamicLibrary.process();
+      if (isLinux) {
+        process
+            .lookupFunction<Int32 Function(UintPtr pad), int Function(int pad)>(
+              'malloc_trim',
+            )(0);
+      } else {
+        process.lookupFunction<
+          UintPtr Function(Pointer<Void> zone, UintPtr goal),
+          int Function(Pointer<Void> zone, int goal)
+        >('malloc_zone_pressure_relief')(nullptr, 0);
+      }
+    } catch (_) {}
   }
 }
 
@@ -586,6 +630,61 @@ class Windows {
       }
     }
   }
+
+  void setBackgroundMemoryPriority(bool background) {
+    try {
+      final kernel32 = DynamicLibrary.open('kernel32.dll');
+      final getCurrentProcess = kernel32
+          .lookupFunction<IntPtr Function(), int Function()>(
+            'GetCurrentProcess',
+          );
+      final setProcessInformation = kernel32
+          .lookupFunction<
+            Int32 Function(
+              IntPtr hProcess,
+              Int32 processInformationClass,
+              Pointer<Void> processInformation,
+              Uint32 processInformationSize,
+            ),
+            int Function(
+              int hProcess,
+              int processInformationClass,
+              Pointer<Void> processInformation,
+              int processInformationSize,
+            )
+          >('SetProcessInformation');
+      final memoryPriorityInfo = calloc<Uint32>();
+      try {
+        memoryPriorityInfo.value = background ? 1 : 5;
+        setProcessInformation(
+          getCurrentProcess(),
+          0,
+          memoryPriorityInfo.cast<Void>(),
+          sizeOf<Uint32>(),
+        );
+      } finally {
+        calloc.free(memoryPriorityInfo);
+      }
+    } catch (_) {}
+  }
+
+  void emptyWorkingSet() {
+    try {
+      final kernel32 = DynamicLibrary.open('kernel32.dll');
+      final getCurrentProcess = kernel32
+          .lookupFunction<IntPtr Function(), int Function()>(
+            'GetCurrentProcess',
+          );
+      final emptyWorkingSet = kernel32
+          .lookupFunction<
+            Int32 Function(IntPtr hProcess),
+            int Function(int hProcess)
+          >('K32EmptyWorkingSet');
+      emptyWorkingSet(getCurrentProcess());
+    } catch (_) {}
+  }
+
+  bool get usesHelper => !kDebugMode && !appPath.isPortable;
 
   bool get isUserAnAdmin {
     final isUserAnAdmin = _shell32
@@ -691,7 +790,7 @@ class Windows {
 
     final command = [
       '/c',
-      'sc',
+      'net',
       'stop',
       appHelperService,
       '>nul',
@@ -992,3 +1091,115 @@ class MacOS {
 }
 
 final macOS = system.isMacOS ? MacOS() : null;
+
+class Linux {
+  static Linux? _instance;
+  static const _dnsBackupFileName = 'linux_system_dns_backup.json';
+  static const _hijackDns = '223.5.5.5';
+  final Lock _dnsLock = Lock();
+
+  Linux._internal();
+
+  factory Linux() => _instance ??= Linux._internal();
+
+  Future<void> updateDns(bool restore) {
+    return _dnsLock.synchronized(() async {
+      await _restoreDns();
+      if (!restore) await _setDns();
+    });
+  }
+
+  Future<ProcessResult?> _run(String executable, List<String> arguments) async {
+    try {
+      return await Process.run(executable, arguments);
+    } on ProcessException catch (e) {
+      commonPrint.warn('Failed to run $executable: ${e.message}');
+      return null;
+    }
+  }
+
+  Future<String?> get _defaultDevice async {
+    final result = await _run('ip', ['route', 'show', 'default']);
+    if (result == null || result.exitCode != 0) return null;
+    return RegExp(
+      r'\bdev\s+(\S+)',
+    ).firstMatch(result.stdout.toString())?.group(1);
+  }
+
+  Future<bool> get _usesResolvedStub async {
+    try {
+      final content = await File('/etc/resolv.conf').readAsString();
+      return RegExp(
+        r'^\s*nameserver\s+127\.0\.0\.53\b',
+        multiLine: true,
+      ).hasMatch(content);
+    } catch (e) {
+      commonPrint.warn('Failed to read /etc/resolv.conf: $e');
+      return false;
+    }
+  }
+
+  Future<void> _setDns() async {
+    if (await _usesResolvedStub) return;
+    final device = await _defaultDevice;
+    if (device == null) return;
+    try {
+      final backupFile = await _dnsBackupFile;
+      await backupFile.parent.create(recursive: true);
+      final temporaryFile = File('${backupFile.path}.tmp');
+      await temporaryFile.writeAsString(
+        jsonEncode({'device': device}),
+        flush: true,
+      );
+      await temporaryFile.rename(backupFile.path);
+    } catch (e) {
+      commonPrint.warn('Failed to persist the Linux system DNS device: $e');
+      return;
+    }
+    final result = await _run('nmcli', [
+      'device',
+      'modify',
+      device,
+      'ipv4.dns',
+      _hijackDns,
+    ]);
+    if (result == null || result.exitCode != 0) {
+      commonPrint.warn(
+        'Failed to set Linux system DNS: ${result?.stderr.toString().trim()}',
+      );
+      await _deleteBackup();
+    }
+  }
+
+  Future<void> _restoreDns() async {
+    final backupFile = await _dnsBackupFile;
+    if (!await backupFile.exists()) return;
+    try {
+      final backup = jsonDecode(await backupFile.readAsString());
+      final device = backup is Map ? backup['device'] : null;
+      if (device is String && device.isNotEmpty) {
+        final result = await _run('nmcli', ['device', 'reapply', device]);
+        if (result != null && result.exitCode != 0) {
+          commonPrint.warn(
+            'Failed to restore Linux system DNS: '
+            '${result.stderr.toString().trim()}',
+          );
+        }
+      }
+    } catch (e) {
+      commonPrint.warn('Failed to read Linux system DNS backup: $e');
+    }
+    await _deleteBackup();
+  }
+
+  Future<void> _deleteBackup() async {
+    final backupFile = await _dnsBackupFile;
+    if (await backupFile.exists()) await backupFile.delete();
+  }
+
+  Future<File> get _dnsBackupFile async {
+    return File(join(await appPath.homeDirPath, _dnsBackupFileName));
+  }
+}
+
+final linux = system.isLinux ? Linux() : null;
