@@ -32,7 +32,7 @@ DEFAULT_HAP = HAP_DIR / 'entry-default-unsigned.hap'
 SIGNED_HAP = HAP_DIR / 'entry-default-signed.hap'
 OUT_DIR = Path('build/ohos/hap')
 TEMPLATE = Path('.github/release_template_ohos.md')
-GEO_FILES = ('geoip.metadb', 'GeoSite.dat', 'ASN.mmdb')
+GEO_FILES = ('geoip.metadb', 'GeoSite.dat', 'ASN.mmdb', 'BundleMRS.7z')
 SIGNATURE_MARKERS = {
     '开发者 ID': b'developer-id',
     '设备 UDID 列表': b'device-ids',

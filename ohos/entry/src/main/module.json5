@@ -112,6 +112,11 @@
         // 用于申请 taskKeeping（计算任务）长时任务 —— VPN 转发属于长期常驻的计算/网络
         // 任务，语义最匹配，且不会被音频打断、也没有 dataTransfer 的进度校验要求。
         "name": "ohos.permission.KEEP_BACKGROUND_RUNNING_SYSTEM"
+      },
+      {
+        // 导航栏「动效反馈」的触感震动（HapticFeedback → @ohos.vibrator）：
+        // normal 级权限，安装即授予；不声明时调用报 201（Permission denied）。
+        "name": "ohos.permission.VIBRATE"
       }
     ]
   }

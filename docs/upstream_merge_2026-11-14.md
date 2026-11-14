@@ -100,7 +100,38 @@
   profile merge 相关 Go 改动重建。
 - `libcode_forge.so`：Rust 侧无实质改动则不重建（frb content hash 不变）。
 
-## 3. 发布产物
+## 3. 本版踩坑与修复（真机发现）
+
+- **核心启动卡死（发布级）**：上游把核心动作结果从扁平 `ActionResult` JSON
+  改为「`header\npayload`」分段帧（`core/action.go` 的 `ActionResult.Json`
+  重写），`ClashOhosLib` 两处入口（attached message port 监听、
+  `sendMessage` 的 invokeAction 回复）仍在按旧格式 `json.decode` → 所有
+  结果被 FormatException 丢弃、完成器永不完成。修复为统一走
+  `handleResultMessage`（与上游 service/lib 两条路径一致）。
+  该问题 `dart analyze` 与冒烟测试均无法发现——冒烟只验证应用存活，
+  不验证核心启动链路，动静态检查之间的这类缝隙要靠真机功能操作兜底。
+- **BundleMRS.7z 缺失（全新安装启动即退）**：上游 v1.19.8 把它移出仓库改为
+  下载型随包资产（`syncBundleMRS` 首启释放，缺失则 `initGeo` 拦截退出）。
+  构建/发布校验只覆盖 geo 三件套，本机工作区文件又被一次跨版本
+  `git checkout` 意外带走（v1.19.7 树跟踪该文件、v1.19.8 删除且本仓
+  .gitignore 忽略——切换分支时 git 直接移除工作区副本），于是打进 HAP 的
+  包缺了它但校验通过。修复：`build_ohos.py` / `release_ohos.py` 的随包资产
+  校验清单补上 BundleMRS.7z，缺失即打包报错。
+- **VIBRATE 权限**：导航栏「动效反馈」的触感（HapticFeedback →
+  @ohos.vibrator）需要 `ohos.permission.VIBRATE` 声明，缺失时报 201。
+  已加入 module.json5（normal 级，安装即授予）。
+
+## 4. 测试基线说明
+
+- `flutter test` 全量 349 用例：341 通过。所有失败均与本版合并无关：
+  - code_forge / editor 系列（7 个）：v1.19.8 起测试要求宿主机
+    `libcode_forge.so`（`cargo build --release`），宿主库建好后**全部通过**；
+  - chip / toolbox_layout / editable_grid / process_icon /
+    google_bottom_nav_bar（8 个）：用 v1.19.8 的纯上游 widget + 测试代码在
+    鸿蒙工具链上复跑同样失败，属 flutter_ohos 工具链与上游 CI 环境的差异
+    （动画步进、VisualDensity 数值），不是合并回归。
+
+## 5. 发布产物
 
 - HAP：`bettbox-1.19.8-ohos-vc2026111101-unsigned.hap` + 同名 `.sha256`
   （arm64-v8a，release，`APP_ENV=stable`；命名与校验规则见 `release_process_ohos.md`）。

@@ -161,7 +161,7 @@ def verify_package(started_at: float, check_icon_shake: bool = True) -> bool:
         icons = [n for n in names if n.endswith('MaterialIcons-Regular.otf')]
         icon_size = archive.getinfo(icons[0]).file_size if icons else 0
         missing_geo = [
-            name for name in GEO_ARCHIVE_FILES
+            name for name in (*GEO_ARCHIVE_FILES, 'BundleMRS.7z')
             if not any(n.endswith(f'assets/data/{name}') or n.endswith(f'assets/data/{name}.gz')
                        for n in names)
         ]
@@ -183,7 +183,8 @@ def verify_package(started_at: float, check_icon_shake: bool = True) -> bool:
         ok = False
     if missing_geo:
         print(
-            f'错误：HAP 里缺少 geo 资源 {missing_geo} —— 应用启动时会 exit(0)（起来 1 秒就没）。\n'
+            f'错误：HAP 里缺少随包资源 {missing_geo} —— 应用启动时会 exit(0)（起来 1 秒就没）；\n'
+            '      BundleMRS.7z 缺失会在全新安装首次启动时让 syncBundleMRS 失败退出。\n'
             '      先跑 `dart run setup.dart assets --force` 恢复 assets/data/，再重新构建；\n'
             '      若 assets/data/ 里有 .gz 却没有原文件，本脚本下次运行会自动从 build/geo-src 恢复。',
             flush=True,

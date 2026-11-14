@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:bett_box/clash/interface.dart';
 import 'package:bett_box/clash/lib.dart';
 import 'package:bett_box/common/common.dart';
-import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 
 class ClashOhosLib extends ClashHandlerInterface with AndroidClashInterface {
@@ -18,10 +16,10 @@ class ClashOhosLib extends ClashHandlerInterface with AndroidClashInterface {
     _handler = ClashLibHandler();
     _handler.attachMessagePort(_messageReceiverPort.sendPort.nativePort);
     _messageReceiverPort.listen((message) {
-      try {
-        handleResult(ActionResult.fromJson(json.decode(message)));
-      } catch (e) {
-        commonPrint.log('ClashOhosLib message listener error: $e');
+      // 上游 v1.19.8 起核心结果为「header\npayload」分段帧（见 core/action.go
+      // 的 ActionResult.Json），统一交 handleResultMessage 解析。
+      if (message is String && message.isNotEmpty) {
+        handleResultMessage(message);
       }
     });
   }
@@ -40,11 +38,7 @@ class ClashOhosLib extends ClashHandlerInterface with AndroidClashInterface {
   Future<void> sendMessage(String message) async {
     final res = await _handler.invokeAction(message);
     if (res.isNotEmpty) {
-      try {
-        handleResult(ActionResult.fromJson(json.decode(res)));
-      } catch (e) {
-        commonPrint.log('ClashOhosLib handleResult error: $e');
-      }
+      await handleResultMessage(res);
     }
   }
 
