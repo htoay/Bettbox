@@ -115,7 +115,7 @@ enum TunStack { gvisor, system, mixed, mips }
 
 enum TunDnsMode { disabled, native, hijack }
 
-enum CongestionController { cubic, reno, bbr, bbr3 }
+enum ProfileSwitchMode { hotReload, fullRestart }
 
 enum AccessControlMode { acceptSelected, rejectSelected }
 
@@ -123,7 +123,7 @@ enum BackgroundTaskMode { dataTransfer, audioPlayback, taskKeeping }
 
 enum AccessSortType { none, installTime, updateTime }
 
-enum ProfileType { file, url }
+enum ProfileType { file, url, bundle }
 
 enum ConnectionsSortType {
   defaultSort,
@@ -141,9 +141,9 @@ enum ResultType {
 
 enum AppMessageType {
   log,
-  delay,
+  delays,
+  groupsChanged,
   request,
-  loaded,
   speedTest,
   stunTest,
   iperf,
@@ -243,20 +243,26 @@ enum ActionMethod {
   forceGc,
   shutdown,
   validateConfig,
+  importProfile,
   updateConfig,
   getConfig,
   getRuntimeConfig,
   exportConfig,
+  mergeProfiles,
   getProxies,
   changeProxy,
   getTraffic,
-  getTotalTraffic,
+  getTrafficSnapshot,
   resetTraffic,
   asyncTestDelay,
+  asyncTestDelays,
+  setForeground,
   getConnections,
+  getConnectionsSummary,
   closeConnections,
   resetConnections,
   closeConnection,
+  closeGroupConnections,
   getExternalProviders,
   getExternalProvider,
   updateGeoData,
@@ -284,6 +290,7 @@ enum ActionMethod {
   getMode,
   parseExternalProviderContent,
   getCoreStatus,
+  getInterfaces,
   startSpeedTest,
   cancelSpeedTest,
   probeSpeedTest,
@@ -294,7 +301,14 @@ enum ActionMethod {
   dnsQuery,
   mrsPrepare,
   mrsLookup,
+  mrsDump,
   cancelMrsLookup,
+  getTrafficStats,
+  clearTrafficStats,
+  storeGet,
+  storeSet,
+  storeList,
+  storeClear,
   startToolProxy,
   stopToolProxy,
   ageCrypt,
@@ -366,6 +380,7 @@ enum AuthorizeCode { none, success, error }
 enum WindowsHelperServiceStatus { none, presence, running }
 
 enum FunctionTag {
+  homeWidget,
   updateClashConfig,
   setupClashConfig,
   updateStatus,
@@ -375,7 +390,7 @@ enum FunctionTag {
   savePreferences,
   changeProxy,
   checkIp,
-  updateDelay,
+  checkIpRisk,
   vpnTip,
   autoLaunch,
   renderPause,
@@ -386,6 +401,8 @@ enum FunctionTag {
   requests,
   autoScrollToEnd,
   autoBackup,
+  generateBundles,
+  delaySort,
 }
 
 enum DashboardWidget {
@@ -395,6 +412,7 @@ enum DashboardWidget {
   ),
   outboundModeV2(GridItem(crossAxisCellCount: 8, child: OutboundModeV2())),
   outboundMode(GridItem(crossAxisCellCount: 4, child: OutboundMode())),
+  profileInfo(GridItem(crossAxisCellCount: 8, child: ProfileInfo())),
   trafficUsage(GridItem(crossAxisCellCount: 4, child: TrafficUsage())),
   networkDetection(GridItem(crossAxisCellCount: 4, child: NetworkDetection())),
   tunButton(
@@ -417,7 +435,6 @@ enum DashboardWidget {
     GridItem(crossAxisCellCount: 4, child: WakelockSwitch()),
     platforms: desktopPlatforms,
   ),
-  dnsOverride(GridItem(crossAxisCellCount: 4, child: DnsOverride())),
   snifferOverride(GridItem(crossAxisCellCount: 4, child: SnifferOverride())),
   ntpOverride(GridItem(crossAxisCellCount: 4, child: NtpOverride())),
   providersInfo(GridItem(crossAxisCellCount: 4, child: ProvidersInfo())),
@@ -425,6 +442,10 @@ enum DashboardWidget {
   onlinePanel(GridItem(crossAxisCellCount: 4, child: OnlinePanel())),
   mediaUnlock(GridItem(crossAxisCellCount: 8, child: MediaUnlock())),
   mediaUnlockSmall(GridItem(crossAxisCellCount: 4, child: MediaUnlockSmall())),
+  toolboxShortcut(
+    GridItem(crossAxisCellCount: 4, child: ToolboxShortcut()),
+    platforms: [SupportPlatform.Android],
+  ),
   startButton(
     GridItem(crossAxisCellCount: 4, isDeletable: false, child: StartButton()),
   );
@@ -450,7 +471,7 @@ enum DashboardWidget {
 
   DashboardTileSize get nativeSize => switch (this) {
     networkSpeed || mediaUnlock => DashboardTileSize.large,
-    outboundModeV2 => DashboardTileSize.wide,
+    outboundModeV2 || profileInfo => DashboardTileSize.wide,
     outboundMode || mediaUnlockSmall || trafficUsage => DashboardTileSize.tall,
     _ => DashboardTileSize.small,
   };
@@ -463,10 +484,16 @@ enum DashboardWidget {
       DashboardTileSize.large,
     ],
     trafficUsage => const [DashboardTileSize.tall, DashboardTileSize.wide],
+    profileInfo => const [
+      DashboardTileSize.wide,
+      DashboardTileSize.large,
+      DashboardTileSize.tall,
+    ],
     networkDetection ||
     intranetIp ||
     memoryInfo ||
     connectionsCount ||
+    toolboxShortcut ||
     startButton => const [
       DashboardTileSize.small,
       DashboardTileSize.wide,
@@ -586,13 +613,21 @@ extension RuleActionExt on RuleAction {
   ].contains(this);
 }
 
-enum OverrideRuleType { override, added }
-
 enum RuleTarget { DIRECT, REJECT }
 
 enum RecoveryStrategy { compatible, override }
 
 enum StartSwitchStyle { tonal, outlined }
+
+enum ProfileUsageStyle { bar, ring, concentric }
+
+extension ProfileUsageStyleExt on ProfileUsageStyle {
+  String get localizedName => switch (this) {
+    ProfileUsageStyle.bar => appLocalizations.usageStyleBar,
+    ProfileUsageStyle.ring => appLocalizations.usageStyleRing,
+    ProfileUsageStyle.concentric => appLocalizations.usageStyleConcentric,
+  };
+}
 
 enum SidebarFlyoutEntry {
   resources,
@@ -677,18 +712,27 @@ enum DelayAnimationType {
   waveSpinner,
 }
 
-enum MrsRawSource {
-  bettRules(
-    'bett-rules',
-    'https://raw.githubusercontent.com/appshubcc/bett-rules/meta/',
-  ),
-  metaRulesDat(
-    'meta-rules-dat',
-    'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/',
-  );
+enum MrsTapAction { viewRules, copyUrl }
 
-  final String label;
-  final String baseUrl;
+enum StoreSpace { ip, speedTest, toolbox }
 
-  const MrsRawSource(this.label, this.baseUrl);
+enum IpRiskLevel { low, medium, high, veryHigh }
+
+enum IpRiskGroup { datacenter, blacklist, proxy }
+
+enum IpRiskAmount { low, medium, high }
+
+enum IpRiskShare { little, some, almostAll }
+
+enum IpRiskConnection { server, vpn, publicProxy, tor, webProxy }
+
+enum RouteCategory {
+  ai,
+  streaming,
+  social,
+  gaming,
+  developer,
+  finance,
+  tech,
+  other,
 }

@@ -59,6 +59,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/core/.cxx
+/android/.kotlin/
 #libclash
 /libclash/
 #jniLibs
@@ -74,6 +75,7 @@ app.*.map.json
 /assets/data/ASN.mmdb
 /assets/data/zash.zip
 /assets/data/*.gz
+/assets/data/BundleMRS.7z
 # Miscellaneous
 !/docs/*.md
 # 本机审计笔记：含本机排查细节（设备/构建环境），按约定不入库。
@@ -100,3 +102,4 @@ ohos/build/
 /.ohpm/
 /.home/
 /ohos/.cache/
+/test/private/

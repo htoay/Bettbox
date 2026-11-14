@@ -263,9 +263,7 @@ void main() {
     });
 
     test('9000 节点下逐个解析不再随节点数平方增长', () {
-      final nodes = [
-        for (var i = 0; i < 9000; i++) _proxy('node-$i'),
-      ];
+      final nodes = [for (var i = 0; i < 9000; i++) _proxy('node-$i')];
       final groups = [
         for (var i = 0; i < 12; i++)
           Group(type: GroupType.Selector, name: 'G$i', all: nodes),
@@ -280,7 +278,6 @@ void main() {
         delayMap: {
           'u': {for (var i = 0; i < 9000; i++) 'node-$i': 9000 - i},
         },
-        overrideTestUrl: true,
         defaultTestUrl: 'u',
       );
       final sorted = sortProxies(
@@ -300,11 +297,7 @@ void main() {
         themeProps: defaultThemeProps,
         currentProfileId: 'p',
         profiles: [
-          Profile(
-            id: 'p',
-            autoUpdateDuration: Duration.zero,
-            unfoldSet: {'A'},
-          ),
+          Profile(id: 'p', autoUpdateDuration: Duration.zero, unfoldSet: {'A'}),
         ],
         proxiesStyle: const ProxiesStyle(sortType: ProxiesSortType.name),
       );
@@ -346,9 +339,11 @@ void main() {
       expect(names('B'), ['z', 'y']);
       final sortedA = container.read(sortedGroupProxiesProvider('', 'A'));
 
-      container.read(profilesProvider.notifier).setProfile(
-        globalState.config.profiles.single.copyWith(unfoldSet: {'A', 'B'}),
-      );
+      container
+          .read(profilesProvider.notifier)
+          .setProfile(
+            globalState.config.profiles.single.copyWith(unfoldSet: {'A', 'B'}),
+          );
       expect(names('B'), ['y', 'z']);
       expect(
         identical(container.read(sortedGroupProxiesProvider('', 'A')), sortedA),
@@ -437,9 +432,10 @@ void main() {
       ];
       final pending = container.read(provider);
       expect(pending, isNotNull);
-      expect([for (final proxy in pending!) proxy.name], [
-        for (final proxy in first) proxy.name,
-      ]);
+      expect(
+        [for (final proxy in pending!) proxy.name],
+        [for (final proxy in first) proxy.name],
+      );
       expect(pending.first.type, 'Vmess');
 
       final other = createContainer(source);
@@ -466,6 +462,68 @@ void main() {
       final small = container.read(sortedGroupProxiesProvider('', 'SMALL'));
       expect(small!.first.name, startsWith('a'));
       expect(small.last.name, startsWith('z'));
+    });
+  });
+
+  group('hideTimeoutProxies', () {
+    const url = 'https://test';
+    final groups = [
+      Group(
+        type: GroupType.Selector,
+        name: 'G',
+        now: 'a',
+        all: [
+          _proxy('a'),
+          _proxy('b'),
+          _proxy('c'),
+          _proxy('d'),
+          const Proxy(name: 'REJECT', type: 'Reject'),
+        ],
+      ),
+      Group(
+        type: GroupType.Selector,
+        name: 'H',
+        all: [_proxy('a'), _proxy('b')],
+      ),
+    ];
+
+    List<String> visible(DelayMap delayMap, {String group = 'G'}) =>
+        hideTimeoutProxies(
+          groups: groups,
+          allGroups: groups,
+          selectedMap: const {},
+          delayMap: delayMap,
+          defaultTestUrl: url,
+        ).getGroup(group)!.all.map((proxy) => proxy.name).toList();
+
+    test('隐藏超时节点，保留当前选中、未测速与不可测速类型', () {
+      expect(
+        visible({
+          url: {'a': -1, 'b': -1, 'c': 120, 'REJECT': -1},
+        }),
+        ['a', 'c', 'd', 'REJECT'],
+      );
+    });
+
+    test('整组都超时时保持原样', () {
+      expect(
+        visible({
+          url: {'a': -1, 'b': -1},
+        }, group: 'H'),
+        ['a', 'b'],
+      );
+      expect(
+        hideTimeoutProxies(
+          groups: groups,
+          allGroups: groups,
+          selectedMap: const {'H': 'a'},
+          delayMap: {
+            url: {'a': -1, 'b': -1},
+          },
+          defaultTestUrl: url,
+        ).getGroup('H')!.all.map((proxy) => proxy.name).toList(),
+        ['a', 'b'],
+      );
     });
   });
 
@@ -523,6 +581,36 @@ void main() {
       ];
       container.read(filterGroupsStateProvider(''));
       expect(notifyCount, 1);
+    });
+  });
+
+  group('DelayDataSource', () {
+    test('clear 丢弃已有和待合并的延迟', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(delayDataSourceProvider.notifier);
+      notifier.value = {
+        'u': {'A': 10},
+      };
+      notifier.setDelay(const Delay(name: 'B', url: 'u', value: 20));
+      notifier.clear();
+      notifier.flush();
+      expect(container.read(delayDataSourceProvider), isEmpty);
+    });
+
+    test('dropTesting 只移除测速中的节点', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(delayDataSourceProvider.notifier);
+      notifier.value = {
+        'u': {'A': 10, 'B': 0},
+        'v': {'C': 0},
+      };
+      notifier.setDelay(const Delay(name: 'D', url: 'u', value: 0));
+      notifier.dropTesting();
+      expect(container.read(delayDataSourceProvider), {
+        'u': {'A': 10},
+      });
     });
   });
 }

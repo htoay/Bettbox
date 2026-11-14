@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -154,7 +155,7 @@ class Picker {
         commonPrint.warn('Native qr decode failed: $e');
       }
     }
-    return qrReader.decodeFile(path);
+    return Isolate.run(() => qrReader.decodeFile(path));
   }
 }
 

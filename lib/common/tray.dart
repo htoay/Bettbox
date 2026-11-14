@@ -324,7 +324,7 @@ class Tray {
       final menu = Menu(items: menuItems);
       await trayManager.setContextMenu(
         menu,
-        keepMenuOpen: silent,
+        keepMenuOpen: silent || system.isWindows,
         brightness: trayState.brightness,
       );
       if (Platform.isLinux) {
@@ -548,9 +548,12 @@ class Tray {
         testableProxies,
         testUrl: group.testUrl,
         groupName: group.name,
-        onDelayUpdated: system.isMacOS
-            ? () => appController.updateTray(false, true)
-            : null,
+        onDelayUpdated: system.isLinux
+            ? null
+            : () async {
+                if (!trayManager.isMenuOpen) return;
+                await appController.updateTray(false, true);
+              },
       );
     } catch (e) {
       commonPrint.warn('Delay test error: $e');

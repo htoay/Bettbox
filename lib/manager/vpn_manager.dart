@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/app.dart';
@@ -22,36 +24,49 @@ class _VpnContainerState extends ConsumerState<VpnManager> {
     ref.listenManual(vpnStateProvider, (prev, next) {
       // Skip tip
       if (prev == null || prev == next) return;
-      
+
       final prevProps = prev.vpnProps;
       final nextProps = next.vpnProps;
-      
+
       // Check
-      final onlySmartAutoStopChanged = prevProps.copyWith(
-        smartAutoStop: nextProps.smartAutoStop,
-        smartAutoStopNetworks: nextProps.smartAutoStopNetworks,
-      ) == nextProps;
-      
-      final onlyQuickResponseChanged = prevProps.copyWith(
-        quickResponse: nextProps.quickResponse,
-      ) == nextProps;
-      
-      final onlyNetworkSpeedChanged = prevProps.copyWith(
-        networkSpeedNotification: nextProps.networkSpeedNotification,
-      ) == nextProps;
-      
-      final onlyHighPriorityNotificationChanged = prevProps.copyWith(
-        highPriorityNotification: nextProps.highPriorityNotification,
-      ) == nextProps;
-      
+      final onlySmartAutoStopChanged =
+          prevProps.copyWith(
+            smartAutoStop: nextProps.smartAutoStop,
+            smartAutoStopNetworks: nextProps.smartAutoStopNetworks,
+          ) ==
+          nextProps;
+
+      final onlyQuickResponseChanged =
+          prevProps.copyWith(quickResponse: nextProps.quickResponse) ==
+          nextProps;
+
+      final onlyNetworkSpeedChanged =
+          prevProps.copyWith(
+            networkSpeedNotification: nextProps.networkSpeedNotification,
+          ) ==
+          nextProps;
+
+      final onlyHighPriorityNotificationChanged =
+          prevProps.copyWith(
+            highPriorityNotification: nextProps.highPriorityNotification,
+          ) ==
+          nextProps;
+
       if (onlySmartAutoStopChanged ||
           onlyQuickResponseChanged ||
           onlyNetworkSpeedChanged ||
           onlyHighPriorityNotificationChanged) {
         return; // No tip needed
       }
-      
+
       showTip();
+    });
+    ref.listenManual(currentProfileProvider.select((state) => state?.label), (
+      prev,
+      next,
+    ) {
+      if (prev == next || !globalState.isStart) return;
+      unawaited(globalState.appController.updateTraffic());
     });
   }
 

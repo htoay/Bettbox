@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -148,6 +149,42 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".widget.HomeWidgetLargeProvider"
+            android:exported="false"
+            android:label="@string/home_widget_large_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_large_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.HomeWidgetWideProvider"
+            android:exported="false"
+            android:label="@string/home_widget_wide_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_wide_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.HomeWidgetSquareProvider"
+            android:exported="false"
+            android:label="@string/home_widget_square_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_square_info" />
+        </receiver>
+
         <service
             android:name=".services.BettboxTileService"
             android:exported="true"
@@ -168,8 +205,7 @@
             android:authorities="${applicationId}.files"
             android:exported="true"
             android:grantUriPermissions="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS"
-            android:process=":background">
+            android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>

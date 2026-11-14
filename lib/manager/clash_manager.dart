@@ -8,6 +8,7 @@ import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/providers/state.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/proxies/common.dart' show delayTestCoordinator;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,24 +31,40 @@ class _ClashContainerState extends ConsumerState<ClashManager>
     return widget.child;
   }
 
+  void _syncForeground() {
+    clashCore.setForeground(!globalState.backgroundMode.value);
+  }
+
   @override
   void initState() {
     super.initState();
     clashMessage.addListener(this);
+    if (system.isAndroid) {
+      globalState.backgroundMode.addListener(_syncForeground);
+      unawaited(clashCore.preload().then((_) => _syncForeground()));
+    }
     ref.listenManual(needSetupProvider, (prev, next) {
       if (prev != next) {
-        final profileChanged = prev?.a != next.a;
+        final fullRestart =
+            system.isDesktop &&
+            prev?.a != next.a &&
+            ref.read(networkSettingProvider).profileSwitchMode ==
+                ProfileSwitchMode.fullRestart;
         unawaited(
           globalState.appController
-              .handleChangeProfile(
-                hardRestart: system.isDesktop && profileChanged,
-              )
+              .handleChangeProfile(hardRestart: fullRestart)
               .catchError((Object error, StackTrace stackTrace) {
                 commonPrint.error('Profile change failed: $error');
               }),
         );
       }
     });
+    ref.listenManual(
+      currentPageLabelProvider.select((state) => state == PageLabel.proxies),
+      (prev, next) {
+        if (next && prev == false) _refreshDelaySort();
+      },
+    );
     ref.listenManual(coreStateProvider, (prev, next) async {
       if (prev != next) {
         await clashCore.setState(next);
@@ -77,20 +94,42 @@ class _ClashContainerState extends ConsumerState<ClashManager>
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     throttler.cancel(FunctionTag.requests);
+    debouncer.cancel(FunctionTag.delaySort);
     clashMessage.removeListener(this);
+    globalState.backgroundMode.removeListener(_syncForeground);
     super.dispose();
   }
 
   @override
-  Future<void> onDelay(Delay delay) async {
-    super.onDelay(delay);
+  void onDelays(List<Delay> delays) {
+    super.onDelays(delays);
     final appController = globalState.appController;
-    appController.setDelay(delay);
-    debouncer.call(FunctionTag.updateDelay, () async {
-      appController.updateGroupsDebounce();
-    }, duration: const Duration(milliseconds: 5000));
+    for (final delay in delays) {
+      appController.setDelay(delay);
+    }
+    debouncer.call(
+      FunctionTag.delaySort,
+      _refreshDelaySort,
+      duration: const Duration(seconds: 5),
+    );
+  }
+
+  void _refreshDelaySort() {
+    if (!mounted || delayTestCoordinator.isTesting) return;
+    final proxiesStyle = ref.read(proxiesStyleSettingProvider);
+    if (proxiesStyle.sortType != ProxiesSortType.delay &&
+        !proxiesStyle.hideTimeoutProxies) {
+      return;
+    }
+    globalState.appController.addSortNum();
+  }
+
+  @override
+  void onGroupsChanged() {
+    super.onGroupsChanged();
+    globalState.appController.updateGroupsDebounce();
   }
 
   @override
@@ -111,14 +150,5 @@ class _ClashContainerState extends ConsumerState<ClashManager>
       duration: _flushDuration,
     );
     super.onRequest(trackerInfo);
-  }
-
-  @override
-  Future<void> onLoaded(String providerName) async {
-    final provider = await clashCore.getExternalProvider(providerName);
-    if (!mounted) return;
-    ref.read(providersProvider.notifier).setProvider(provider);
-    globalState.appController.updateGroupsDebounce();
-    super.onLoaded(providerName);
   }
 }

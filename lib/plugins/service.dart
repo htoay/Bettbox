@@ -6,7 +6,6 @@ import 'package:bett_box/state.dart';
 import 'package:flutter/services.dart';
 
 import '../clash/core.dart';
-import '../clash/lib.dart';
 import '../clash/ohos.dart';
 
 typedef NativeEventCallback =
@@ -147,43 +146,15 @@ class Service {
     }
   }
 
-  Future<bool?> smartStop() => methodChannel.invokeMethod<bool>('smartStop');
-
-  Future<bool?> smartResume() async {
-    final options = await clashLib?.getAndroidVpnOptions();
-    return await methodChannel.invokeMethod<bool>('smartResume', {
-      'data': json.encode(options),
-    });
-  }
-
-  Future<void> setSmartStopped(bool value) async {
-    await methodChannel.invokeMethod<bool>('setSmartStopped', {'value': value});
-  }
-
   Future<bool> isSmartStopped() async {
     return await methodChannel.invokeMethod<bool>('isSmartStopped') ?? false;
   }
 
-  Future<List<String>> getLocalIpAddresses() async {
-    return await methodChannel.invokeListMethod<String>(
-          'getLocalIpAddresses',
-        ) ??
-        const [];
-  }
-
-  Future<List<String>> getLocalGateways() async {
-    return await methodChannel.invokeListMethod<String>('getLocalGateways') ??
-        const [];
-  }
+  Future<void> requestSmartAutoStopCheck() =>
+      methodChannel.invokeMethod<bool>('requestSmartAutoStopCheck');
 
   Future<String?> getCurrentDns() =>
       methodChannel.invokeMethod<String>('getCurrentDns');
-
-  Future<bool?> setQuickResponse(bool enabled) async {
-    return await methodChannel.invokeMethod<bool>('setQuickResponse', {
-      'enabled': enabled,
-    });
-  }
 
   Future<bool> isServiceEngineRunning() async {
     return await methodChannel.invokeMethod<bool>('isServiceEngineRunning') ??
@@ -194,6 +165,11 @@ class Service {
     return await methodChannel.invokeMethod<bool>('status') ?? false;
   }
 
+  String? _speedNotificationProfile;
+
+  bool needsSpeedNotificationSync(String profileName) =>
+      _speedNotificationProfile != profileName;
+
   Future<void> updateNotificationSpeed(
     String profileName,
     String speedInfo,
@@ -202,9 +178,11 @@ class Service {
       'profileName': profileName,
       'speedInfo': speedInfo,
     });
+    _speedNotificationProfile = profileName;
   }
 
   Future<void> restoreNotification() async {
+    _speedNotificationProfile = null;
     await methodChannel.invokeMethod<void>('restoreNotification');
   }
 
@@ -214,6 +192,8 @@ class Service {
       {'enabled': enabled},
     );
   }
+
+  Future<bool?> resumeCore() => methodChannel.invokeMethod<bool>('resumeCore');
 
   Future<bool?> reconnectIpc() =>
       methodChannel.invokeMethod<bool>('reconnectIpc');

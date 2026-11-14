@@ -51,6 +51,23 @@ List<_Tile> _resolveTiles(List<_ToolItem> tools, List<String> saved) {
   return tiles;
 }
 
+typedef ToolboxEntry = ({
+  IconData icon,
+  Color color,
+  String title,
+  void Function(BuildContext context) open,
+});
+
+List<ToolboxEntry> orderedToolboxEntries(List<String> saved) => [
+  for (final tile in _resolveTiles(_buildTools(), saved))
+    (
+      icon: tile.item.icon,
+      color: tile.item.color,
+      title: tile.item.title,
+      open: tile.item.open,
+    ),
+];
+
 class _ToolItem {
   final String id;
   final IconData icon;
@@ -159,6 +176,14 @@ List<_ToolItem> _buildTools() {
         context,
         builder: (_, type) => MediaUnlockPage(type: type),
       ),
+    ),
+    _ToolItem(
+      id: 'trafficStats',
+      icon: Icons.data_usage_rounded,
+      color: const Color(0xFFAA47BC),
+      title: appLocalizations.trafficUsage,
+      description: appLocalizations.trafficStatsDesc,
+      open: (context) => push(context, const TrafficStatsPage()),
     ),
   ];
 }

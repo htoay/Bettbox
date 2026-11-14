@@ -27,12 +27,16 @@ type GetConfigParams struct {
 	Path           string   `json:"path"`
 	AgeSecretKey   string   `json:"age-secret-key"`
 	DisabledGroups []string `json:"disabled-groups"`
+	Snippet        bool     `json:"snippet"`
 }
 
 type ExportConfigParams struct {
-	Path         string `json:"path"`
-	AgeSecretKey string `json:"age-secret-key"`
-	Output       string `json:"output"`
+	Path            string `json:"path"`
+	AgeSecretKey    string `json:"age-secret-key"`
+	Output          string `json:"output"`
+	ExpandProviders bool   `json:"expand-providers"`
+	ProvidersPath   string `json:"providers-path"`
+	Refresh         bool   `json:"refresh"`
 }
 
 type InitParams struct {
@@ -41,13 +45,12 @@ type InitParams struct {
 }
 
 type SetupParams struct {
-	SelectedMap     map[string]string `json:"selected-map"`
-	TestURL         string            `json:"test-url"`
-	OverrideTestUrl bool              `json:"override-test-url"`
-	ProfilePath     string            `json:"profile-path"`
-	AgeSecretKey    string            `json:"age-secret-key"`
-	ScriptedConfig  string            `json:"scripted-config"`
-	Patch           *PatchParams      `json:"patch"`
+	SelectedMap    map[string]string `json:"selected-map"`
+	TestURL        string            `json:"test-url"`
+	ProfilePath    string            `json:"profile-path"`
+	AgeSecretKey   string            `json:"age-secret-key"`
+	ScriptedConfig string            `json:"scripted-config"`
+	Patch          *PatchParams      `json:"patch"`
 }
 
 type SetupResult struct {
@@ -82,7 +85,6 @@ type tunSchema struct {
 	RouteExcludeAddress   *[]netip.Prefix    `yaml:"route-exclude-address" json:"route-exclude-address,omitempty"`
 	StrictRoute           *bool              `yaml:"strict-route" json:"strict-route,omitempty"`
 	DisableICMPForwarding *bool              `yaml:"disable-icmp-forwarding" json:"disable-icmp-forwarding,omitempty"`
-	CongestionController  *string            `yaml:"congestion-controller" json:"congestion-controller,omitempty"`
 }
 
 type ChangeProxyParams struct {
@@ -104,7 +106,6 @@ type ExternalProvider struct {
 	Path             string                     `json:"path"`
 	UpdateAt         time.Time                  `json:"update-at"`
 	SubscriptionInfo *provider.SubscriptionInfo `json:"subscription-info"`
-	Proxies          []constant.Proxy           `json:"proxies"`
 }
 
 const (
@@ -114,18 +115,23 @@ const (
 	forceGcMethod                        Method = "forceGc"
 	shutdownMethod                       Method = "shutdown"
 	validateConfigMethod                 Method = "validateConfig"
+	importProfileMethod                  Method = "importProfile"
 	decryptAgeConfigMethod               Method = "decryptAgeConfig"
 	updateConfigMethod                   Method = "updateConfig"
 	getProxiesMethod                     Method = "getProxies"
 	changeProxyMethod                    Method = "changeProxy"
 	getTrafficMethod                     Method = "getTraffic"
-	getTotalTrafficMethod                Method = "getTotalTraffic"
+	getTrafficSnapshotMethod             Method = "getTrafficSnapshot"
 	resetTrafficMethod                   Method = "resetTraffic"
 	asyncTestDelayMethod                 Method = "asyncTestDelay"
+	asyncTestDelaysMethod                Method = "asyncTestDelays"
+	setForegroundMethod                  Method = "setForeground"
 	getConnectionsMethod                 Method = "getConnections"
+	getConnectionsSummaryMethod          Method = "getConnectionsSummary"
 	closeConnectionsMethod               Method = "closeConnections"
 	resetConnectionsMethod               Method = "resetConnectionsMethod"
 	closeConnectionMethod                Method = "closeConnection"
+	closeGroupConnectionsMethod          Method = "closeGroupConnections"
 	getExternalProvidersMethod           Method = "getExternalProviders"
 	getExternalProviderMethod            Method = "getExternalProvider"
 	getCountryCodeMethod                 Method = "getCountryCode"
@@ -147,6 +153,7 @@ const (
 	getConfigMethod                      Method = "getConfig"
 	getRuntimeConfigMethod               Method = "getRuntimeConfig"
 	exportConfigMethod                   Method = "exportConfig"
+	mergeProfilesMethod                  Method = "mergeProfiles"
 	flushFakeIPMethod                    Method = "flushFakeIP"
 	flushDnsCacheMethod                  Method = "flushDnsCache"
 	generateAgeKeyPairMethod             Method = "generateAgeKeyPair"
@@ -176,6 +183,13 @@ const (
 	dnsQueryMethod                       Method = "dnsQuery"
 	mrsPrepareMethod                     Method = "mrsPrepare"
 	mrsLookupMethod                      Method = "mrsLookup"
+	mrsDumpMethod                        Method = "mrsDump"
+	getTrafficStatsMethod                Method = "getTrafficStats"
+	clearTrafficStatsMethod              Method = "clearTrafficStats"
+	storeGetMethod                       Method = "storeGet"
+	storeSetMethod                       Method = "storeSet"
+	storeListMethod                      Method = "storeList"
+	storeClearMethod                     Method = "storeClear"
 	cancelMrsLookupMethod                Method = "cancelMrsLookup"
 	startToolProxyMethod                 Method = "startToolProxy"
 	stopToolProxyMethod                  Method = "stopToolProxy"
@@ -198,10 +212,10 @@ type Message struct {
 }
 
 const (
-	LogMessage     MessageType = "log"
-	DelayMessage   MessageType = "delay"
-	RequestMessage MessageType = "request"
-	LoadedMessage  MessageType = "loaded"
+	LogMessage           MessageType = "log"
+	DelaysMessage        MessageType = "delays"
+	GroupsChangedMessage MessageType = "groupsChanged"
+	RequestMessage       MessageType = "request"
 )
 
 func (message *Message) Json() (string, error) {

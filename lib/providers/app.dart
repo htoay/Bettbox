@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'config.dart';
 
 part 'generated/app.g.dart';
 
@@ -136,7 +139,13 @@ class Requests extends _$Requests with AutoDisposeNotifierMixin {
   }
 }
 
-bool _matchTrackerInfo(TrackerInfo item, String query, List<String> keywords) {
+bool _matchTrackerInfo(
+  TrackerInfo item,
+  String query,
+  List<String> keywords,
+  bool udpOnly,
+) {
+  if (udpOnly && item.metadata.network != 'udp') return false;
   if (query.isNotEmpty) {
     final meta = item.metadata;
     final matchesQuery =
@@ -162,9 +171,10 @@ final filteredRequestsProvider = Provider<List<TrackerInfo>>((ref) {
   final requests = ref.watch(requestsProvider.select((s) => s.list));
   final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(connectionsKeywordsProvider);
+  final udpOnly = ref.watch(connectionsUdpOnlyProvider);
 
   return requests
-      .where((item) => _matchTrackerInfo(item, query, keywords))
+      .where((item) => _matchTrackerInfo(item, query, keywords, udpOnly))
       .toList();
 });
 
@@ -485,6 +495,26 @@ class DelayDataSource extends _$DelayDataSource with AutoDisposeNotifierMixin {
     }
   }
 
+  void clear() {
+    _flushTimer?.cancel();
+    _flushTimer = null;
+    _pendingDelays.clear();
+    state = {};
+  }
+
+  void dropTesting() {
+    flush();
+    if (!state.values.any((delays) => delays.containsValue(0))) return;
+    state = {
+      for (final MapEntry(:key, :value) in state.entries)
+        if (value.values.any((delay) => delay != 0))
+          key: {
+            for (final entry in value.entries)
+              if (entry.value != 0) entry.key: entry.value,
+          },
+    };
+  }
+
   DelayMap? _merge(DelayMap current) {
     if (_pendingDelays.isEmpty) return null;
     final DelayMap next = Map.of(current);
@@ -533,6 +563,14 @@ class IsSmartStopped extends _$IsSmartStopped {
   }
 }
 
+@Riverpod(keepAlive: true)
+class ConnectionsUdpOnly extends _$ConnectionsUdpOnly {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+}
+
 // Connections providers
 final connectionsProvider = StateProvider<List<TrackerInfo>>((ref) => []);
 final connectionsSearchProvider = StateProvider<String>((ref) => '');
@@ -567,6 +605,7 @@ final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
   final closed = ref.watch(requestsProvider.select((state) => state.list));
   final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(connectionsKeywordsProvider);
+  final udpOnly = ref.watch(connectionsUdpOnlyProvider);
   final sortType = ref.watch(connectionsSortProvider);
   final closedIds = {for (final item in closed) item.id};
 
@@ -574,7 +613,7 @@ final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
       .where(
         (item) =>
             !closedIds.contains(item.id) &&
-            _matchTrackerInfo(item, query, keywords),
+            _matchTrackerInfo(item, query, keywords, udpOnly),
       )
       .toList()
     ..sort((a, b) => _compareTrackerInfo(sortType, a, b));
@@ -590,3 +629,82 @@ final filteredAllConnectionsProvider =
         for (final info in closed) (info: info, closed: true),
       ]..sort((a, b) => _compareTrackerInfo(sortType, a.info, b.info));
     });
+
+@riverpod
+Future<IconSet> builtInIconSet(Ref ref) async {
+  ref.watch(managedSettingProvider.select((state) => state.syncedVersion));
+  final index = await ManagedScript.catalog(ref.read(managedSettingProvider));
+  return routeIconSet(index.catalog);
+}
+
+@Riverpod(keepAlive: true)
+class IconSets extends _$IconSets {
+  @override
+  Future<List<IconSet>> build() => IconSetStore.instance.read();
+
+  Future<({String name, List<IconSetIcon> icons})> _parse(
+    String content,
+  ) async {
+    try {
+      return await Isolate.run(() => parseIconSet(content));
+    } on FormatException {
+      throw appLocalizations.invalidIconSet;
+    }
+  }
+
+  String _nameOf(String parsed, String fallback) {
+    final name = parsed.isNotEmpty ? parsed : iconFileStem(fallback);
+    return name.isNotEmpty ? name : appLocalizations.iconSets;
+  }
+
+  Future<void> _put(IconSet iconSet) async {
+    final current = await future;
+    final index = current.indexWhere((item) => item.id == iconSet.id);
+    final next = [...current];
+    if (index < 0) {
+      next.add(iconSet);
+    } else {
+      next[index] = iconSet;
+    }
+    state = AsyncData(next);
+    await IconSetStore.instance.write(next);
+  }
+
+  Future<IconSet> importUrl(String url) async {
+    final response = await request.getTextResponseForUrl(url);
+    final parsed = await _parse('${response.data ?? ''}');
+    final current = await future;
+    final existing = current.firstWhereOrNull((item) => item.url == url);
+    final iconSet =
+        (existing ??
+                IconSet(
+                  id: utils.id,
+                  name: _nameOf(parsed.name, Uri.parse(url).path),
+                  url: url,
+                ))
+            .copyWith(icons: parsed.icons, lastUpdateTime: DateTime.now());
+    await _put(iconSet);
+    return iconSet;
+  }
+
+  Future<IconSet> importContent(String fileName, String content) async {
+    final parsed = await _parse(content);
+    final iconSet = IconSet(
+      id: utils.id,
+      name: _nameOf(parsed.name, fileName),
+      icons: parsed.icons,
+      lastUpdateTime: DateTime.now(),
+    );
+    await _put(iconSet);
+    return iconSet;
+  }
+
+  Future<void> delete(String id) async {
+    final next = [
+      for (final item in await future)
+        if (item.id != id) item,
+    ];
+    state = AsyncData(next);
+    await IconSetStore.instance.write(next);
+  }
+}

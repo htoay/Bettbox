@@ -50,7 +50,8 @@ class _ConnectionsCountState extends State<ConnectionsCount> {
     _isUpdating = true;
 
     try {
-      // 只要计数与分类：走轻量接口，避免每 2s 建一个 isolate 反序列化整份连接列表
+      // 只要计数与分类：走鸿蒙轻量接口，避免每 2s 建一个 isolate 反序列化整份连接列表
+      //（上游 v1.19.8 的 getConnectionsSummary 需要完整反序列化，鸿蒙不用）
       final (count, udp, tcp) = await clashCore.getConnectionsStats();
       _lastCount = count;
       _lastUdp = udp;

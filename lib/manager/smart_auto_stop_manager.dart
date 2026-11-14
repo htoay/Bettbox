@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/common/network_matcher.dart';
-import 'package:bett_box/models/models.dart';
 import 'package:bett_box/plugins/service.dart';
+import 'package:bett_box/plugins/vpn.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:material_ui/material_ui.dart';
@@ -30,12 +29,18 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
 
   int _checkSequence = 0;
 
+  String? _overrideNetwork;
+
+  bool _overridePending = false;
+
   late final NativeEventCallback _nativeEventCallback;
 
   @override
   void initState() {
     super.initState();
-    _initConnectivityListener();
+    if (!system.isAndroid) {
+      _initConnectivityListener();
+    }
     _initNativeNetworkListener();
     _syncSmartStopped();
   }
@@ -53,46 +58,10 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
   void _initNativeNetworkListener() {
     _nativeEventCallback = (String method, dynamic arguments) async {
       if (method == 'networkChanged') {
-        _onNativeNetworkChanged();
-        _flushDnsOnNetworkChanged();
-      } else if (method == 'quickResponse') {
-        final vpnProps = ref.read(vpnSettingProvider);
-        if (vpnProps.quickResponse) {
-          final startTime = globalState.startTime;
-          if (startTime != null &&
-              DateTime.now().difference(startTime) <
-                  const Duration(seconds: 3)) {
-            return;
-          }
-          clashCore.closeConnections();
-        }
+        _syncSmartStopped();
       }
     };
     service?.addNativeEventCallback(_nativeEventCallback);
-  }
-
-  void _flushDnsOnNetworkChanged() {
-    if (!ref.read(appSettingProvider).flushDnsOnNetworkChange) return;
-    final startTime = globalState.startTime;
-    if (startTime == null ||
-        DateTime.now().difference(startTime) < const Duration(seconds: 3)) {
-      return;
-    }
-    globalState.appController.flushDns();
-  }
-
-  void _onNativeNetworkChanged() async {
-    if (system.isAndroid) {
-      try {
-        final isStopped = await service?.isSmartStopped() ?? false;
-        if (mounted) {
-          ref.read(isSmartStoppedProvider.notifier).set(isStopped);
-        }
-      } catch (_) {}
-    }
-    final vpnProps = ref.read(vpnSettingProvider);
-    if (!vpnProps.smartAutoStop) return;
-    _debouncedCheckCurrentNetwork();
   }
 
   @override
@@ -102,6 +71,27 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
       if (prev?.smartAutoStop != next.smartAutoStop ||
           prev?.smartAutoStopNetworks != next.smartAutoStopNetworks) {
         _onSettingsChanged();
+      }
+    });
+    ref.listenManual(runTimeProvider.select((value) => value != null), (
+      prev,
+      next,
+    ) {
+      if (system.isAndroid) {
+        _syncSmartStopped();
+        return;
+      }
+      final isSmartStopped = ref.read(isSmartStoppedProvider);
+      if (!next) {
+        if (!isSmartStopped) _clearOverride();
+        return;
+      }
+      if (isSmartStopped) {
+        ref.read(isSmartStoppedProvider.notifier).set(false);
+        _overridePending = true;
+      }
+      if (prev != true && ref.read(vpnSettingProvider).smartAutoStop) {
+        _debouncedCheckCurrentNetwork();
       }
     });
   }
@@ -120,9 +110,13 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
   }
 
   void _onSettingsChanged() {
+    if (system.isAndroid) {
+      _requestServiceCheck();
+      return;
+    }
     final vpnProps = ref.read(vpnSettingProvider);
     if (!vpnProps.smartAutoStop) {
-      // Feature disabled, if we were smart-stopped, resume.
+      _clearOverride();
       final isSmartStopped = ref.read(isSmartStoppedProvider);
       if (isSmartStopped) {
         ref.read(isSmartStoppedProvider.notifier).set(false);
@@ -130,8 +124,16 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
       }
       return;
     }
-    // Re-check current network
     _checkCurrentNetwork();
+  }
+
+  Future<void> _requestServiceCheck() async {
+    try {
+      await globalState.appController.savePreferences();
+      await service?.requestSmartAutoStopCheck();
+    } catch (e) {
+      commonPrint.warn('Smart Auto Stop: Request check error: $e');
+    }
   }
 
   Future<void> _onConnectivityChanged(List<ConnectivityResult> results) async {
@@ -155,47 +157,53 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
 
   Future<void> _checkCurrentNetwork() async {
     await _checkLock.synchronized(() async {
+      if (!mounted) return;
       final vpnProps = ref.read(vpnSettingProvider);
       if (!vpnProps.smartAutoStop) return;
 
       final networks = vpnProps.smartAutoStopNetworks;
-      if (networks.isEmpty) return;
-
       final isSmartStopped = ref.read(isSmartStoppedProvider);
 
-      // Get current IP(s) and gateway(s) — always from native on Android
-      List<String> candidateIps;
-      List<String> candidateGateways;
-      if (system.isMobile) {
-        // 鸿蒙同样由原生 @ohos.net.connection 读取物理网络地址/网关
-        // （Dart 侧 utils.getLocalGateways 只支持 Linux/macOS/Windows）
-        candidateIps = await _getNativeLocalIpAddresses();
-        candidateGateways = await _getNativeLocalGateways();
+      var shouldStop = false;
+      if (networks.isEmpty) {
+        _clearOverride();
       } else {
-        final ip = await _getLocalIpAddress();
-        candidateIps = ip != null ? [ip] : [];
-        candidateGateways = await _getDesktopLocalGateways();
+        List<String> ips;
+        List<String> gateways;
+        if (system.isMobile) {
+          // 鸿蒙同样由原生 @ohos.net.connection 读取物理网络地址/网关
+          //（Dart 侧 utils.getLocalGateways 只支持 Linux/macOS/Windows）
+          ips = await _getNativeLocalIpAddresses();
+          gateways = await _getNativeLocalGateways();
+        } else {
+          ips = await _getDesktopLocalIpAddresses();
+          gateways = await _getDesktopLocalGateways();
+        }
+        if (!mounted) return;
+        final network = NetworkMatcher.networkKey(ips);
+        if (_overridePending) {
+          _overrideNetwork = network;
+          _overridePending = false;
+        } else if (_overrideNetwork != network) {
+          _overrideNetwork = null;
+        }
+        if (ips.isEmpty && gateways.isEmpty) {
+          commonPrint.debug('Smart Auto Stop: No IP/Gateway found. Skipping.');
+          return;
+        }
+        shouldStop =
+            _overrideNetwork == null &&
+            NetworkMatcher.shouldStop(
+              ips: ips,
+              gateways: gateways,
+              rules: networks,
+            );
+        commonPrint.debug(
+          'SmartAutoStop: IPs=${ips.join(",")}, Gateways=${gateways.join(",")}, RuleMatch=$shouldStop, SmartStopped=$isSmartStopped',
+        );
       }
 
-      if (candidateIps.isEmpty && candidateGateways.isEmpty) {
-        commonPrint.debug('Smart Auto Stop: No IP/Gateway found. Skipping.');
-        return;
-      }
-
-      // Match: any IP hits an IP rule, or any gateway hits a gateway rule
-      final shouldStop =
-          candidateIps.any((ip) => NetworkMatcher.matchAny(ip, networks)) ||
-          candidateGateways.any(
-            (gw) => NetworkMatcher.matchAnyGateway(gw, networks),
-          );
-
-      commonPrint.debug(
-        'SmartAutoStop: IPs=${candidateIps.join(",")}, Gateways=${candidateGateways.join(",")}, RuleMatch=$shouldStop, SmartStopped=$isSmartStopped',
-      );
-
-      // Dedup: only act on state transitions
       if (shouldStop && !isSmartStopped) {
-        // Need to stop, but only if VPN is actually running
         final isRunning =
             ref.read(runTimeProvider) != null || globalState.isStart;
         if (isRunning) {
@@ -204,7 +212,6 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
           await _stopVpn();
         }
       } else if (!shouldStop && isSmartStopped) {
-        // Need to resume
         ref.read(isSmartStoppedProvider.notifier).set(false);
         commonPrint.log('Smart Auto Stop: Restarting ...');
         await _restartVpn();
@@ -212,32 +219,18 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
     });
   }
 
-  Future<List<String>> _getNativeLocalIpAddresses() async {
-    try {
-      final serviceInstance = service;
-      if (serviceInstance != null) {
-        final ips = await serviceInstance.getLocalIpAddresses();
-        if (ips.isNotEmpty) return ips;
-      }
-    } catch (e) {
-      commonPrint.warn('Smart Auto Stop: Native IP error: $e');
-    }
-    // Fallback to Flutter layer
-    final ip = await _getLocalIpAddress();
-    return ip != null ? [ip] : [];
+  void _clearOverride() {
+    _overrideNetwork = null;
+    _overridePending = false;
   }
 
-  Future<List<String>> _getNativeLocalGateways() async {
+  Future<List<String>> _getDesktopLocalIpAddresses() async {
     try {
-      final serviceInstance = service;
-      if (serviceInstance != null) {
-        final gateways = await serviceInstance.getLocalGateways();
-        if (gateways.isNotEmpty) return gateways;
-      }
+      return await utils.getInterfaceIPv4Addresses();
     } catch (e) {
-      commonPrint.warn('Smart Auto Stop: Native gateway error: $e');
+      commonPrint.warn('Smart Auto Stop: Desktop IP error: $e');
+      return [];
     }
-    return [];
   }
 
   Future<List<String>> _getDesktopLocalGateways() async {
@@ -249,42 +242,41 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
     }
   }
 
-  Future<String?> _getLocalIpAddress() async {
-    return await utils.getLocalIpAddress();
+  // 上游 v1.19.8 把 getLocalIpAddresses/getLocalGateways 从 Service 迁到 Vpn
+  Future<List<String>> _getNativeLocalIpAddresses() async {
+    try {
+      final vpnInstance = vpn;
+      if (vpnInstance != null) {
+        final ips = await vpnInstance.getLocalIpAddresses();
+        if (ips.isNotEmpty) return ips;
+      }
+    } catch (e) {
+      commonPrint.warn('Smart Auto Stop: Native IP error: $e');
+    }
+    // Fallback to Flutter layer
+    final ip = await utils.getLocalIpAddress();
+    return ip != null ? [ip] : [];
+  }
+
+  Future<List<String>> _getNativeLocalGateways() async {
+    try {
+      final vpnInstance = vpn;
+      if (vpnInstance != null) {
+        final gateways = await vpnInstance.getLocalGateways();
+        if (gateways.isNotEmpty) return gateways;
+      }
+    } catch (e) {
+      commonPrint.warn('Smart Auto Stop: Native gateway error: $e');
+    }
+    return [];
   }
 
   Future<void> _stopVpn() async {
-    if (system.isAndroid) {
-      // Android: Enable smart-stop mode (Blank notification)
-      // This keeps the service alive but stops the VPN logic
-      await service?.setSmartStopped(true);
-      await service?.smartStop();
-
-      // Update Dart state to look "stopped"
-      globalState.startTime = null;
-      clashCore.resetTraffic();
-      ref.read(trafficsProvider.notifier).clear();
-      ref.read(totalTrafficProvider.notifier).value = Traffic();
-      ref.read(runTimeProvider.notifier).value = null;
-    } else {
-      // Desktop: Full stop
-      await globalState.appController.updateStatus(false);
-    }
+    await globalState.appController.updateStatus(false);
   }
 
   Future<void> _restartVpn() async {
-    if (system.isAndroid) {
-      // Android: Resume from smart-stop mode
-      await service?.setSmartStopped(false);
-      await service?.smartResume();
-
-      globalState.startTime = DateTime.now();
-      ref.read(runTimeProvider.notifier).value = 0;
-      globalState.appController.addCheckIpNumDebounce();
-    } else {
-      // Desktop: Full start
-      await globalState.appController.updateStatus(true);
-    }
+    await globalState.appController.updateStatus(true);
   }
 
   @override

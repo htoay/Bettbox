@@ -7,23 +7,26 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+bool showVpnRestartTip(WidgetRef ref) {
+  // 鸿蒙/移动端：isMobile 覆盖 ohos（本仓库改动）
+  if (!system.isMobile) return false;
+  final isVpnEnabled = ref.read(vpnSettingProvider).enable;
+  final isCoreRunning = ref.read(runTimeProvider) != null;
+  if (!isVpnEnabled || !isCoreRunning) return false;
+  globalState.showNotifier(
+    appLocalizations.vpnTip,
+    actionLabel: appLocalizations.restart,
+    showCountdown: true,
+    onAction: () async {
+      await globalState.appController.restartCore();
+      globalState.showNotifier(appLocalizations.success);
+    },
+  );
+  return true;
+}
+
 Future<void> _handleNetworkConfigChange(WidgetRef ref) async {
-  if (system.isMobile) {
-    final isVpnEnabled = ref.read(vpnSettingProvider).enable;
-    final isCoreRunning = ref.read(runTimeProvider) != null;
-    if (isVpnEnabled && isCoreRunning) {
-      globalState.showNotifier(
-        appLocalizations.vpnTip,
-        actionLabel: appLocalizations.restart,
-        showCountdown: true,
-        onAction: () async {
-          await globalState.appController.restartCore();
-          globalState.showNotifier(appLocalizations.success);
-        },
-      );
-      return;
-    }
-  }
+  if (showVpnRestartTip(ref)) return;
   globalState.appController.updateClashConfig();
 }
 
@@ -141,32 +144,6 @@ class SystemProxyItem extends ConsumerWidget {
               .read(networkSettingProvider.notifier)
               .updateState((state) => state.copyWith(systemProxy: value));
         },
-      ),
-    );
-  }
-}
-
-class AutoSetSystemDnsItem extends ConsumerWidget {
-  const AutoSetSystemDnsItem({super.key});
-
-  @override
-  Widget build(BuildContext context, ref) {
-    final autoSetSystemDnsState = ref.watch(autoSetSystemDnsStateProvider);
-    final canSetSystemDns = autoSetSystemDnsState.a;
-    final autoSetSystemDns = autoSetSystemDnsState.b;
-    return ListItem.switchItem(
-      title: Text(appLocalizations.autoSetSystemDns),
-      delegate: SwitchDelegate(
-        value: autoSetSystemDns,
-        onChanged: canSetSystemDns
-            ? (bool value) async {
-                ref
-                    .read(networkSettingProvider.notifier)
-                    .updateState(
-                      (state) => state.copyWith(autoSetSystemDns: value),
-                    );
-              }
-            : null,
       ),
     );
   }
@@ -331,41 +308,48 @@ class TunStackItem extends ConsumerWidget {
   }
 }
 
-class TunCongestionControllerItem extends ConsumerWidget {
-  const TunCongestionControllerItem({super.key});
+class NetworkInterfaceItem extends ConsumerWidget {
+  const NetworkInterfaceItem({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final (stack, congestionController) = ref.watch(
-      patchClashConfigProvider.select(
-        (state) => (state.tun.stack, state.tun.congestionController),
-      ),
+  Widget build(BuildContext context, ref) {
+    final interfaceName = ref.watch(
+      patchClashConfigProvider.select((state) => state.interfaceName),
     );
 
-    if (stack != TunStack.mips) {
-      return const SizedBox.shrink();
-    }
-
-    return ListItem.options(
-      title: Text(appLocalizations.congestionController),
-      subtitle: Text(congestionController.name),
-      delegate: OptionsDelegate<CongestionController>(
-        value: congestionController,
-        options: CongestionController.values,
-        textBuilder: (value) => value.name,
-        onChanged: (value) async {
-          if (value == null) {
-            return;
-          }
-          ref
-              .read(patchClashConfigProvider.notifier)
-              .updateState(
-                (state) => state.copyWith.tun(congestionController: value),
-              );
-          await _handleNetworkConfigChange(ref);
-        },
-        title: appLocalizations.congestionController,
+    return ListItem(
+      title: Text(appLocalizations.networkInterface),
+      subtitle: Text(
+        interfaceName.isEmpty ? appLocalizations.auto : interfaceName,
       ),
+      onTap: () async {
+        final interfaces = await utils.getNetworkInterfaces();
+        if (!context.mounted) return;
+        final addresses = {
+          for (final item in interfaces) item.name: item.addresses.join(', '),
+        };
+        final options = [
+          '',
+          if (interfaceName.isNotEmpty && !addresses.containsKey(interfaceName))
+            interfaceName,
+          ...addresses.keys,
+        ];
+        final value = await globalState.showAdaptiveSheet<String>(
+          nested: isInBottomSheet(context),
+          child: OptionsDialog<String>(
+            title: appLocalizations.networkInterface,
+            options: options,
+            value: interfaceName,
+            textBuilder: (value) =>
+                value.isEmpty ? appLocalizations.auto : value,
+            subtitleBuilder: (value) => addresses[value] ?? '',
+          ),
+        );
+        if (value == null || value == interfaceName) return;
+        ref
+            .read(patchClashConfigProvider.notifier)
+            .updateState((state) => state.copyWith(interfaceName: value));
+      },
     );
   }
 }
@@ -507,6 +491,45 @@ class MtuItem extends ConsumerWidget {
           }
         },
         title: 'MTU',
+      ),
+    );
+  }
+}
+
+class ProfileSwitchModeItem extends ConsumerWidget {
+  const ProfileSwitchModeItem({super.key});
+
+  String _text(ProfileSwitchMode mode) => switch (mode) {
+    ProfileSwitchMode.hotReload => appLocalizations.hotReload,
+    ProfileSwitchMode.fullRestart => appLocalizations.fullRestart,
+  };
+
+  String _desc(ProfileSwitchMode mode) => switch (mode) {
+    ProfileSwitchMode.hotReload => appLocalizations.hotReloadDesc,
+    ProfileSwitchMode.fullRestart => appLocalizations.fullRestartDesc,
+  };
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final mode = ref.watch(
+      networkSettingProvider.select((state) => state.profileSwitchMode),
+    );
+
+    return ListItem.options(
+      title: Text(appLocalizations.profileSwitchMode),
+      subtitle: Text(_text(mode)),
+      delegate: OptionsDelegate<ProfileSwitchMode>(
+        value: mode,
+        options: ProfileSwitchMode.values,
+        textBuilder: _text,
+        subtitleBuilder: _desc,
+        onChanged: (value) {
+          if (value == null) return;
+          ref
+              .read(networkSettingProvider.notifier)
+              .updateState((state) => state.copyWith(profileSwitchMode: value));
+        },
+        title: appLocalizations.profileSwitchMode,
       ),
     );
   }
@@ -693,11 +716,6 @@ class NetworkListView extends ConsumerWidget {
     // 鸿蒙/移动端：isMobile 覆盖 ohos（本仓库改动），保留上游写法
     final vpnSystemProxy = system.isMobile &&
         ref.watch(vpnSettingProvider.select((state) => state.systemProxy));
-    final isMipsStack = ref.watch(
-      patchClashConfigProvider.select(
-        (state) => state.tun.stack == TunStack.mips,
-      ),
-    );
     final networkItems = [
       if (system.isMobile) ...generateSection(items: const [VPNItem()]),
       if (system.isMobile)
@@ -721,15 +739,15 @@ class NetworkListView extends ConsumerWidget {
         title: appLocalizations.options,
         items: [
           if (system.isDesktop) const TUNItem(),
-          if (system.isMacOS || system.isLinux) const AutoSetSystemDnsItem(),
           // 鸿蒙与 iOS 同为移动端 VPN 实现，不展示桌面路由语义的 Strict Route
           if (system.isDesktop) const StrictRouteItem(),
           const IcmpForwardingItem(),
-          const DnsHijackItem(),
+          if (system.isDesktop) const DnsHijackItem(),
           const EndpointIndependentNatItem(),
-          const TunStackItem(),
-          if (isMipsStack) const TunCongestionControllerItem(),
+          if (system.isDesktop) const NetworkInterfaceItem(),
+          if (!AppIdentity.isLite) const TunStackItem(),
           const MtuItem(),
+          if (system.isDesktop) const ProfileSwitchModeItem(),
           const BypassPrivateRouteItem(),
         ],
       ),

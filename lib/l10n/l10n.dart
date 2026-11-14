@@ -229,6 +229,16 @@ class AppLocalizations {
     return Intl.message('Restart App', name: 'restartApp', desc: '', args: []);
   }
 
+  /// `Background Watermark`
+  String get backgroundWatermark {
+    return Intl.message(
+      'Background Watermark',
+      name: 'backgroundWatermark',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Outbound Mode`
   String get outboundMode {
     return Intl.message(
@@ -494,10 +504,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Disable QUIC to resolve specific network issues`
+  /// `Disable QUIC to mitigate specific network issues`
   String get disableQuicDesc {
     return Intl.message(
-      'Disable QUIC to resolve specific network issues',
+      'Disable QUIC to mitigate specific network issues',
       name: 'disableQuicDesc',
       desc: '',
       args: [],
@@ -674,26 +684,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Exclude China`
-  String get excludeChina {
-    return Intl.message(
-      'Exclude China',
-      name: 'excludeChina',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Allow China QUIC instead of blocking all`
-  String get excludeChinaDesc {
-    return Intl.message(
-      'Allow China QUIC instead of blocking all',
-      name: 'excludeChinaDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `FCM Optimization`
   String get fcmOptimization {
     return Intl.message(
@@ -724,10 +714,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Disconnect on network change (WiFi/Mobile)`
+  /// `Close connections on network change or node switch`
   String get quickResponseDesc {
     return Intl.message(
-      'Disconnect on network change (WiFi/Mobile)',
+      'Close connections on network change or node switch',
       name: 'quickResponseDesc',
       desc: '',
       args: [],
@@ -1039,11 +1029,11 @@ class AppLocalizations {
     );
   }
 
-  /// `Clear FakeIP and DNS cache?`
-  String get clearCacheDesc {
+  /// `FakeIP and DNS cache cleared`
+  String get dnsCacheCleared {
     return Intl.message(
-      'Clear FakeIP and DNS cache?',
-      name: 'clearCacheDesc',
+      'FakeIP and DNS cache cleared',
+      name: 'dnsCacheCleared',
       desc: '',
       args: [],
     );
@@ -1059,21 +1049,21 @@ class AppLocalizations {
     );
   }
 
-  /// `Force kernel garbage collection? Experimental, use with caution.`
-  String get forceGCDesc {
+  /// `Firebase Cloud Messaging (FCM) is a cross-platform messaging solution. Its connection support depends on the device and network, so the results are for reference only.`
+  String get fcmTip {
     return Intl.message(
-      'Force kernel garbage collection? Experimental, use with caution.',
-      name: 'forceGCDesc',
+      'Firebase Cloud Messaging (FCM) is a cross-platform messaging solution. Its connection support depends on the device and network, so the results are for reference only.',
+      name: 'fcmTip',
       desc: '',
       args: [],
     );
   }
 
-  /// `FCM connection and support depend on the device itself, the results are for reference only. Due to system permission reasons, you need to disable "Allow bypass VPN" in settings to get accurate results`
-  String get fcmTip {
+  /// ` Due to system permission reasons, on Android you may need to disable "Allow bypass VPN" in network settings to get more accurate results`
+  String get fcmAndroidTip {
     return Intl.message(
-      'FCM connection and support depend on the device itself, the results are for reference only. Due to system permission reasons, you need to disable "Allow bypass VPN" in settings to get accurate results',
-      name: 'fcmTip',
+      ' Due to system permission reasons, on Android you may need to disable "Allow bypass VPN" in network settings to get more accurate results',
+      name: 'fcmAndroidTip',
       desc: '',
       args: [],
     );
@@ -1359,6 +1349,16 @@ class AppLocalizations {
     return Intl.message('Theme Color', name: 'themeColor', desc: '', args: []);
   }
 
+  /// `Dynamic color`
+  String get dynamicColor {
+    return Intl.message(
+      'Dynamic color',
+      name: 'dynamicColor',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Preview`
   String get preview {
     return Intl.message('Preview', name: 'preview', desc: '', args: []);
@@ -1602,6 +1602,16 @@ class AppLocalizations {
   /// `Selected`
   String get selected {
     return Intl.message('Selected', name: 'selected', desc: '', args: []);
+  }
+
+  /// `Current`
+  String get currentSelection {
+    return Intl.message(
+      'Current',
+      name: 'currentSelection',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Unable to update current profile`
@@ -2924,36 +2934,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Related Settings`
-  String get relatedSettings {
-    return Intl.message(
-      'Related Settings',
-      name: 'relatedSettings',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Clear DNS Cache`
-  String get flushDnsOnNetworkChange {
-    return Intl.message(
-      'Clear DNS Cache',
-      name: 'flushDnsOnNetworkChange',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Clear the DNS cache when the network changes`
-  String get flushDnsOnNetworkChangeDesc {
-    return Intl.message(
-      'Clear the DNS cache when the network changes',
-      name: 'flushDnsOnNetworkChangeDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Proxy Traffic Only`
   String get onlyStatisticsProxy {
     return Intl.message(
@@ -2969,16 +2949,6 @@ class AppLocalizations {
     return Intl.message(
       'Only record proxy traffic',
       name: 'onlyStatisticsProxyDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Pure Black Mode`
-  String get pureBlackMode {
-    return Intl.message(
-      'Pure Black Mode',
-      name: 'pureBlackMode',
       desc: '',
       args: [],
     );
@@ -3264,16 +3234,6 @@ class AppLocalizations {
     );
   }
 
-  /// `DNS-related settings`
-  String get dnsDesc {
-    return Intl.message(
-      'DNS-related settings',
-      name: 'dnsDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Key`
   String get key {
     return Intl.message('Key', name: 'key', desc: '', args: []);
@@ -3459,36 +3419,6 @@ class AppLocalizations {
     return Intl.message(
       'Not Recommended',
       name: 'notRecommended',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Override DNS`
-  String get overrideDns {
-    return Intl.message(
-      'Override DNS',
-      name: 'overrideDns',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Override profile's DNS settings`
-  String get overrideDnsDesc {
-    return Intl.message(
-      'Override profile\'s DNS settings',
-      name: 'overrideDnsDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Override Config`
-  String get overrideTestUrl {
-    return Intl.message(
-      'Override Config',
-      name: 'overrideTestUrl',
       desc: '',
       args: [],
     );
@@ -4044,94 +3974,9 @@ class AppLocalizations {
     );
   }
 
-  /// `Status`
-  String get status {
-    return Intl.message('Status', name: 'status', desc: '', args: []);
-  }
-
-  /// `Uses system DNS when disabled`
-  String get statusDesc {
-    return Intl.message(
-      'Uses system DNS when disabled',
-      name: 'statusDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Prioritize DoH HTTP/3`
-  String get preferH3Desc {
-    return Intl.message(
-      'Prioritize DoH HTTP/3',
-      name: 'preferH3Desc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Cache Algorithm`
-  String get cacheAlgorithm {
-    return Intl.message(
-      'Cache Algorithm',
-      name: 'cacheAlgorithm',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Respect Rules`
-  String get respectRules {
-    return Intl.message(
-      'Respect Rules',
-      name: 'respectRules',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `DNS connections follow Rules`
-  String get respectRulesDesc {
-    return Intl.message(
-      'DNS connections follow Rules',
-      name: 'respectRulesDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `DNS Mode`
   String get dnsMode {
     return Intl.message('DNS Mode', name: 'dnsMode', desc: '', args: []);
-  }
-
-  /// `FakeIP Range`
-  String get fakeipRange {
-    return Intl.message(
-      'FakeIP Range',
-      name: 'fakeipRange',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `FakeIPv6 Range`
-  String get fakeipRangeV6 {
-    return Intl.message(
-      'FakeIPv6 Range',
-      name: 'fakeipRangeV6',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `FakeIP Filter Mode`
-  String get fakeIpFilterMode {
-    return Intl.message(
-      'FakeIP Filter Mode',
-      name: 'fakeIpFilterMode',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Specify FakeIP filter mode`
@@ -4142,201 +3987,6 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
-  }
-
-  /// `Blacklist`
-  String get blacklist {
-    return Intl.message('Blacklist', name: 'blacklist', desc: '', args: []);
-  }
-
-  /// `Whitelist`
-  String get whitelist {
-    return Intl.message('Whitelist', name: 'whitelist', desc: '', args: []);
-  }
-
-  /// `FakeIP Filter`
-  String get fakeipFilter {
-    return Intl.message(
-      'FakeIP Filter',
-      name: 'fakeipFilter',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `FakeIP TTL`
-  String get fakeipTtl {
-    return Intl.message('FakeIP TTL', name: 'fakeipTtl', desc: '', args: []);
-  }
-
-  /// `Default Nameserver`
-  String get defaultNameserver {
-    return Intl.message(
-      'Default Nameserver',
-      name: 'defaultNameserver',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Resolve DNS servers`
-  String get defaultNameserverDesc {
-    return Intl.message(
-      'Resolve DNS servers',
-      name: 'defaultNameserverDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Nameserver`
-  String get nameserver {
-    return Intl.message('Nameserver', name: 'nameserver', desc: '', args: []);
-  }
-
-  /// `Resolve domain names`
-  String get nameserverDesc {
-    return Intl.message(
-      'Resolve domain names',
-      name: 'nameserverDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Use Hosts`
-  String get useHosts {
-    return Intl.message('Use Hosts', name: 'useHosts', desc: '', args: []);
-  }
-
-  /// `Use System Hosts`
-  String get useSystemHosts {
-    return Intl.message(
-      'Use System Hosts',
-      name: 'useSystemHosts',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Nameserver Policy`
-  String get nameserverPolicy {
-    return Intl.message(
-      'Nameserver Policy',
-      name: 'nameserverPolicy',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Specify domain-specific nameservers`
-  String get nameserverPolicyDesc {
-    return Intl.message(
-      'Specify domain-specific nameservers',
-      name: 'nameserverPolicyDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Proxy Nameserver`
-  String get proxyNameserver {
-    return Intl.message(
-      'Proxy Nameserver',
-      name: 'proxyNameserver',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Resolve proxy node domains`
-  String get proxyNameserverDesc {
-    return Intl.message(
-      'Resolve proxy node domains',
-      name: 'proxyNameserverDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Direct Nameserver`
-  String get directNameserver {
-    return Intl.message(
-      'Direct Nameserver',
-      name: 'directNameserver',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Resolve direct domains`
-  String get directNameserverDesc {
-    return Intl.message(
-      'Resolve direct domains',
-      name: 'directNameserverDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Direct DNS Follows Policy`
-  String get directNameserverFollowPolicy {
-    return Intl.message(
-      'Direct DNS Follows Policy',
-      name: 'directNameserverFollowPolicy',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Fallback`
-  String get fallback {
-    return Intl.message('Fallback', name: 'fallback', desc: '', args: []);
-  }
-
-  /// `Usually offshore DNS`
-  String get fallbackDesc {
-    return Intl.message(
-      'Usually offshore DNS',
-      name: 'fallbackDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Fallback Filter`
-  String get fallbackFilter {
-    return Intl.message(
-      'Fallback Filter',
-      name: 'fallbackFilter',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Fallback Concurrent`
-  String get fallbackConcurrent {
-    return Intl.message(
-      'Fallback Concurrent',
-      name: 'fallbackConcurrent',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Query default DNS and Fallback synchronously`
-  String get fallbackConcurrentDesc {
-    return Intl.message(
-      'Query default DNS and Fallback synchronously',
-      name: 'fallbackConcurrentDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `GeoIP Code`
-  String get geoipCode {
-    return Intl.message('GeoIP Code', name: 'geoipCode', desc: '', args: []);
   }
 
   /// `IP/CIDR`
@@ -4509,19 +4159,19 @@ class AppLocalizations {
     return Intl.message('No Icon', name: 'noIcon', desc: '', args: []);
   }
 
-  /// `Stack Mode`
-  String get stackMode {
-    return Intl.message('Stack Mode', name: 'stackMode', desc: '', args: []);
-  }
-
-  /// `Congestion Controller`
-  String get congestionController {
+  /// `Network Interface`
+  String get networkInterface {
     return Intl.message(
-      'Congestion Controller',
-      name: 'congestionController',
+      'Network Interface',
+      name: 'networkInterface',
       desc: '',
       args: [],
     );
+  }
+
+  /// `Stack Mode`
+  String get stackMode {
+    return Intl.message('Stack Mode', name: 'stackMode', desc: '', args: []);
   }
 
   /// `Strict Route`
@@ -4569,10 +4219,10 @@ class AppLocalizations {
     return Intl.message('DNS Hijack', name: 'dnsHijack', desc: '', args: []);
   }
 
-  /// `Redirect DNS queries to internal DNS module`
+  /// `Take over system DNS and route it to the core`
   String get dnsHijackDesc {
     return Intl.message(
-      'Redirect DNS queries to internal DNS module',
+      'Take over system DNS and route it to the core',
       name: 'dnsHijackDesc',
       desc: '',
       args: [],
@@ -4664,10 +4314,10 @@ class AppLocalizations {
     return Intl.message('Icon', name: 'icon', desc: '', args: []);
   }
 
-  /// `Icon Configuration`
+  /// `Icon Settings`
   String get iconConfiguration {
     return Intl.message(
-      'Icon Configuration',
+      'Icon Settings',
       name: 'iconConfiguration',
       desc: '',
       args: [],
@@ -4769,6 +4419,51 @@ class AppLocalizations {
     );
   }
 
+  /// `Profile Switching`
+  String get profileSwitchMode {
+    return Intl.message(
+      'Profile Switching',
+      name: 'profileSwitchMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hot Reload`
+  String get hotReload {
+    return Intl.message('Hot Reload', name: 'hotReload', desc: '', args: []);
+  }
+
+  /// `Keeps the core running for faster profile switching`
+  String get hotReloadDesc {
+    return Intl.message(
+      'Keeps the core running for faster profile switching',
+      name: 'hotReloadDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cold Restart`
+  String get fullRestart {
+    return Intl.message(
+      'Cold Restart',
+      name: 'fullRestart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fully restarts the core for more thorough memory release`
+  String get fullRestartDesc {
+    return Intl.message(
+      'Fully restarts the core for more thorough memory release',
+      name: 'fullRestartDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Please enter the admin password`
   String get pleaseInputAdminPassword {
     return Intl.message(
@@ -4859,16 +4554,6 @@ class AppLocalizations {
     return Intl.message(
       'Copy Successful',
       name: 'copySuccess',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Copied package name`
-  String get copiedPackageName {
-    return Intl.message(
-      'Copied package name',
-      name: 'copiedPackageName',
       desc: '',
       args: [],
     );
@@ -4969,19 +4654,14 @@ class AppLocalizations {
     );
   }
 
-  /// `Get Domestic IP`
-  String get switchToDomesticIp {
+  /// `IP Risk Alert`
+  String get ipRiskAlert {
     return Intl.message(
-      'Get Domestic IP',
-      name: 'switchToDomesticIp',
+      'IP Risk Alert',
+      name: 'ipRiskAlert',
       desc: '',
       args: [],
     );
-  }
-
-  /// `Listen`
-  String get listen {
-    return Intl.message('Listen', name: 'listen', desc: '', args: []);
   }
 
   /// `Undo`
@@ -5062,26 +4742,6 @@ class AppLocalizations {
   /// `No Resolve`
   String get noResolve {
     return Intl.message('No Resolve', name: 'noResolve', desc: '', args: []);
-  }
-
-  /// `Original Rules`
-  String get getOriginRules {
-    return Intl.message(
-      'Original Rules',
-      name: 'getOriginRules',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Override Original Rules`
-  String get overrideOriginRules {
-    return Intl.message(
-      'Override Original Rules',
-      name: 'overrideOriginRules',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Append to Original Rules`
@@ -5519,6 +5179,16 @@ class AppLocalizations {
     return Intl.message('No $label', name: 'nullTip', desc: '', args: [label]);
   }
 
+  /// `No UDP connections`
+  String get nullUdpConnections {
+    return Intl.message(
+      'No UDP connections',
+      name: 'nullUdpConnections',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Override Script`
   String get script {
     return Intl.message('Override Script', name: 'script', desc: '', args: []);
@@ -5634,16 +5304,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Auto Set System DNS`
-  String get autoSetSystemDns {
-    return Intl.message(
-      'Auto Set System DNS',
-      name: 'autoSetSystemDns',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Details`
   String get details {
     return Intl.message('Details', name: 'details', desc: '', args: []);
@@ -5719,6 +5379,46 @@ class AppLocalizations {
     return Intl.message(
       'Remote Destination',
       name: 'remoteDestination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Inbound`
+  String get inbound {
+    return Intl.message('Inbound', name: 'inbound', desc: '', args: []);
+  }
+
+  /// `{inbound} (user {user})`
+  String inboundWithUser(Object inbound, Object user) {
+    return Intl.message(
+      '$inbound (user $user)',
+      name: 'inboundWithUser',
+      desc: '',
+      args: [inbound, user],
+    );
+  }
+
+  /// `Internal traffic`
+  String get internalTraffic {
+    return Intl.message(
+      'Internal traffic',
+      name: 'internalTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sniffed Host`
+  String get sniffHost {
+    return Intl.message('Sniffed Host', name: 'sniffHost', desc: '', args: []);
+  }
+
+  /// `Process Path`
+  String get processPath {
+    return Intl.message(
+      'Process Path',
+      name: 'processPath',
       desc: '',
       args: [],
     );
@@ -5899,10 +5599,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Use Global Script Override`
+  /// `Script per Profile`
   String get useGlobalScriptOverride {
     return Intl.message(
-      'Use Global Script Override',
+      'Script per Profile',
       name: 'useGlobalScriptOverride',
       desc: '',
       args: [],
@@ -6019,21 +5719,31 @@ class AppLocalizations {
     return Intl.message('Wrap Lines', name: 'lineWrap', desc: '', args: []);
   }
 
-  /// `Auto Sticky Header`
+  /// `Pin Expanded`
   String get autoStickyHeader {
     return Intl.message(
-      'Auto Sticky Header',
+      'Pin Expanded',
       name: 'autoStickyHeader',
       desc: '',
       args: [],
     );
   }
 
-  /// `Show Hidden Items`
+  /// `Show Hidden Groups`
   String get showHiddenItems {
     return Intl.message(
-      'Show Hidden Items',
+      'Show Hidden Groups',
       name: 'showHiddenItems',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hide Unavailable Proxies`
+  String get hideTimeoutProxies {
+    return Intl.message(
+      'Hide Unavailable Proxies',
+      name: 'hideTimeoutProxies',
       desc: '',
       args: [],
     );
@@ -6279,9 +5989,34 @@ class AppLocalizations {
     );
   }
 
-  /// `Objects`
+  /// `Heap Objects`
   String get heapObjects {
-    return Intl.message('Objects', name: 'heapObjects', desc: '', args: []);
+    return Intl.message(
+      'Heap Objects',
+      name: 'heapObjects',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Freed {size}`
+  String memoryFreed(Object size) {
+    return Intl.message(
+      'Freed $size',
+      name: 'memoryFreed',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Memory already optimal`
+  String get memoryAlreadyOptimal {
+    return Intl.message(
+      'Memory already optimal',
+      name: 'memoryAlreadyOptimal',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Profile & Rules`
@@ -8139,10 +7874,10 @@ class AppLocalizations {
     return Intl.message('MRS Lookup', name: 'mrsLookup', desc: '', args: []);
   }
 
-  /// `Find the GEODATA / RULE-SET rule sets for a domain or IP`
+  /// `Find the GEO / RULE-SET rule sets for a domain or IP`
   String get mrsLookupDesc {
     return Intl.message(
-      'Find the GEODATA / RULE-SET rule sets for a domain or IP',
+      'Find the GEO / RULE-SET rule sets for a domain or IP',
       name: 'mrsLookupDesc',
       desc: '',
       args: [],
@@ -8209,14 +7944,19 @@ class AppLocalizations {
     return Intl.message('via $ip', name: 'mrsVia', desc: '', args: [ip]);
   }
 
-  /// `Copy as GitHub Raw link`
-  String get mrsCopyRawLink {
-    return Intl.message(
-      'Copy as GitHub Raw link',
-      name: 'mrsCopyRawLink',
-      desc: '',
-      args: [],
-    );
+  /// `Tap action`
+  String get mrsTapAction {
+    return Intl.message('Tap action', name: 'mrsTapAction', desc: '', args: []);
+  }
+
+  /// `View rules`
+  String get mrsViewRules {
+    return Intl.message('View rules', name: 'mrsViewRules', desc: '', args: []);
+  }
+
+  /// `Copy URL`
+  String get mrsCopyUrl {
+    return Intl.message('Copy URL', name: 'mrsCopyUrl', desc: '', args: []);
   }
 
   /// `Resolve domains with DNS rules`
@@ -8334,20 +8074,20 @@ class AppLocalizations {
     );
   }
 
-  /// `Fake-IP · {reason}: returns a virtual address from {range}`
+  /// `Fake-IP · {reason}: will return a virtual address from {range}`
   String dnsQueryFakeIpOn(Object reason, Object range) {
     return Intl.message(
-      'Fake-IP · $reason: returns a virtual address from $range',
+      'Fake-IP · $reason: will return a virtual address from $range',
       name: 'dnsQueryFakeIpOn',
       desc: '',
       args: [reason, range],
     );
   }
 
-  /// `Fake-IP · {reason}: returns the real IP`
+  /// `Fake-IP · {reason}: will return the real IP`
   String dnsQueryFakeIpOff(Object reason) {
     return Intl.message(
-      'Fake-IP · $reason: returns the real IP',
+      'Fake-IP · $reason: will return the real IP',
       name: 'dnsQueryFakeIpOff',
       desc: '',
       args: [reason],
@@ -8414,70 +8154,70 @@ class AppLocalizations {
     );
   }
 
-  /// `Redir-Host: returns the real IP, domain restored on connect`
+  /// `Redir-Host: will return the real IP, domain restored on connect`
   String get dnsQueryRedirHost {
     return Intl.message(
-      'Redir-Host: returns the real IP, domain restored on connect',
+      'Redir-Host: will return the real IP, domain restored on connect',
       name: 'dnsQueryRedirHost',
       desc: '',
       args: [],
     );
   }
 
-  /// `Normal: returns the real IP, rules match by IP`
+  /// `Normal: will return the real IP, rules match by IP`
   String get dnsQueryNormalMode {
     return Intl.message(
-      'Normal: returns the real IP, rules match by IP',
+      'Normal: will return the real IP, rules match by IP',
       name: 'dnsQueryNormalMode',
       desc: '',
       args: [],
     );
   }
 
-  /// `Matched Hosts: returns {ips}`
+  /// `Matched Hosts: will return {ips}`
   String dnsQueryHostsHit(Object ips) {
     return Intl.message(
-      'Matched Hosts: returns $ips',
+      'Matched Hosts: will return $ips',
       name: 'dnsQueryHostsHit',
       desc: '',
       args: [ips],
     );
   }
 
-  /// `Via "{outbound}", the node resolves the domain`
+  /// `Final outbound "{outbound}", the node resolves the domain`
   String dnsQueryViaProxy(Object outbound) {
     return Intl.message(
-      'Via "$outbound", the node resolves the domain',
+      'Final outbound "$outbound", the node resolves the domain',
       name: 'dnsQueryViaProxy',
       desc: '',
       args: [outbound],
     );
   }
 
-  /// `Via "{outbound}", the node resolves the domain; Hosts not applied`
+  /// `Final outbound "{outbound}", the node resolves the domain; Hosts not applied`
   String dnsQueryViaProxyHosts(Object outbound) {
     return Intl.message(
-      'Via "$outbound", the node resolves the domain; Hosts not applied',
+      'Final outbound "$outbound", the node resolves the domain; Hosts not applied',
       name: 'dnsQueryViaProxyHosts',
       desc: '',
       args: [outbound],
     );
   }
 
-  /// `Via DIRECT, resolved locally by the core`
+  /// `Final outbound DIRECT, resolved locally by the core and connected directly`
   String get dnsQueryViaDirect {
     return Intl.message(
-      'Via DIRECT, resolved locally by the core',
+      'Final outbound DIRECT, resolved locally by the core and connected directly',
       name: 'dnsQueryViaDirect',
       desc: '',
       args: [],
     );
   }
 
-  /// `Via DIRECT, connects to the Hosts address`
+  /// `Final outbound DIRECT, connects to the Hosts address`
   String get dnsQueryViaDirectHosts {
     return Intl.message(
-      'Via DIRECT, connects to the Hosts address',
+      'Final outbound DIRECT, connects to the Hosts address',
       name: 'dnsQueryViaDirectHosts',
       desc: '',
       args: [],
@@ -9592,6 +9332,1760 @@ class AppLocalizations {
   /// `Result`
   String get iperfResult {
     return Intl.message('Result', name: 'iperfResult', desc: '', args: []);
+  }
+
+  /// `See exactly where your traffic goes by day, week and month`
+  String get trafficStatsDesc {
+    return Intl.message(
+      'See exactly where your traffic goes by day, week and month',
+      name: 'trafficStatsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Today`
+  String get today {
+    return Intl.message('Today', name: 'today', desc: '', args: []);
+  }
+
+  /// `This Week`
+  String get thisWeek {
+    return Intl.message('This Week', name: 'thisWeek', desc: '', args: []);
+  }
+
+  /// `This Month`
+  String get thisMonth {
+    return Intl.message('This Month', name: 'thisMonth', desc: '', args: []);
+  }
+
+  /// `Trend`
+  String get trafficTrend {
+    return Intl.message('Trend', name: 'trafficTrend', desc: '', args: []);
+  }
+
+  /// `Ranking`
+  String get trafficRanking {
+    return Intl.message('Ranking', name: 'trafficRanking', desc: '', args: []);
+  }
+
+  /// `Rule hits`
+  String get ruleHits {
+    return Intl.message('Rule hits', name: 'ruleHits', desc: '', args: []);
+  }
+
+  /// `{count, plural, one{{count} hit} other{{count} hits}}`
+  String hitCount(num count) {
+    return Intl.plural(
+      count,
+      one: '$count hit',
+      other: '$count hits',
+      name: 'hitCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Process`
+  String get process {
+    return Intl.message('Process', name: 'process', desc: '', args: []);
+  }
+
+  /// `Node`
+  String get node {
+    return Intl.message('Node', name: 'node', desc: '', args: []);
+  }
+
+  /// `Traffic statistics`
+  String get trafficStatsEnable {
+    return Intl.message(
+      'Traffic statistics',
+      name: 'trafficStatsEnable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Record details`
+  String get trafficStatsDetail {
+    return Intl.message(
+      'Record details',
+      name: 'trafficStatsDetail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Record domains, processes, nodes and rules. When off, only totals are kept`
+  String get trafficStatsDetailDesc {
+    return Intl.message(
+      'Record domains, processes, nodes and rules. When off, only totals are kept',
+      name: 'trafficStatsDetailDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show site icons`
+  String get trafficStatsSiteIcon {
+    return Intl.message(
+      'Show site icons',
+      name: 'trafficStatsSiteIcon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fetch icons from the sites first, use Google's icon service when a site has no sharp icon, and cache them locally`
+  String get trafficStatsSiteIconDesc {
+    return Intl.message(
+      'Fetch icons from the sites first, use Google\'s icon service when a site has no sharp icon, and cache them locally',
+      name: 'trafficStatsSiteIconDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Data retention`
+  String get trafficStatsRetention {
+    return Intl.message(
+      'Data retention',
+      name: 'trafficStatsRetention',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear all traffic statistics?`
+  String get trafficStatsClearTip {
+    return Intl.message(
+      'Clear all traffic statistics?',
+      name: 'trafficStatsClearTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off by default. Once on, traffic is recorded on this device only`
+  String get trafficStatsDisabledTip {
+    return Intl.message(
+      'Off by default. Once on, traffic is recorded on this device only',
+      name: 'trafficStatsDisabledTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subdomains`
+  String get subdomains {
+    return Intl.message('Subdomains', name: 'subdomains', desc: '', args: []);
+  }
+
+  /// `Check IP purity`
+  String get ipRiskCheck {
+    return Intl.message(
+      'Check IP purity',
+      name: 'ipRiskCheck',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fraud score`
+  String get ipRiskScore {
+    return Intl.message('Fraud score', name: 'ipRiskScore', desc: '', args: []);
+  }
+
+  /// `Low risk`
+  String get ipRiskLow {
+    return Intl.message('Low risk', name: 'ipRiskLow', desc: '', args: []);
+  }
+
+  /// `Medium risk`
+  String get ipRiskMedium {
+    return Intl.message(
+      'Medium risk',
+      name: 'ipRiskMedium',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `High risk`
+  String get ipRiskHigh {
+    return Intl.message('High risk', name: 'ipRiskHigh', desc: '', args: []);
+  }
+
+  /// `Very high risk`
+  String get ipRiskVeryHigh {
+    return Intl.message(
+      'Very high risk',
+      name: 'ipRiskVeryHigh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hosting or proxy`
+  String get ipRiskHostingOrProxy {
+    return Intl.message(
+      'Hosting or proxy',
+      name: 'ipRiskHostingOrProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Datacenter`
+  String get ipRiskDatacenter {
+    return Intl.message(
+      'Datacenter',
+      name: 'ipRiskDatacenter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Residential proxy`
+  String get ipRiskResidentialProxy {
+    return Intl.message(
+      'Residential proxy',
+      name: 'ipRiskResidentialProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blacklist flags`
+  String get ipRiskBlacklist {
+    return Intl.message(
+      'Blacklist flags',
+      name: 'ipRiskBlacklist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy type`
+  String get ipRiskProxyType {
+    return Intl.message(
+      'Proxy type',
+      name: 'ipRiskProxyType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anonymizing VPN`
+  String get ipRiskAnonymousVpn {
+    return Intl.message(
+      'Anonymizing VPN',
+      name: 'ipRiskAnonymousVpn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tor exit node`
+  String get ipRiskTorExit {
+    return Intl.message(
+      'Tor exit node',
+      name: 'ipRiskTorExit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Server`
+  String get ipRiskServer {
+    return Intl.message('Server', name: 'ipRiskServer', desc: '', args: []);
+  }
+
+  /// `Public proxy`
+  String get ipRiskPublicProxy {
+    return Intl.message(
+      'Public proxy',
+      name: 'ipRiskPublicProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web proxy`
+  String get ipRiskWebProxy {
+    return Intl.message(
+      'Web proxy',
+      name: 'ipRiskWebProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search engine robot`
+  String get ipRiskSearchRobot {
+    return Intl.message(
+      'Search engine robot',
+      name: 'ipRiskSearchRobot',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hostname`
+  String get ipRiskHostname {
+    return Intl.message('Hostname', name: 'ipRiskHostname', desc: '', args: []);
+  }
+
+  /// `Enter an IP to check`
+  String get ipRiskHint {
+    return Intl.message(
+      'Enter an IP to check',
+      name: 'ipRiskHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid public IP`
+  String get ipRiskInvalid {
+    return Intl.message(
+      'Enter a valid public IP',
+      name: 'ipRiskInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source`
+  String get ipRiskSource {
+    return Intl.message('Source', name: 'ipRiskSource', desc: '', args: []);
+  }
+
+  /// `Premium Residential IP`
+  String get ipRiskHomeBroadband {
+    return Intl.message(
+      'Premium Residential IP',
+      name: 'ipRiskHomeBroadband',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `About the fraud score`
+  String get ipRiskNoteTitle {
+    return Intl.message(
+      'About the fraud score',
+      name: 'ipRiskNoteTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scamalytics can see web traffic from this IP directly. The score of {score} reflects the share of that traffic suspected to be fraudulent.`
+  String ipRiskNoteDirect(Object score) {
+    return Intl.message(
+      'Scamalytics can see web traffic from this IP directly. The score of $score reflects the share of that traffic suspected to be fraudulent.',
+      name: 'ipRiskNoteDirect',
+      desc: '',
+      args: [score],
+    );
+  }
+
+  /// `Scamalytics can't see web traffic from this IP directly. The score of {score} is estimated from the overall risk of IPs operated by {isp}.`
+  String ipRiskNoteIndirect(Object score, Object isp) {
+    return Intl.message(
+      'Scamalytics can\'t see web traffic from this IP directly. The score of $score is estimated from the overall risk of IPs operated by $isp.',
+      name: 'ipRiskNoteIndirect',
+      desc: '',
+      args: [score, isp],
+    );
+  }
+
+  /// `The fraud score (0–100) reflects the share of web traffic from this IP that Scamalytics suspects to be fraudulent.`
+  String get ipRiskNoteGeneric {
+    return Intl.message(
+      'The fraud score (0–100) reflects the share of web traffic from this IP that Scamalytics suspects to be fraudulent.',
+      name: 'ipRiskNoteGeneric',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Observed traffic`
+  String get ipRiskNoteAmount {
+    return Intl.message(
+      'Observed traffic',
+      name: 'ipRiskNoteAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Operator traffic`
+  String get ipRiskNoteAmountIsp {
+    return Intl.message(
+      'Operator traffic',
+      name: 'ipRiskNoteAmountIsp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Suspected fraud`
+  String get ipRiskNoteShare {
+    return Intl.message(
+      'Suspected fraud',
+      name: 'ipRiskNoteShare',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Low`
+  String get ipRiskAmountLow {
+    return Intl.message('Low', name: 'ipRiskAmountLow', desc: '', args: []);
+  }
+
+  /// `Medium`
+  String get ipRiskAmountMedium {
+    return Intl.message(
+      'Medium',
+      name: 'ipRiskAmountMedium',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `High`
+  String get ipRiskAmountHigh {
+    return Intl.message('High', name: 'ipRiskAmountHigh', desc: '', args: []);
+  }
+
+  /// `Very little`
+  String get ipRiskShareLittle {
+    return Intl.message(
+      'Very little',
+      name: 'ipRiskShareLittle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Some`
+  String get ipRiskShareSome {
+    return Intl.message('Some', name: 'ipRiskShareSome', desc: '', args: []);
+  }
+
+  /// `Almost all`
+  String get ipRiskShareAlmostAll {
+    return Intl.message(
+      'Almost all',
+      name: 'ipRiskShareAlmostAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Owner`
+  String get ipRiskNoteOwner {
+    return Intl.message('Owner', name: 'ipRiskNoteOwner', desc: '', args: []);
+  }
+
+  /// `Connection`
+  String get ipRiskNoteConnection {
+    return Intl.message(
+      'Connection',
+      name: 'ipRiskNoteConnection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Commercial server`
+  String get ipRiskCommercialServer {
+    return Intl.message(
+      'Commercial server',
+      name: 'ipRiskCommercialServer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `May be relaying traffic from elsewhere; the actual user could be anywhere`
+  String get ipRiskNoteProxying {
+    return Intl.message(
+      'May be relaying traffic from elsewhere; the actual user could be anywhere',
+      name: 'ipRiskNoteProxying',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web traffic from this IP is likely to come from fraudsters.`
+  String get ipRiskNoteWarningHigh {
+    return Intl.message(
+      'Web traffic from this IP is likely to come from fraudsters.',
+      name: 'ipRiskNoteWarningHigh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web traffic from this IP is very likely to come from fraudsters.`
+  String get ipRiskNoteWarningVeryHigh {
+    return Intl.message(
+      'Web traffic from this IP is very likely to come from fraudsters.',
+      name: 'ipRiskNoteWarningVeryHigh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This assessment covers web traffic only; other traffic may carry a different risk.`
+  String get ipRiskNoteFootnote {
+    return Intl.message(
+      'This assessment covers web traffic only; other traffic may carry a different risk.',
+      name: 'ipRiskNoteFootnote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remaining`
+  String get remainingTraffic {
+    return Intl.message(
+      'Remaining',
+      name: 'remainingTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, one{{count} provider} other{{count} providers}}`
+  String providersCount(num count) {
+    return Intl.plural(
+      count,
+      one: '$count provider',
+      other: '$count providers',
+      name: 'providersCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Usage Style`
+  String get usageStyle {
+    return Intl.message('Usage Style', name: 'usageStyle', desc: '', args: []);
+  }
+
+  /// `Bars`
+  String get usageStyleBar {
+    return Intl.message('Bars', name: 'usageStyleBar', desc: '', args: []);
+  }
+
+  /// `Rings`
+  String get usageStyleRing {
+    return Intl.message('Rings', name: 'usageStyleRing', desc: '', args: []);
+  }
+
+  /// `Concentric Rings`
+  String get usageStyleConcentric {
+    return Intl.message(
+      'Concentric Rings',
+      name: 'usageStyleConcentric',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription merge`
+  String get mergeProfile {
+    return Intl.message(
+      'Subscription merge',
+      name: 'mergeProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Merge multiple subscriptions and manage routing in one place`
+  String get mergeProfileDesc {
+    return Intl.message(
+      'Merge multiple subscriptions and manage routing in one place',
+      name: 'mergeProfileDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `At least two profiles are needed to merge`
+  String get mergeProfileUnavailable {
+    return Intl.message(
+      'At least two profiles are needed to merge',
+      name: 'mergeProfileUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Members`
+  String get bundleMembers {
+    return Intl.message('Members', name: 'bundleMembers', desc: '', args: []);
+  }
+
+  /// `Tap to change the node prefix, drag to reorder`
+  String get bundleMembersDesc {
+    return Intl.message(
+      'Tap to change the node prefix, drag to reorder',
+      name: 'bundleMembersDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Identical nodes are kept once, earlier members first`
+  String get bundleDedupTip {
+    return Intl.message(
+      'Identical nodes are kept once, earlier members first',
+      name: 'bundleDedupTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add members`
+  String get addBundleMember {
+    return Intl.message(
+      'Add members',
+      name: 'addBundleMember',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node prefix`
+  String get nodePrefix {
+    return Intl.message('Node prefix', name: 'nodePrefix', desc: '', args: []);
+  }
+
+  /// `Node prefix: {prefix}`
+  String nodePrefixValue(Object prefix) {
+    return Intl.message(
+      'Node prefix: $prefix',
+      name: 'nodePrefixValue',
+      desc: '',
+      args: [prefix],
+    );
+  }
+
+  /// `No prefix`
+  String get noNodePrefix {
+    return Intl.message('No prefix', name: 'noNodePrefix', desc: '', args: []);
+  }
+
+  /// `Last generation failed: {message}`
+  String bundleMemberFailed(Object message) {
+    return Intl.message(
+      'Last generation failed: $message',
+      name: 'bundleMemberFailed',
+      desc: '',
+      args: [message],
+    );
+  }
+
+  /// `Managed mode`
+  String get managedMode {
+    return Intl.message(
+      'Managed mode',
+      name: 'managedMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default options`
+  String get managedOptions {
+    return Intl.message(
+      'Default options',
+      name: 'managedOptions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{enabled} of {total} enabled`
+  String managedOptionsDesc(Object enabled, Object total) {
+    return Intl.message(
+      '$enabled of $total enabled',
+      name: 'managedOptionsDesc',
+      desc: '',
+      args: [enabled, total],
+    );
+  }
+
+  /// `Version`
+  String get managedVersion {
+    return Intl.message('Version', name: 'managedVersion', desc: '', args: []);
+  }
+
+  /// `Built-in {version}`
+  String managedBundled(Object version) {
+    return Intl.message(
+      'Built-in $version',
+      name: 'managedBundled',
+      desc: '',
+      args: [version],
+    );
+  }
+
+  /// `Upstream {version}`
+  String managedSynced(Object version) {
+    return Intl.message(
+      'Upstream $version',
+      name: 'managedSynced',
+      desc: '',
+      args: [version],
+    );
+  }
+
+  /// `Sync from upstream`
+  String get syncFromUpstream {
+    return Intl.message(
+      'Sync from upstream',
+      name: 'syncFromUpstream',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore built-in version`
+  String get restoreBundled {
+    return Intl.message(
+      'Restore built-in version',
+      name: 'restoreBundled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download the latest script from upstream and regenerate all merged subscriptions?`
+  String get managedSyncTip {
+    return Intl.message(
+      'Download the latest script from upstream and regenerate all merged subscriptions?',
+      name: 'managedSyncTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore the built-in script and regenerate all merged subscriptions?`
+  String get managedRestoreTip {
+    return Intl.message(
+      'Restore the built-in script and regenerate all merged subscriptions?',
+      name: 'managedRestoreTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last generated`
+  String get lastGenerated {
+    return Intl.message(
+      'Last generated',
+      name: 'lastGenerated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{proxies} nodes · {duplicates} duplicates removed · {time}`
+  String bundleReportDesc(Object proxies, Object duplicates, Object time) {
+    return Intl.message(
+      '$proxies nodes · $duplicates duplicates removed · $time',
+      name: 'bundleReportDesc',
+      desc: '',
+      args: [proxies, duplicates, time],
+    );
+  }
+
+  /// `Regenerate`
+  String get regenerate {
+    return Intl.message('Regenerate', name: 'regenerate', desc: '', args: []);
+  }
+
+  /// `Generate`
+  String get generate {
+    return Intl.message('Generate', name: 'generate', desc: '', args: []);
+  }
+
+  /// `{count} profiles merged`
+  String bundleSummary(Object count) {
+    return Intl.message(
+      '$count profiles merged',
+      name: 'bundleSummary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} nodes`
+  String bundleProxies(Object count) {
+    return Intl.message(
+      '$count nodes',
+      name: 'bundleProxies',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} failed`
+  String bundleFailures(Object count) {
+    return Intl.message(
+      '$count failed',
+      name: 'bundleFailures',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Merged`
+  String get merged {
+    return Intl.message('Merged', name: 'merged', desc: '', args: []);
+  }
+
+  /// `This profile is part of "{label}". Deleting it removes it from the merged subscription.`
+  String deleteMemberTip(Object label) {
+    return Intl.message(
+      'This profile is part of "$label". Deleting it removes it from the merged subscription.',
+      name: 'deleteMemberTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Add at least one member`
+  String get bundleNoMembers {
+    return Intl.message(
+      'Add at least one member',
+      name: 'bundleNoMembers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can merge up to {count} subscriptions`
+  String bundleMemberLimit(Object count) {
+    return Intl.message(
+      'You can merge up to $count subscriptions',
+      name: 'bundleMemberLimit',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Merged subscription {index}`
+  String mergedSubscriptionName(Object index) {
+    return Intl.message(
+      'Merged subscription $index',
+      name: 'mergedSubscriptionName',
+      desc: '',
+      args: [index],
+    );
+  }
+
+  /// `Already up to date`
+  String get managedUpToDate {
+    return Intl.message(
+      'Already up to date',
+      name: 'managedUpToDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription link`
+  String get bundleAddUrl {
+    return Intl.message(
+      'Subscription link',
+      name: 'bundleAddUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import as a new subscription and add it`
+  String get bundleAddUrlDesc {
+    return Intl.message(
+      'Import as a new subscription and add it',
+      name: 'bundleAddUrlDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pending import`
+  String get bundlePendingImport {
+    return Intl.message(
+      'Pending import',
+      name: 'bundlePendingImport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Collapse members`
+  String get bundleCollapse {
+    return Intl.message(
+      'Collapse members',
+      name: 'bundleCollapse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When enabled, only merged subscription info is shown in the list; tap the bottom-right corner of the card to expand or collapse`
+  String get bundleCollapseDesc {
+    return Intl.message(
+      'When enabled, only merged subscription info is shown in the list; tap the bottom-right corner of the card to expand or collapse',
+      name: 'bundleCollapseDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Expand`
+  String get bundleExpand {
+    return Intl.message('Expand', name: 'bundleExpand', desc: '', args: []);
+  }
+
+  /// `Generate proxy groups and rules with the built-in script`
+  String get managedModeDesc {
+    return Intl.message(
+      'Generate proxy groups and rules with the built-in script',
+      name: 'managedModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Disable QUIC has no effect with scripts enabled`
+  String get disableQuicManagedDesc {
+    return Intl.message(
+      'Disable QUIC has no effect with scripts enabled',
+      name: 'disableQuicManagedDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manage routes`
+  String get addRoute {
+    return Intl.message('Manage routes', name: 'addRoute', desc: '', args: []);
+  }
+
+  /// `Edit route`
+  String get editRoute {
+    return Intl.message('Edit route', name: 'editRoute', desc: '', args: []);
+  }
+
+  /// `Rule sets`
+  String get ruleSets {
+    return Intl.message('Rule sets', name: 'ruleSets', desc: '', args: []);
+  }
+
+  /// `Add rule set`
+  String get addRuleSet {
+    return Intl.message('Add rule set', name: 'addRuleSet', desc: '', args: []);
+  }
+
+  /// `Search rule sets`
+  String get searchRuleSets {
+    return Intl.message(
+      'Search rule sets',
+      name: 'searchRuleSets',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default target`
+  String get routeTarget {
+    return Intl.message(
+      'Default target',
+      name: 'routeTarget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Block`
+  String get reject {
+    return Intl.message('Block', name: 'reject', desc: '', args: []);
+  }
+
+  /// `{count} rules`
+  String ruleCount(Object count) {
+    return Intl.message(
+      '$count rules',
+      name: 'ruleCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Large rule sets use more memory`
+  String get largeRuleSetTip {
+    return Intl.message(
+      'Large rule sets use more memory',
+      name: 'largeRuleSetTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select icon`
+  String get selectIcon {
+    return Intl.message('Select icon', name: 'selectIcon', desc: '', args: []);
+  }
+
+  /// `Search icons`
+  String get searchIcons {
+    return Intl.message(
+      'Search icons',
+      name: 'searchIcons',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Icon URL`
+  String get iconUrl {
+    return Intl.message('Icon URL', name: 'iconUrl', desc: '', args: []);
+  }
+
+  /// `Please check that the URL is correct`
+  String get checkUrlTip {
+    return Intl.message(
+      'Please check that the URL is correct',
+      name: 'checkUrlTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name cannot contain commas or line breaks`
+  String get routeNameInvalid {
+    return Intl.message(
+      'Name cannot contain commas or line breaks',
+      name: 'routeNameInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Matched from top to bottom, drag to reorder`
+  String get groupOrderTip {
+    return Intl.message(
+      'Matched from top to bottom, drag to reorder',
+      name: 'groupOrderTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Region groups`
+  String get regionGroups {
+    return Intl.message(
+      'Region groups',
+      name: 'regionGroups',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Regions without matching nodes are skipped; nodes that match no region go to 其他节点 (other nodes)`
+  String get regionGroupsTip {
+    return Intl.message(
+      'Regions without matching nodes are skipped; nodes that match no region go to 其他节点 (other nodes)',
+      name: 'regionGroupsTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search services`
+  String get searchServices {
+    return Intl.message(
+      'Search services',
+      name: 'searchServices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Custom rule set URL`
+  String get customRuleSetUrl {
+    return Intl.message(
+      'Custom rule set URL',
+      name: 'customRuleSetUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Built-in`
+  String get builtIn {
+    return Intl.message('Built-in', name: 'builtIn', desc: '', args: []);
+  }
+
+  /// `Built-in mode`
+  String get builtInManagedMode {
+    return Intl.message(
+      'Built-in mode',
+      name: 'builtInManagedMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule Order`
+  String get ruleSort {
+    return Intl.message('Rule Order', name: 'ruleSort', desc: '', args: []);
+  }
+
+  /// `{count} rules, included in the {group} group`
+  String ruleCountIncluded(Object count, Object group) {
+    return Intl.message(
+      '$count rules, included in the $group group',
+      name: 'ruleCountIncluded',
+      desc: '',
+      args: [count, group],
+    );
+  }
+
+  /// `AI`
+  String get routeCategoryAi {
+    return Intl.message('AI', name: 'routeCategoryAi', desc: '', args: []);
+  }
+
+  /// `Streaming`
+  String get routeCategoryStreaming {
+    return Intl.message(
+      'Streaming',
+      name: 'routeCategoryStreaming',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Social`
+  String get routeCategorySocial {
+    return Intl.message(
+      'Social',
+      name: 'routeCategorySocial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gaming`
+  String get routeCategoryGaming {
+    return Intl.message(
+      'Gaming',
+      name: 'routeCategoryGaming',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Developer`
+  String get routeCategoryDeveloper {
+    return Intl.message(
+      'Developer',
+      name: 'routeCategoryDeveloper',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Finance`
+  String get routeCategoryFinance {
+    return Intl.message(
+      'Finance',
+      name: 'routeCategoryFinance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tech`
+  String get routeCategoryTech {
+    return Intl.message('Tech', name: 'routeCategoryTech', desc: '', args: []);
+  }
+
+  /// `Current`
+  String get inUse {
+    return Intl.message('Current', name: 'inUse', desc: '', args: []);
+  }
+
+  /// `Add {count}`
+  String routeAddCount(Object count) {
+    return Intl.message(
+      'Add $count',
+      name: 'routeAddCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Remove {count}`
+  String routeRemoveCount(Object count) {
+    return Intl.message(
+      'Remove $count',
+      name: 'routeRemoveCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Icon Sets`
+  String get iconSets {
+    return Intl.message('Icon Sets', name: 'iconSets', desc: '', args: []);
+  }
+
+  /// `Not a valid icon set`
+  String get invalidIconSet {
+    return Intl.message(
+      'Not a valid icon set',
+      name: 'invalidIconSet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} icons`
+  String iconCount(Object count) {
+    return Intl.message(
+      '$count icons',
+      name: 'iconCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Lock Node`
+  String get lockProxy {
+    return Intl.message('Lock Node', name: 'lockProxy', desc: '', args: []);
+  }
+
+  /// `Unlock`
+  String get unlockProxy {
+    return Intl.message('Unlock', name: 'unlockProxy', desc: '', args: []);
+  }
+
+  /// `Add Region`
+  String get addRegion {
+    return Intl.message('Add Region', name: 'addRegion', desc: '', args: []);
+  }
+
+  /// `Region Name`
+  String get regionName {
+    return Intl.message('Region Name', name: 'regionName', desc: '', args: []);
+  }
+
+  /// `Matching Regex`
+  String get regionRegex {
+    return Intl.message(
+      'Matching Regex',
+      name: 'regionRegex',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid regular expression`
+  String get regexInvalid {
+    return Intl.message(
+      'Invalid regular expression',
+      name: 'regexInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exclude China`
+  String get excludeChina {
+    return Intl.message(
+      'Exclude China',
+      name: 'excludeChina',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allow China QUIC instead of blocking all`
+  String get excludeChinaDesc {
+    return Intl.message(
+      'Allow China QUIC instead of blocking all',
+      name: 'excludeChinaDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear FakeIP and DNS cache?`
+  String get clearCacheDesc {
+    return Intl.message(
+      'Clear FakeIP and DNS cache?',
+      name: 'clearCacheDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Force kernel garbage collection? Experimental, use with caution.`
+  String get forceGCDesc {
+    return Intl.message(
+      'Force kernel garbage collection? Experimental, use with caution.',
+      name: 'forceGCDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Related Settings`
+  String get relatedSettings {
+    return Intl.message(
+      'Related Settings',
+      name: 'relatedSettings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear DNS Cache`
+  String get flushDnsOnNetworkChange {
+    return Intl.message(
+      'Clear DNS Cache',
+      name: 'flushDnsOnNetworkChange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear the DNS cache when the network changes`
+  String get flushDnsOnNetworkChangeDesc {
+    return Intl.message(
+      'Clear the DNS cache when the network changes',
+      name: 'flushDnsOnNetworkChangeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pure Black Mode`
+  String get pureBlackMode {
+    return Intl.message(
+      'Pure Black Mode',
+      name: 'pureBlackMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS-related settings`
+  String get dnsDesc {
+    return Intl.message(
+      'DNS-related settings',
+      name: 'dnsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Override DNS`
+  String get overrideDns {
+    return Intl.message(
+      'Override DNS',
+      name: 'overrideDns',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Override profile's DNS settings`
+  String get overrideDnsDesc {
+    return Intl.message(
+      'Override profile\'s DNS settings',
+      name: 'overrideDnsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Override Config`
+  String get overrideTestUrl {
+    return Intl.message(
+      'Override Config',
+      name: 'overrideTestUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Status`
+  String get status {
+    return Intl.message('Status', name: 'status', desc: '', args: []);
+  }
+
+  /// `Uses system DNS when disabled`
+  String get statusDesc {
+    return Intl.message(
+      'Uses system DNS when disabled',
+      name: 'statusDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Prioritize DoH HTTP/3`
+  String get preferH3Desc {
+    return Intl.message(
+      'Prioritize DoH HTTP/3',
+      name: 'preferH3Desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cache Algorithm`
+  String get cacheAlgorithm {
+    return Intl.message(
+      'Cache Algorithm',
+      name: 'cacheAlgorithm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Respect Rules`
+  String get respectRules {
+    return Intl.message(
+      'Respect Rules',
+      name: 'respectRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS connections follow Rules`
+  String get respectRulesDesc {
+    return Intl.message(
+      'DNS connections follow Rules',
+      name: 'respectRulesDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FakeIP Range`
+  String get fakeipRange {
+    return Intl.message(
+      'FakeIP Range',
+      name: 'fakeipRange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FakeIPv6 Range`
+  String get fakeipRangeV6 {
+    return Intl.message(
+      'FakeIPv6 Range',
+      name: 'fakeipRangeV6',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FakeIP Filter Mode`
+  String get fakeIpFilterMode {
+    return Intl.message(
+      'FakeIP Filter Mode',
+      name: 'fakeIpFilterMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blacklist`
+  String get blacklist {
+    return Intl.message('Blacklist', name: 'blacklist', desc: '', args: []);
+  }
+
+  /// `Whitelist`
+  String get whitelist {
+    return Intl.message('Whitelist', name: 'whitelist', desc: '', args: []);
+  }
+
+  /// `FakeIP Filter`
+  String get fakeipFilter {
+    return Intl.message(
+      'FakeIP Filter',
+      name: 'fakeipFilter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FakeIP TTL`
+  String get fakeipTtl {
+    return Intl.message('FakeIP TTL', name: 'fakeipTtl', desc: '', args: []);
+  }
+
+  /// `Default Nameserver`
+  String get defaultNameserver {
+    return Intl.message(
+      'Default Nameserver',
+      name: 'defaultNameserver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resolve DNS servers`
+  String get defaultNameserverDesc {
+    return Intl.message(
+      'Resolve DNS servers',
+      name: 'defaultNameserverDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nameserver`
+  String get nameserver {
+    return Intl.message('Nameserver', name: 'nameserver', desc: '', args: []);
+  }
+
+  /// `Resolve domain names`
+  String get nameserverDesc {
+    return Intl.message(
+      'Resolve domain names',
+      name: 'nameserverDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use Hosts`
+  String get useHosts {
+    return Intl.message('Use Hosts', name: 'useHosts', desc: '', args: []);
+  }
+
+  /// `Use System Hosts`
+  String get useSystemHosts {
+    return Intl.message(
+      'Use System Hosts',
+      name: 'useSystemHosts',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nameserver Policy`
+  String get nameserverPolicy {
+    return Intl.message(
+      'Nameserver Policy',
+      name: 'nameserverPolicy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Specify domain-specific nameservers`
+  String get nameserverPolicyDesc {
+    return Intl.message(
+      'Specify domain-specific nameservers',
+      name: 'nameserverPolicyDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy Nameserver`
+  String get proxyNameserver {
+    return Intl.message(
+      'Proxy Nameserver',
+      name: 'proxyNameserver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resolve proxy node domains`
+  String get proxyNameserverDesc {
+    return Intl.message(
+      'Resolve proxy node domains',
+      name: 'proxyNameserverDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Direct Nameserver`
+  String get directNameserver {
+    return Intl.message(
+      'Direct Nameserver',
+      name: 'directNameserver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resolve direct domains`
+  String get directNameserverDesc {
+    return Intl.message(
+      'Resolve direct domains',
+      name: 'directNameserverDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Direct DNS Follows Policy`
+  String get directNameserverFollowPolicy {
+    return Intl.message(
+      'Direct DNS Follows Policy',
+      name: 'directNameserverFollowPolicy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fallback`
+  String get fallback {
+    return Intl.message('Fallback', name: 'fallback', desc: '', args: []);
+  }
+
+  /// `Usually offshore DNS`
+  String get fallbackDesc {
+    return Intl.message(
+      'Usually offshore DNS',
+      name: 'fallbackDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fallback Filter`
+  String get fallbackFilter {
+    return Intl.message(
+      'Fallback Filter',
+      name: 'fallbackFilter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fallback Concurrent`
+  String get fallbackConcurrent {
+    return Intl.message(
+      'Fallback Concurrent',
+      name: 'fallbackConcurrent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Query default DNS and Fallback synchronously`
+  String get fallbackConcurrentDesc {
+    return Intl.message(
+      'Query default DNS and Fallback synchronously',
+      name: 'fallbackConcurrentDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `GeoIP Code`
+  String get geoipCode {
+    return Intl.message('GeoIP Code', name: 'geoipCode', desc: '', args: []);
+  }
+
+  /// `Congestion Controller`
+  String get congestionController {
+    return Intl.message(
+      'Congestion Controller',
+      name: 'congestionController',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied package name`
+  String get copiedPackageName {
+    return Intl.message(
+      'Copied package name',
+      name: 'copiedPackageName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get Domestic IP`
+  String get switchToDomesticIp {
+    return Intl.message(
+      'Get Domestic IP',
+      name: 'switchToDomesticIp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listen`
+  String get listen {
+    return Intl.message('Listen', name: 'listen', desc: '', args: []);
+  }
+
+  /// `Original Rules`
+  String get getOriginRules {
+    return Intl.message(
+      'Original Rules',
+      name: 'getOriginRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Override Original Rules`
+  String get overrideOriginRules {
+    return Intl.message(
+      'Override Original Rules',
+      name: 'overrideOriginRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto Set System DNS`
+  String get autoSetSystemDns {
+    return Intl.message(
+      'Auto Set System DNS',
+      name: 'autoSetSystemDns',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy as GitHub Raw link`
+  String get mrsCopyRawLink {
+    return Intl.message(
+      'Copy as GitHub Raw link',
+      name: 'mrsCopyRawLink',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Bettbox for HarmonyOS is a native proxy client built with Flutter-OHOS on the powerful and flexible Mihomo (Clash.Meta) proxy kernel, deeply integrated with HarmonyOS system VPN and background long-running tasks. Our vision: Connecting Open Source and AI, Accelerating Innovation`

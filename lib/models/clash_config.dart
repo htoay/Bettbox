@@ -287,9 +287,6 @@ abstract class Tun with _$Tun {
     @Default(tunDeviceName) String device,
     @JsonKey(name: 'auto-route') @Default(false) bool autoRoute,
     @Default(TunStack.mips) TunStack stack,
-    @JsonKey(name: 'congestion-controller')
-    @Default(CongestionController.bbr3)
-    CongestionController congestionController,
     @JsonKey(name: 'dns-mode') TunDnsMode? dnsMode,
     @JsonKey(name: 'dns-hijack') @Default(['any:53']) List<String> dnsHijack,
     @JsonKey(name: 'route-address') @Default([]) List<String> routeAddress,
@@ -329,10 +326,14 @@ extension TunExt on Tun {
     List<String>? bypassPrivateRouteAddress,
   }) {
     if (system.isDesktop) {
+      final dnsMode = dnsHijack.isNotEmpty
+          ? TunDnsMode.hijack
+          : TunDnsMode.disabled;
       if (bypassPrivateRoute) {
         return copyWith(
           autoRoute: true,
           autoRedirect: system.isLinux,
+          dnsMode: dnsMode,
           routeAddress: [],
           routeExcludeAddress:
               bypassPrivateRouteAddress ??
@@ -342,6 +343,7 @@ extension TunExt on Tun {
       return copyWith(
         autoRoute: true,
         autoRedirect: system.isLinux,
+        dnsMode: dnsMode,
         routeAddress: [],
         routeExcludeAddress: [],
       );
@@ -366,7 +368,6 @@ abstract class FallbackFilter with _$FallbackFilter {
     @Default(false) bool geoip,
     @Default('CN') @JsonKey(name: 'geoip-code') String geoipCode,
     @Default([]) List<String> ipcidr,
-    @Default([]) List<String> domain,
   }) = _FallbackFilter;
   factory FallbackFilter.fromJson(Map<String, Object?> json) =>
       _$FallbackFilterFromJson(json);
@@ -384,7 +385,7 @@ abstract class Dns with _$Dns {
     @Default(true) @JsonKey(name: 'use-hosts') bool useHosts,
     @Default(true) @JsonKey(name: 'use-system-hosts') bool useSystemHosts,
     @Default(false) @JsonKey(name: 'respect-rules') bool respectRules,
-    @Default(false) bool ipv6,
+    @Default(true) bool ipv6,
     @Default(['114.114.114.114'])
     @JsonKey(name: 'default-nameserver')
     List<String> defaultNameserver,
@@ -400,18 +401,18 @@ abstract class Dns with _$Dns {
     FilterMode fakeIpFilterMode,
     @Default([
       '*',
-      'geosite:private',
-      'geosite:category-ntp',
-      'geosite:geolocation-cn',
-      'geosite:connectivity-check',
+      'rule-set:private_bettbox',
+      'rule-set:fakeip-filter_bettbox',
+      'rule-set:category-ntp_bettbox',
+      'rule-set:cn_bettbox',
+      'rule-set:connectivity-check_bettbox',
     ])
     @JsonKey(name: 'fake-ip-filter')
     List<String> fakeIpFilter,
     @Default(1) @JsonKey(name: 'fake-ip-ttl') int fakeIpTtl,
     @Default({
-      '+.internal.corp.com': '10.0.0.1',
-      'geosite:cn': '119.29.29.29',
-      'geosite:private': 'system',
+      'rule-set:cn_bettbox': '119.29.29.29',
+      'rule-set:private_bettbox': 'system',
       '*': 'system',
     })
     @JsonKey(name: 'nameserver-policy')
@@ -439,11 +440,48 @@ abstract class Dns with _$Dns {
 
   factory Dns.safeDnsFromJson(Map<String, Object?> json) {
     try {
-      return Dns.fromJson(json);
+      return Dns.fromJson(_migrateLegacyGeoSite(json));
     } catch (_) {
       return const Dns();
     }
   }
+}
+
+const _legacyFakeIpFilter = {
+  'geosite:private': [
+    'rule-set:private_bettbox',
+    'rule-set:fakeip-filter_bettbox',
+  ],
+  'geosite:category-ntp': ['rule-set:category-ntp_bettbox'],
+  'geosite:geolocation-cn': ['rule-set:cn_bettbox'],
+  'geosite:connectivity-check': ['rule-set:connectivity-check_bettbox'],
+};
+
+const _legacyNameserverPolicy = {
+  'geosite:cn': 'rule-set:cn_bettbox',
+  'geosite:private': 'rule-set:private_bettbox',
+};
+
+Map<String, Object?> _migrateLegacyGeoSite(Map<String, Object?> json) {
+  final filter = json['fake-ip-filter'];
+  final policy = json['nameserver-policy'];
+  final migrateFilter =
+      filter is List && filter.any(_legacyFakeIpFilter.containsKey);
+  final migratePolicy =
+      policy is Map && policy.keys.any(_legacyNameserverPolicy.containsKey);
+  if (!migrateFilter && !migratePolicy) return json;
+  return {
+    ...json,
+    if (migrateFilter)
+      'fake-ip-filter': {
+        for (final item in filter) ...(_legacyFakeIpFilter[item] ?? [item]),
+      }.toList(),
+    if (migratePolicy)
+      'nameserver-policy': <String, Object?>{
+        for (final MapEntry(:key, :value) in policy.entries)
+          _legacyNameserverPolicy[key] ?? '$key': value,
+      },
+  };
 }
 
 extension DnsExt on Dns {
@@ -459,7 +497,7 @@ abstract class Ntp with _$Ntp {
   const factory Ntp({
     @Default(true) bool enable,
     @Default(false) @JsonKey(name: 'write-to-system') bool writeToSystem,
-    @Default('time.apple.com') String server,
+    @Default(defaultNtpServer) String server,
     @Default(123) int port,
     @Default(60) int interval,
   }) = _Ntp;
@@ -729,8 +767,8 @@ abstract class ClashConfig with _$ClashConfig {
     @JsonKey(name: 'skip-auth-prefixes')
     List<String> skipAuthPrefixes,
     @Default(LogLevel.error) @JsonKey(name: 'log-level') LogLevel logLevel,
-    @Default(false) bool ipv6,
-    @Default(FindProcessMode.off)
+    @Default(true) bool ipv6,
+    @Default(FindProcessMode.always)
     @JsonKey(
       name: 'find-process-mode',
       unknownEnumValue: FindProcessMode.always,
@@ -741,6 +779,7 @@ abstract class ClashConfig with _$ClashConfig {
     int keepAliveInterval,
     @Default(true) @JsonKey(name: 'unified-delay') bool unifiedDelay,
     @Default(true) @JsonKey(name: 'tcp-concurrent') bool tcpConcurrent,
+    @Default('') @JsonKey(name: 'interface-name') String interfaceName,
     @Default(defaultTun) @JsonKey(fromJson: Tun.safeFormJson) Tun tun,
     @Default(defaultDns) @JsonKey(fromJson: Dns.safeDnsFromJson) Dns dns,
     @Default(defaultNtp) @JsonKey(fromJson: Ntp.safeNtpFromJson) Ntp ntp,
@@ -774,6 +813,7 @@ abstract class ClashConfig with _$ClashConfig {
 
   factory ClashConfig.safeFormJson(Map<String, Object?>? json) {
     if (json == null) {
+      // 鸿蒙移动端默认开启进程匹配（分应用代理依赖）
       return system.isMobile
           ? const ClashConfig(findProcessMode: FindProcessMode.always)
           : defaultClashConfig;

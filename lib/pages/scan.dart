@@ -29,6 +29,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   StreamSubscription<Object?>? _subscription;
   bool _handled = false;
   bool _permissionDenied = false;
+  bool _starting = false;
+  // 鸿蒙走原生 Scan Kit 时置位：原生返回前不挂 MobileScanner（无鸿蒙实现，
+  // 挂载即报插件异常/黑屏）。上游 v1.19.8 重构权限流程后已无此字段，本侧保留。
   bool _permissionChecking = false;
 
   @override
@@ -55,12 +58,11 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     }
     WidgetsBinding.instance.addObserver(this);
     _subscription = controller.barcodes.listen(_handleBarcode);
-    // Check permission and start camera
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.afterRouteTransition(() {
         if (!mounted) return;
-        _checkCameraPermission();
+        _ensureCameraStarted();
       });
     });
   }
@@ -89,8 +91,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
         return;
       case AppLifecycleState.resumed:
         _subscription ??= controller.barcodes.listen(_handleBarcode);
-        // Recheck permission when returning from settings
-        _checkCameraPermission();
+        _ensureCameraStarted();
         return;
       case AppLifecycleState.inactive:
         unawaited(_subscription?.cancel());
@@ -102,77 +103,71 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _checkCameraPermission() async {
-    if (_permissionChecking) return; // Prevent concurrent checks
+  Future<void> _ensureCameraStarted() async {
+    if (_starting) return;
 
-    setState(() {
-      _permissionChecking = true;
-    });
-
-    final granted = await app.hasCameraPermission();
-    if (!mounted) return;
-
-    setState(() {
-      _permissionDenied = !granted;
-      _permissionChecking = false;
-    });
-
-    if (!granted) {
-      if (controller.value.isRunning) {
-        await controller.stop();
+    _starting = true;
+    try {
+      if (_permissionDenied && !await app.hasCameraPermission()) {
+        return;
       }
-    } else {
-      // Start camera only if not already running
-      if (!controller.value.isRunning && !controller.value.isInitialized) {
-        try {
-          await controller.start();
-        } catch (e) {
-          // Handle start error silently
-          commonPrint.warn('Camera start error: $e');
-        }
+      if (!controller.value.isRunning) {
+        await controller.start();
       }
+      if (!mounted) return;
+      final denied =
+          controller.value.error?.errorCode ==
+          MobileScannerErrorCode.permissionDenied;
+      if (denied != _permissionDenied) {
+        setState(() {
+          _permissionDenied = denied;
+        });
+      }
+    } catch (e) {
+      commonPrint.log('Camera start error: $e');
+    } finally {
+      _starting = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    double sideLength = min(400, MediaQuery.of(context).size.width * 0.67);
+    double sideLength = min(400, MediaQuery.sizeOf(context).width * 0.67);
     final scanWindow = Rect.fromCenter(
       center: MediaQuery.sizeOf(context).center(Offset.zero),
       width: sideLength,
       height: sideLength,
     );
+    // 鸿蒙原生扫码进行中：只渲染黑底占位
+    if (_permissionChecking) {
+      return Scaffold(body: Center(child: Container(color: Colors.black)));
+    }
     return Scaffold(
       body: Stack(
         children: [
           Center(
-            child: _permissionChecking
-                ? Container(color: Colors.black)
-                : (_permissionDenied
-                      ? _buildPermissionDeniedView(context)
-                      : MobileScanner(
-                          controller: controller,
-                          scanWindow: scanWindow,
-                          errorBuilder: (context, error) {
-                            if (error.errorCode ==
-                                MobileScannerErrorCode.permissionDenied) {
-                              if (!_permissionDenied && mounted) {
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  if (!mounted) return;
-                                  setState(() {
-                                    _permissionDenied = true;
-                                  });
-                                });
-                              }
-                              unawaited(controller.stop());
-                              return _buildPermissionDeniedView(context);
-                            }
-                            return _buildErrorView(context, error);
-                          },
-                        )),
+            child: MobileScanner(
+              controller: controller,
+              scanWindow: scanWindow,
+              errorBuilder: (context, error) {
+                if (error.errorCode ==
+                    MobileScannerErrorCode.permissionDenied) {
+                  if (!_starting && !_permissionDenied && mounted) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      setState(() {
+                        _permissionDenied = true;
+                      });
+                    });
+                    unawaited(controller.stop());
+                  }
+                  return _buildPermissionDeniedView(context);
+                }
+                return _buildErrorView(context, error);
+              },
+            ),
           ),
+          if (_permissionDenied) _buildPermissionDeniedView(context),
           if (!_permissionDenied)
             CustomPaint(painter: ScannerOverlay(scanWindow: scanWindow)),
           AppBar(

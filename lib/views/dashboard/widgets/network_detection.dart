@@ -1,6 +1,7 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
@@ -29,259 +30,84 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
     return String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
   }
 
-  void _showIpClickBehaviorSettings() {
-    final isZh = Localizations.localeOf(context).languageCode == 'zh';
-    globalState.showCommonDialog<IpClickBehavior>(
-      child: CommonDialog(
-        title: appLocalizations.ipClickBehavior,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.sync),
-              title: Text(appLocalizations.manualRefreshIp),
-              onTap: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                detectionState.manualRefresh();
-              },
-            ),
-            if (isZh)
-              ListTile(
-                leading: Icon(Icons.public),
-                title: Text(appLocalizations.switchToDomesticIp),
-                onTap: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                  detectionState.switchToDomesticIp();
-                },
-              ),
-            ListTile(
-              leading: Icon(Icons.security),
-              title: Text(appLocalizations.ipPrivacyProtection),
-              onTap: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                detectionState.toggleIpPrivacy();
-              },
-            ),
-          ],
+  Widget _buildSettingsButton(BuildContext context) {
+    final ipRiskAlert = ref.watch(
+      appSettingProvider.select((state) => state.ipRiskAlert),
+    );
+    return CommonPopupBox(
+      targetBuilder: (open) => IconButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => open(offset: const Offset(0, 20)),
+        icon: Icon(
+          size: 16.ap,
+          Icons.settings_outlined,
+          color: context.colorScheme.onSurfaceVariant,
         ),
       ),
-    );
-  }
-
-  Widget _buildStatTile({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-    Widget? action,
-    Widget? customValue,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 14, color: iconColor),
+      popup: CommonPopupMenu(
+        items: [
+          PopupMenuItemData(
+            icon: Icons.sync,
+            label: appLocalizations.manualRefreshIp,
+            onPressed: detectionState.manualRefresh,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 1),
-                customValue ??
-                    SelectableText(
-                      value,
-                      style: context.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                    ),
-              ],
-            ),
+          PopupMenuItemData(
+            icon: detectionState.isIpMasked
+                ? Icons.check_circle_rounded
+                : Icons.security,
+            label: appLocalizations.ipPrivacyProtection,
+            onPressed: detectionState.toggleIpPrivacy,
           ),
-          if (action != null) ...[const SizedBox(width: 4), action],
+          PopupMenuItemData(
+            icon: ipRiskAlert
+                ? Icons.check_circle_rounded
+                : Icons.circle_outlined,
+            label: appLocalizations.ipRiskAlert,
+            onPressed: () {
+              ref
+                  .read(appSettingProvider.notifier)
+                  .updateState(
+                    (state) => state.copyWith(ipRiskAlert: !ipRiskAlert),
+                  );
+              detectionState.refreshRiskCheck();
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildIconButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    return IconButton(
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-      icon: Icon(icon, size: 15, color: context.colorScheme.onSurfaceVariant),
-      tooltip: tooltip,
-      onPressed: onPressed,
+  Widget _buildRiskMark(BuildContext context, Widget child) {
+    return ValueListenableBuilder<String?>(
+      valueListenable: detectionState.riskyIp,
+      builder: (_, ip, child) {
+        final ipText = child ?? const SizedBox();
+        if (ip == null || ip != detectionState.rawIpInfo?.ip) return ipText;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_rounded,
+              size: 14,
+              color: context.colorScheme.error,
+            ),
+            const SizedBox(width: 4),
+            Flexible(child: ipText),
+          ],
+        );
+      },
+      child: child,
     );
   }
 
   void _showMoreIpInfoDialog() {
     final rawIpInfo = detectionState.rawIpInfo;
     if (rawIpInfo == null) return;
-
-    final flagEmoji = rawIpInfo.countryCode.isNotEmpty
-        ? _countryCodeToEmoji(rawIpInfo.countryCode)
-        : '';
-
-    final countryName =
-        (rawIpInfo.country != null && rawIpInfo.country!.isNotEmpty)
-        ? rawIpInfo.country!
-        : (rawIpInfo.countryCode.isNotEmpty ? rawIpInfo.countryCode : '');
-
-    final countryContinent = [
-      if (countryName.isNotEmpty) countryName,
-      if (rawIpInfo.continent != null && rawIpInfo.continent!.isNotEmpty)
-        rawIpInfo.continent,
-    ].join(' · ');
-
-    final provinceCity = [
-      if (rawIpInfo.province != null && rawIpInfo.province!.isNotEmpty)
-        rawIpInfo.province,
-      if (rawIpInfo.city != null &&
-          rawIpInfo.city!.isNotEmpty &&
-          rawIpInfo.city != rawIpInfo.province)
-        rawIpInfo.city,
-    ].join(' · ');
-
-    final ispText = (rawIpInfo.isp != null && rawIpInfo.isp!.isNotEmpty)
-        ? rawIpInfo.isp!
-        : '';
-
-    final operatorText = [
-      if (rawIpInfo.asName != null &&
-          rawIpInfo.asName!.isNotEmpty &&
-          rawIpInfo.asName != rawIpInfo.isp &&
-          rawIpInfo.asName != rawIpInfo.asDomain)
-        rawIpInfo.asName,
-      if (rawIpInfo.asn != null && rawIpInfo.asn!.isNotEmpty) rawIpInfo.asn,
-    ].join(' · ');
-
-    final items = <Widget>[
-      _buildStatTile(
-        icon: Icons.location_on_rounded,
-        iconColor: context.colorScheme.primary,
-        label: appLocalizations.ipAddress,
-        value: rawIpInfo.ip,
-        action: _buildIconButton(
-          icon: Icons.open_in_new,
-          tooltip: appLocalizations.viewDetailedIpData,
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop();
-            globalState.openUrl('https://www.ip2location.com/demo');
-          },
-        ),
-      ),
-      if (countryContinent.isNotEmpty || flagEmoji.isNotEmpty)
-        _buildStatTile(
-          icon: Icons.flag_rounded,
-          iconColor: context.colorScheme.secondary,
-          label: appLocalizations.countryOrRegion,
-          value: countryContinent,
-          customValue: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (flagEmoji.isNotEmpty) ...[
-                Text(
-                  flagEmoji,
-                  style: TextStyle(
-                    fontFamily: FontFamily.twEmoji.value,
-                    fontFamilyFallback: [FontFamily.twEmoji.value],
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(width: 6),
-              ],
-              Flexible(
-                child: SelectableText(
-                  countryContinent,
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
-        ),
-      if (provinceCity.isNotEmpty)
-        _buildStatTile(
-          icon: Icons.location_city_rounded,
-          iconColor: context.colorScheme.tertiary,
-          label: appLocalizations.provinceAndCity,
-          value: provinceCity,
-        ),
-      if (operatorText.isNotEmpty)
-        _buildStatTile(
-          icon: Icons.business_rounded,
-          iconColor: context.colorScheme.secondary,
-          label: appLocalizations.operatorOrAsn,
-          value: operatorText,
-        ),
-      if (ispText.isNotEmpty)
-        _buildStatTile(
-          icon: Icons.router_rounded,
-          iconColor: context.colorScheme.primary,
-          label: appLocalizations.isp,
-          value: ispText,
-        ),
-      if (rawIpInfo.asDomain != null && rawIpInfo.asDomain!.isNotEmpty)
-        _buildStatTile(
-          icon: Icons.link_rounded,
-          iconColor: context.colorScheme.tertiary,
-          label: appLocalizations.organizationDomain,
-          value: rawIpInfo.asDomain!,
-        ),
-    ];
-
-    globalState.showCommonDialog(
-      child: CommonDialog(
-        title: appLocalizations.moreIpInfo,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop();
-            },
-            child: Text(appLocalizations.confirm),
-          ),
-        ],
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                items[i],
-                if (i < items.length - 1) const SizedBox(height: 8),
-              ],
-            ],
-          ),
-        ),
-      ),
+    showIpDetailDialog(
+      context,
+      rawIpInfo.ip,
+      preloaded: rawIpInfo,
+      showRisk: detectionState.riskyIp.value == rawIpInfo.ip,
     );
   }
 
@@ -318,18 +144,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
             ),
           ),
           const SizedBox(width: 2),
-          AspectRatio(
-            aspectRatio: 1,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: _showIpClickBehaviorSettings,
-              icon: Icon(
-                size: 16.ap,
-                Icons.settings_outlined,
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
+          AspectRatio(aspectRatio: 1, child: _buildSettingsButton(context)),
         ],
       ),
     );
@@ -381,11 +196,20 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                 ].where((item) => item?.isNotEmpty ?? false).join(' ');
           final countryCode = ipInfo?.countryCode ?? '';
           final ipText = ipInfo != null
-              ? Text(
-                  ipInfo.ip,
-                  style: context.textTheme.bodyMedium?.toLight.adjustSize(1),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              ? _buildRiskMark(
+                  context,
+                  Text(
+                    ipInfo.ip,
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                      fontFeatures: const [
+                        FontFeature.tabularFigures(),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 )
               : state.isLoading == false
               ? Text(
@@ -405,7 +229,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                   ),
                 );
           return CommonCard(
-            onPressed: ipInfo != null ? _showMoreIpInfoDialog : () {},
+            onPressed: ipInfo != null ? _showMoreIpInfoDialog : null,
             child: DashboardDecor(
               mark: countryCode.length == 2
                   ? DashboardDecor.flag(countryCode, 80)
@@ -425,7 +249,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            height: globalState.measure.bodyMediumHeight + 2,
+                            height: globalState.measure.titleMediumHeight + 2,
                             child: Align(
                               alignment: AlignmentDirectional.centerStart,
                               child: ipText,
@@ -450,7 +274,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                     Padding(
                       padding: baseInfoEdgeInsets.copyWith(top: 0),
                       child: SizedBox(
-                        height: globalState.measure.bodyMediumHeight + 2,
+                        height: globalState.measure.titleMediumHeight + 2,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
@@ -495,7 +319,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
           final ipInfo = state.ipInfo;
           final isLoading = state.isLoading;
           return CommonCard(
-            onPressed: ipInfo != null ? _showMoreIpInfoDialog : () {},
+            onPressed: ipInfo != null ? _showMoreIpInfoDialog : null,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -543,15 +367,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                       SizedBox(width: 2),
                       AspectRatio(
                         aspectRatio: 1,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: _showIpClickBehaviorSettings,
-                          icon: Icon(
-                            size: 16.ap,
-                            Icons.settings_outlined,
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
+                        child: _buildSettingsButton(context),
                       ),
                     ],
                   ),
@@ -562,13 +378,16 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                     height: globalState.measure.bodyMediumHeight + 2,
                     child: FadeThroughBox(
                       child: ipInfo != null
-                          ? TooltipText(
-                              text: Text(
-                                ipInfo.ip,
-                                style: context.textTheme.bodyMedium?.toLight
-                                    .adjustSize(1),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          ? _buildRiskMark(
+                              context,
+                              TooltipText(
+                                text: Text(
+                                  ipInfo.ip,
+                                  style: context.textTheme.bodyMedium?.toLight
+                                      .adjustSize(1),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             )
                           : FadeThroughBox(
